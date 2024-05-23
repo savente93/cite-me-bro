@@ -11,10 +11,10 @@ use nom::{
         complete::{line_ending, one_of},
         is_space,
     },
-    combinator::map,
-    multi::{many1, separated_list0, separated_list1},
-    sequence::{delimited, pair, separated_pair, terminated},
-    AsChar, Err, IResult,
+    combinator::{eof, map},
+    multi::{many1, many_till, separated_list0, separated_list1},
+    sequence::{delimited, pair, preceded, separated_pair, terminated},
+    AsChar, Err, IResult, Parser,
 };
 
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
@@ -28,8 +28,9 @@ impl<'a> NameComponent<'a> {
             components: Vec::new(),
         }
     }
-    pub fn merge(&mut self, other: NameComponent<'a>) {
+    pub fn merge(mut self, other: NameComponent<'a>) -> Self {
         self.components.extend(other.components);
+        self
     }
 }
 
@@ -50,67 +51,58 @@ impl<'a, 'b: 'a> From<&'b str> for NameComponent<'a> {
         }
     }
 }
-fn initial(input: &str) -> IResult<&str, &str> {
-    let (tail, initial) = terminated(inner_word, tag("."))(input)?;
-    let (tail, _) = trim_left(tail)?;
-    Ok((tail, initial))
-}
-fn trim_left(input: &str) -> IResult<&str, ()> {
-    let (tail, _whitespace) = take_while(|c| is_space(c as u8))(input)?;
-    Ok((tail, ()))
+fn whitespace(input: &str) -> IResult<&str, &str> {
+    let (tail, whitespace) = take_while(|c| is_space(c as u8))(input)?;
+    Ok((tail, whitespace))
 }
 
-fn inner_word(input: &str) -> IResult<&str, &str> {
+fn trim0(input: &str) -> IResult<&str, ()> {
+    match whitespace(input) {
+        Ok((t, _)) => Ok((t, ())),
+        Result::Err(_) => Ok((input, ())),
+    }
+}
+
+fn word(input: &str) -> IResult<&str, &str> {
     let (tail, word) = take_while1(AsChar::is_alpha)(input)?;
-    let (tail, _) = trim_left(tail)?;
     Ok((tail, word))
 }
-fn outer_word(input: &str) -> IResult<&str, &str> {
-    let (tail, word) = terminated(inner_word, one_of(".,_"))(input)?;
-    let (tail, _) = trim_left(tail)?;
 
-    Ok((tail, word))
+fn space_seperated_words(input: &str) -> IResult<&str, Vec<&str>> {
+    separated_list0(whitespace, word)(input)
 }
 
 fn last_first(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
     let (tail, (last, first)) = separated_pair(
-        hyphenated_name_component_trimmed,
-        tag(","),
-        hyphenated_name_component_trimmed,
-    )(input)?;
-
-    Ok((tail, FullName { first, last }))
-}
-fn first_last(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
-    let (tail, (first, last)) = separated_pair(
-        many1(hyphenated_name_component_trimmed),
-        trim_left,
-        hyphenated_name_component_trimmed,
+        space_seperated_words,
+        alt((tag(", "), tag(","))),
+        space_seperated_words,
     )(input)?;
 
     Ok((
         tail,
         FullName {
-            first: first.fold(),
-            last,
+            last: last.into(),
+            first: first.into(),
         },
     ))
 }
 
-fn hyphenated_name_component_trimmed<'a, 'b: 'a>(
-    input: &'b str,
-) -> IResult<&'b str, NameComponent<'a>> {
-    let (tail, _whitespace) = trim_left(input)?;
-    let (tail, trimmed_components) = separated_list0(tag("-"), inner_word)(tail)?;
-    let components = NameComponent::from(trimmed_components);
-    Ok((tail, components))
-}
+// fn first_last(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
+//     let (tail, (words, last_word)) = many_till(space_seperated_words, last_word)(input)?;
+//     let first = words.into_iter().fold(Vec::new(), |mut acc, n| {
+//         acc.extend(n);
+//         acc
+//     });
 
-fn hyphenated_name_component<'a, 'b: 'a>(input: &'b str) -> IResult<&'b str, NameComponent<'a>> {
-    let (tail, components) = separated_list1(tag("-"), inner_word)(input)?;
-    let (tail, _) = trim_left(tail)?;
-    Ok((tail, components.into()))
-}
+//     Ok((
+//         tail,
+//         FullName {
+//             first: first.into(),
+//             last: last_word.into(),
+//         },
+//     ))
+// }
 
 #[cfg(test)]
 mod test {
@@ -118,35 +110,7 @@ mod test {
     use super::*;
     use anyhow::Result;
     #[test]
-    fn test_name_single_initial() -> Result<()> {
-        let (tail, head) = initial("J. Doe")?;
-        assert_eq!(head, "J");
-        assert_eq!(tail, "Doe");
-        Ok(())
-    }
-
-    #[test]
-    fn test_name_component_hypenated() -> Result<()> {
-        let test_name = "Hans-Jan-Jaap Pietersen";
-        let (tail, name_parts) = hyphenated_name_component(test_name)?;
-
-        assert_eq!(tail, "Pietersen");
-        assert_eq!(name_parts.components, vec!["Hans", "Jan", "Jaap"]);
-
-        Ok(())
-    }
-    #[test]
-    fn test_name_component_non_hypenated() -> Result<()> {
-        let test_name = "Jaap Pietersen";
-        let (tail, name_parts) = hyphenated_name_component(test_name)?;
-
-        assert_eq!(tail, "Pietersen");
-        assert_eq!(name_parts.components, vec!["Jaap"]);
-
-        Ok(())
-    }
-    #[test]
-    fn test_last_first_single() -> Result<()> {
+    fn test_last_first() -> Result<()> {
         let name = "Newton, Isaac";
         let (tail, name) = last_first(name)?;
         assert_eq!(tail, "");
@@ -162,35 +126,50 @@ mod test {
     }
 
     #[test]
-    fn test_first_last_single() -> Result<()> {
-        let name = "Isaac Newton";
-        let (tail, name) = first_last(name)?;
+    fn test_last_first_first() -> Result<()> {
+        let name = "Jackson, Michael Joseph";
+        let (tail, name) = last_first(name)?;
         assert_eq!(tail, "");
         assert_eq!(
             name,
             FullName {
-                first: "Isaac".into(),
+                first: vec!["Michael", "Joseph"].into(),
                 last: "Newton".into()
             }
         );
 
         Ok(())
     }
-    #[test]
-    fn test_first_first_last() -> Result<()> {
-        let name = "Michael Joseph Jackson";
-        let (tail, name) = first_last(name)?;
-        assert_eq!(tail, "");
-        assert_eq!(
-            name,
-            FullName {
-                first: vec!["Michael", "Joseph"].into(),
-                last: "Jackson".into()
-            }
-        );
+    // #[test]
+    // fn test_first_last() -> Result<()> {
+    //     let name = "Isaac Newton";
+    //     let (tail, name) = first_last(name)?;
+    //     assert_eq!(tail, "");
+    //     assert_eq!(
+    //         name,
+    //         FullName {
+    //             first: "Isaac".into(),
+    //             last: "Newton".into()
+    //         }
+    //     );
 
-        Ok(())
-    }
+    //     Ok(())
+    // }
+    // #[test]
+    // fn test_first_first_last() -> Result<()> {
+    //     let name = "Michael Joseph Jackson";
+    //     let (tail, name) = first_last(name)?;
+    //     assert_eq!(tail, "");
+    //     assert_eq!(
+    //         name,
+    //         FullName {
+    //             first: vec!["Michael", "Joseph"].into(),
+    //             last: "Jackson".into()
+    //         }
+    //     );
+
+    //     Ok(())
+    // }
 
     //     }
     // Brinch Hansen, Per
@@ -199,7 +178,7 @@ mod test {
     // Ford, Jr., Henry
     //% The King of Pop: Michael Joseph Jackson
     // author = ""
-    // author = "Jackson, Michael Joseph"
+    // author = ""
     // author = "Jackson, Michael J"
     // author = "Jackson, M J"
 
