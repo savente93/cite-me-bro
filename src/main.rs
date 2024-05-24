@@ -1,5 +1,4 @@
 use clap::Parser;
-use std::io;
 use std::path::PathBuf;
 // use styles::CitationStyles;
 
@@ -21,8 +20,8 @@ struct Args {
 
 use nom::{
     bytes::complete::{tag, take_while},
-    character::complete::{not_line_ending, space0, space1},
-    combinator::{all_consuming, map},
+    character::complete::{space0, space1},
+    combinator::all_consuming,
     multi::separated_list1,
     sequence::{delimited, separated_pair},
     IResult,

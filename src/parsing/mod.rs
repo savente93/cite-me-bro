@@ -87,21 +87,17 @@ fn last_first(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
     ))
 }
 
-// fn first_last(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
-//     let (tail, (words, last_word)) = many_till(space_seperated_words, last_word)(input)?;
-//     let first = words.into_iter().fold(Vec::new(), |mut acc, n| {
-//         acc.extend(n);
-//         acc
-//     });
-
-//     Ok((
-//         tail,
-//         FullName {
-//             first: first.into(),
-//             last: last_word.into(),
-//         },
-//     ))
-// }
+fn first_last(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
+    let (tail, mut words) = space_seperated_words(input)?;
+    let last = words.remove(&words.len() - 1);
+    Ok((
+        tail,
+        FullName {
+            first: words.into(),
+            last: last.into(),
+        },
+    ))
+}
 
 #[cfg(test)]
 mod test {
@@ -139,45 +135,42 @@ mod test {
 
         Ok(())
     }
-    // #[test]
-    // fn test_first_last() -> Result<()> {
-    //     let name = "Isaac Newton";
-    //     let (tail, name) = first_last(name)?;
-    //     assert_eq!(tail, "");
-    //     assert_eq!(
-    //         name,
-    //         FullName {
-    //             first: "Isaac".into(),
-    //             last: "Newton".into()
-    //         }
-    //     );
+    #[test]
+    fn test_first_last() -> Result<()> {
+        let name = "Isaac Newton";
+        let (tail, name) = first_last(name)?;
+        assert_eq!(tail, "");
+        assert_eq!(
+            name,
+            FullName {
+                first: "Isaac".into(),
+                last: "Newton".into()
+            }
+        );
 
-    //     Ok(())
-    // }
-    // #[test]
-    // fn test_first_first_last() -> Result<()> {
-    //     let name = "Michael Joseph Jackson";
-    //     let (tail, name) = first_last(name)?;
-    //     assert_eq!(tail, "");
-    //     assert_eq!(
-    //         name,
-    //         FullName {
-    //             first: vec!["Michael", "Joseph"].into(),
-    //             last: "Jackson".into()
-    //         }
-    //     );
+        Ok(())
+    }
+    #[test]
+    fn test_first_first_last() -> Result<()> {
+        let name = "Michael Joseph Jackson";
+        let (tail, name) = first_last(name)?;
+        assert_eq!(tail, "");
+        assert_eq!(
+            name,
+            FullName {
+                first: vec!["Michael", "Joseph"].into(),
+                last: "Jackson".into()
+            }
+        );
 
-    //     Ok(())
-    // }
+        Ok(())
+    }
 
     //     }
     // Brinch Hansen, Per
     // Charles Louis Xavier Joseph de la Vallee Poussin -> First(Charles Louis Xavier Joseph) von(de la) Last(Vallee Poussin)
     //  "{Barnes and Noble, Inc.}" "{Barnes and} {Noble, Inc.}" "{Barnes} {and} {Noble,} {Inc.}"
     // Ford, Jr., Henry
-    //% The King of Pop: Michael Joseph Jackson
-    // author = ""
-    // author = ""
     // author = "Jackson, Michael J"
     // author = "Jackson, M J"
 
