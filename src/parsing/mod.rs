@@ -8,7 +8,7 @@ use nom::{
     branch::alt,
     bytes::complete::{tag, take_while, take_while1},
     character::{
-        complete::{line_ending, one_of},
+        complete::{line_ending, one_of, space0, space1},
         is_space,
     },
     combinator::{eof, map},
@@ -69,16 +69,15 @@ fn word(input: &str) -> IResult<&str, &str> {
 }
 
 fn space_seperated_words(input: &str) -> IResult<&str, Vec<&str>> {
-    separated_list0(whitespace, word)(input)
+    separated_list1(space1, word)(input)
 }
 
 fn last_first(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
     let (tail, (last, first)) = separated_pair(
         space_seperated_words,
-        alt((tag(", "), tag(","))),
+        delimited(space0, tag(","), space0),
         space_seperated_words,
     )(input)?;
-
     Ok((
         tail,
         FullName {
@@ -134,7 +133,7 @@ mod test {
             name,
             FullName {
                 first: vec!["Michael", "Joseph"].into(),
-                last: "Newton".into()
+                last: "Jackson".into()
             }
         );
 
