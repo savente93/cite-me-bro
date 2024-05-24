@@ -165,6 +165,53 @@ mod test {
 
         Ok(())
     }
+    #[test]
+    fn test_von_last_initial() -> Result<()> {
+        let name = "van      Beethoven ,    L";
+        let (tail, name) = last_first(name)?;
+        assert_eq!(tail, "");
+        assert_eq!(
+            name,
+            FullName {
+                first: vec!["L"].into(),
+                last: vec!["van", "Beethoven"].into()
+            }
+        );
+
+        Ok(())
+    }
+    #[test]
+    fn test_von_last_first() -> Result<()> {
+        let name = "van Beethoven, Ludwig";
+        let (tail, name) = last_first(name)?;
+        assert_eq!(tail, "");
+        assert_eq!(
+            name,
+            FullName {
+                first: vec!["Ludwig"].into(),
+                last: vec!["van", "Beethoven"].into()
+            }
+        );
+
+        Ok(())
+    }
+    #[test]
+    fn test_first_von_last() -> Result<()> {
+        let name = "Ludwig van Beethoven";
+        let (tail, name) = first_last(name)?;
+        assert_eq!(tail, "");
+        assert_eq!(
+            name,
+            FullName {
+                first: vec!["Ludwig", "van"].into(),
+                last: "Beethoven".into()
+            }
+        );
+
+        Ok(())
+    }
+    // author = ""
+    // author = ""
 
     //     }
     // Brinch Hansen, Per
@@ -178,9 +225,6 @@ mod test {
     // author = "Stoner, Jr, Winifred Sackville"
 
     // % An exmaple with a particle
-    // author = "Ludwig van Beethoven"
-    // author = "van Beethoven, Ludwig"
-    // author = "van Beethoven, L"
 
     // % Corporate names or names of consortia
     // author = "{Barnes and Noble, Inc.}"
