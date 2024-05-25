@@ -61,7 +61,7 @@ fn trim0(input: &str) -> IResult<&str, ()> {
 }
 
 fn word(input: &str) -> IResult<&str, &str> {
-    let (tail, word) = take_while1(AsChar::is_alpha)(input)?;
+    let (tail, word) = alt((brace_quoted_literal, take_while1(AsChar::is_alpha)))(input)?;
     Ok((tail, word))
 }
 
@@ -400,6 +400,16 @@ mod test {
             last: "Knuth".into()
         }
     );
+    parse_test!(
+        test_quoted_first_last,
+        first_last,
+        "Ronald {Van der Jawel}",
+        FullName {
+            first: vec!["Ronald"].into(),
+            last: "Van der Jawel".into()
+        }
+    );
+
     // Charles Louis Xavier Joseph de la Vallee Poussin -> First(Charles Louis Xavier Joseph) von(de la) Last(Vallee Poussin)
     // Ford, Jr., Henry
 
