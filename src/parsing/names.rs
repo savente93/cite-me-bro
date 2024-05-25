@@ -82,7 +82,7 @@ fn trim0(input: &str) -> IResult<&str, ()> {
 fn word(input: &str) -> IResult<&str, &str> {
     let (tail, word) = alt((
         brace_quoted_literal,
-        verify(take_while1(AsChar::is_alpha), |w: &str| {
+        verify(take_while1(|c: char| c.is_alphabetic()), |w: &str| {
             w.to_lowercase() != "and"
         }),
     ))(input)?;
@@ -1205,17 +1205,17 @@ mod test {
                 FullName {
                     first: "Лев".into(),
                     last: "Толстой".into(),
-                    von: "".into(),
-                    title: "".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
                 },
             ),
             (
                 "Αριστοτέλης",
                 FullName {
-                    first: "Αριστοτέλης".into(),
-                    last: "".into(),
-                    von: "".into(),
-                    title: "".into(),
+                    first: vec![].into(),
+                    last: "Αριστοτέλης".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
                 },
             ),
             (
@@ -1223,8 +1223,8 @@ mod test {
                 FullName {
                     first: "孔子".into(),
                     last: "".into(),
-                    von: "".into(),
-                    title: "".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
                 },
             ),
             (
@@ -1232,8 +1232,8 @@ mod test {
                 FullName {
                     first: "محمد".into(),
                     last: "علي".into(),
-                    von: "".into(),
-                    title: "".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
                 },
             ),
             (
@@ -1241,8 +1241,8 @@ mod test {
                 FullName {
                     first: "由紀夫".into(),
                     last: "三島".into(),
-                    von: "".into(),
-                    title: "".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
                 },
             ),
             (
@@ -1250,8 +1250,8 @@ mod test {
                 FullName {
                     first: "정은".into(),
                     last: "김".into(),
-                    von: "".into(),
-                    title: "".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
                 },
             ),
             (
@@ -1259,8 +1259,8 @@ mod test {
                 FullName {
                     first: "महात्मा".into(),
                     last: "गाँधी".into(),
-                    von: "".into(),
-                    title: "".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
                 },
             ),
             (
@@ -1268,8 +1268,8 @@ mod test {
                 FullName {
                     first: "รัชกาล".into(),
                     last: "ที่ ๙".into(),
-                    von: "".into(),
-                    title: "".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
                 },
             ),
             (
@@ -1277,8 +1277,8 @@ mod test {
                 FullName {
                     first: "אברהם".into(),
                     last: "לינקולן".into(),
-                    von: "".into(),
-                    title: "".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
                 },
             ),
             (
@@ -1286,8 +1286,8 @@ mod test {
                 FullName {
                     first: "नरेन्द्र".into(),
                     last: "मोदी".into(),
-                    von: "".into(),
-                    title: "".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
                 },
             ),
             (
@@ -1295,7 +1295,7 @@ mod test {
                 FullName {
                     first: "இ.வே.".into(),
                     last: "ராமசாமி".into(),
-                    von: "".into(),
+                    von: vec![].into(),
                     title: "பெரியார்".into(),
                 },
             ),
@@ -1304,8 +1304,8 @@ mod test {
                 FullName {
                     first: "สุทธาทิพย์".into(),
                     last: "จันทร์พุทธา".into(),
-                    von: "".into(),
-                    title: "".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
                 },
             ),
             (
@@ -1313,8 +1313,8 @@ mod test {
                 FullName {
                     first: "Тарас".into(),
                     last: "Шевченко".into(),
-                    von: "".into(),
-                    title: "".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
                 },
             ),
             (
@@ -1322,8 +1322,8 @@ mod test {
                 FullName {
                     first: "ابن".into(),
                     last: "سينا".into(),
-                    von: "".into(),
-                    title: "".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
                 },
             ),
             (
@@ -1331,8 +1331,8 @@ mod test {
                 FullName {
                     first: "ศรีสะเกษ".into(),
                     last: "นครหลวงโปรโมชั่น".into(),
-                    von: "".into(),
-                    title: "".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
                 },
             ),
             (
@@ -1340,8 +1340,8 @@ mod test {
                 FullName {
                     first: "สุรศักดิ์".into(),
                     last: "เจริญศรี".into(),
-                    von: "".into(),
-                    title: "".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
                 },
             ),
             (
@@ -1349,8 +1349,8 @@ mod test {
                 FullName {
                     first: "書豪".into(),
                     last: "林".into(),
-                    von: "".into(),
-                    title: "".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
                 },
             ),
             (
@@ -1358,8 +1358,8 @@ mod test {
                 FullName {
                     first: "정환".into(),
                     last: "김".into(),
-                    von: "".into(),
-                    title: "".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
                 },
             ),
             (
@@ -1367,8 +1367,8 @@ mod test {
                 FullName {
                     first: "太郎".into(),
                     last: "山田".into(),
-                    von: "".into(),
-                    title: "".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
                 },
             ),
             (
@@ -1376,8 +1376,8 @@ mod test {
                 FullName {
                     first: "Владимир".into(),
                     last: "Путин".into(),
-                    von: "".into(),
-                    title: "".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
                 },
             ),
         ] {
