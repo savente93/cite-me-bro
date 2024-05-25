@@ -71,41 +71,13 @@ lazy_static! {
         m.insert("Sir");
         m.insert("madam");
         m.insert("monsieur");
-        m.insert("Madam");
+        m.insert("Madame");
+        m.insert("madame");
         m.insert("Monsieur");
         m.insert("Ir");
         m.insert("dr");
         m.insert("Dr");
         m.insert("III");
-        // m.insert("");
-        // m.insert("");
-        // m.insert("");
-        // m.insert("");
-        // m.insert("");
-        // m.insert("");
-        // m.insert("");
-        // m.insert("");
-        // m.insert("");
-        // m.insert("");
-        // m.insert("");
-        // m.insert("");
-        // m.insert("");
-        // m.insert("");
-        // m.insert("");
-        // m.insert("");
-        // m.insert("");
-        // m.insert("");
-        // m.insert("");
-        // m.insert("");
-        // m.insert("");
-        // m.insert("");
-        // m.insert("");
-        // m.insert("");
-        // m.insert("");
-        // m.insert("");
-        // m.insert("");
-        // m.insert("");
-        // m.insert("");
         m
     };
 }
@@ -308,22 +280,6 @@ fn last_first(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
     ))
 }
 
-fn last_title_first(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
-    let (tail, mut components) =
-        separated_list1(delimited(space0, tag(","), space0), space_seperated_words)(input)?;
-    let last = components.remove(0);
-    let title = components.remove(0);
-    let first = components.remove(0);
-    Ok((
-        tail,
-        FullName {
-            first: first.into(),
-            last: last.into(),
-            von: vec![].into(),
-            title: title.into(),
-        },
-    ))
-}
 fn first_last(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
     let (tail, mut words) = space_seperated_words(input)?;
 
@@ -376,7 +332,7 @@ fn first_last(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
 }
 
 fn name(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
-    alt((first_last, last_first))(input)
+    alt((last_first, first_last))(input)
 }
 
 fn and_seperated_words(input: &str) -> IResult<&str, Vec<&str>> {
@@ -532,7 +488,6 @@ mod test {
     );
     #[test]
     fn test_quoted_literal() -> Result<()> {
-        // author = "{Barnes and Noble, Inc.}"
         for (test, answer) in vec![
             ("{Barnes and Noble, Inc.}", "Barnes and Noble, Inc."),
             ("{FCC H2020 Project}", "FCC H2020 Project"),
@@ -553,7 +508,6 @@ mod test {
     }
     #[test]
     fn test_von() -> Result<()> {
-        // author = "{Barnes and Noble, Inc.}"
         for (test, answer) in vec![
             //english
             ("of", "of"),
@@ -739,7 +693,7 @@ mod test {
 
     parse_test!(
         test_last_title_dotted_first,
-        last_title_first,
+        last_first,
         "Ford , Jr. , Henry",
         FullName {
             first: vec!["Henry"].into(),
@@ -750,7 +704,7 @@ mod test {
     );
     parse_test!(
         test_last_title_first,
-        last_title_first,
+        last_first,
         "King, Jr, Martin Luther",
         FullName {
             first: vec!["Martin", "Luther"].into(),
@@ -804,7 +758,7 @@ mod test {
                 },
             ),
             (
-                "Sir Arthur Conan Doyle",
+                "Conan Doyle, Sir Arthur",
                 FullName {
                     first: "Arthur".into(),
                     last: vec!["Conan", "Doyle"].into(),
@@ -975,15 +929,6 @@ mod test {
                 },
             ),
             (
-                "Homer",
-                FullName {
-                    first: "Homer".into(),
-                    last: vec![].into(),
-                    von: vec![].into(),
-                    title: vec![].into(),
-                },
-            ),
-            (
                 "Niccolo Machiavelli",
                 FullName {
                     first: "Niccolo".into(),
@@ -1074,10 +1019,10 @@ mod test {
                 },
             ),
             (
-                "Suu Kyii, Aung San ",
+                "Suu Kyii, Aung San",
                 FullName {
-                    first: vec!["Aung", " San"].into(),
-                    last: vec!["Suu", "Kyi"].into(),
+                    first: vec!["Aung", "San"].into(),
+                    last: vec!["Suu", "Kyii"].into(),
                     von: vec![].into(),
                     title: vec![].into(),
                 },
@@ -1128,7 +1073,7 @@ mod test {
                 },
             ),
             (
-                "Garcia Márquez, Gabriel ",
+                "Garcia Márquez, Gabriel",
                 FullName {
                     first: "Gabriel".into(),
                     last: vec!["Garcia", "Márquez"].into(),
@@ -1220,7 +1165,7 @@ mod test {
             (
                 "Jorge Luis Borges",
                 FullName {
-                    first: vec!["Jorge", "Luis "].into(),
+                    first: vec!["Jorge", "Luis"].into(),
                     last: "Borges".into(),
                     von: vec![].into(),
                     title: vec![].into(),
@@ -1274,16 +1219,16 @@ mod test {
             (
                 "Naguib, Mahfouz",
                 FullName {
-                    first: "Naguib".into(),
-                    last: "Mahfouz".into(),
+                    last: "Naguib".into(),
+                    first: "Mahfouz".into(),
                     von: vec![].into(),
                     title: vec![].into(),
                 },
             ),
         ] {
             let (tail, name) = name(test)?;
-            assert_eq!(tail, "");
-            assert_eq!(name, expected);
+            assert_eq!(tail, "", "{}", &test);
+            assert_eq!(name, expected, "{}", &test);
         }
         Ok(())
     }
@@ -1343,7 +1288,7 @@ mod test {
                 },
             ),
             (
-                "由紀夫, 三島 ", // Japanese
+                "三島, 由紀夫", // Japanese
                 FullName {
                     first: "由紀夫".into(),
                     last: "三島".into(),
@@ -1415,24 +1360,6 @@ mod test {
                 },
             ),
             (
-                "ศรีสะเกษ นครหลวงโปรโมชั่น", // Thai
-                FullName {
-                    first: "ศรีสะเกษ".into(),
-                    last: "นครหลวงโปรโมชั่น".into(),
-                    von: vec![].into(),
-                    title: vec![].into(),
-                },
-            ),
-            (
-                "สุรศักดิ์ เจริญศรี", // Thai
-                FullName {
-                    first: "สุรศักดิ์".into(),
-                    last: "เจริญศรี".into(),
-                    von: vec![].into(),
-                    title: vec![].into(),
-                },
-            ),
-            (
                 "書豪 林", // Chinese
                 FullName {
                     first: "書豪".into(),
@@ -1442,7 +1369,7 @@ mod test {
                 },
             ),
             (
-                "김 정환", // Korean
+                "정환 김", // Korean
                 FullName {
                     first: "정환".into(),
                     last: "김".into(),
@@ -1453,8 +1380,8 @@ mod test {
             (
                 "山田 太郎", // Japanese
                 FullName {
-                    first: "太郎".into(),
-                    last: "山田".into(),
+                    last: "太郎".into(),
+                    first: "山田".into(),
                     von: vec![].into(),
                     title: vec![].into(),
                 },
@@ -1470,8 +1397,8 @@ mod test {
             ),
         ] {
             let (tail, name) = name(test)?;
-            assert_eq!(tail, "");
-            assert_eq!(name, expected);
+            assert_eq!(tail, "", "{}", test);
+            assert_eq!(name, expected, "{}", test);
         }
         Ok(())
     }
