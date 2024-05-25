@@ -65,6 +65,11 @@ fn word(input: &str) -> IResult<&str, &str> {
     Ok((tail, word))
 }
 
+fn initial(input: &str) -> IResult<&str, &str> {
+    let (tail, word) = terminated(word, tag("."))(input)?;
+    Ok((tail, word))
+}
+
 fn von_english(input: &str) -> IResult<&str, &str> {
     let (tail, word) = tag_no_case("Of")(input)?;
     Ok((tail, word))
@@ -158,7 +163,7 @@ fn von(input: &str) -> IResult<&str, &str> {
 }
 
 fn space_seperated_words(input: &str) -> IResult<&str, Vec<&str>> {
-    separated_list1(space1, word)(input)
+    separated_list1(space1, alt((initial, word)))(input)
 }
 
 fn brace_quoted_literal(input: &str) -> IResult<&str, &str> {
@@ -386,14 +391,21 @@ mod test {
         Ok(())
     }
 
+    parse_test!(
+        test_first_init_last,
+        first_last,
+        "Donald E. Knuth",
+        FullName {
+            first: vec!["Donald", "E"].into(),
+            last: "Knuth".into()
+        }
+    );
     // Charles Louis Xavier Joseph de la Vallee Poussin -> First(Charles Louis Xavier Joseph) von(de la) Last(Vallee Poussin)
     // Ford, Jr., Henry
 
     // % An example with a suffix
     // author = "Stoner, Jr, Winifred Sackville"
 
-    // % Corporate names or names of consortia
-    // Donald E. Knuth
     // Frank Mittelbach and Michel Gossens and Johannes Braams and David Carlisle and Chris Rowley
     // author = {Geert {Van der Plas} and John Doe}
     // King, Jr, Martin Luther
