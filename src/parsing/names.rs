@@ -213,7 +213,7 @@ fn last_first(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
 
 fn last_title_first(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
     let (tail, mut components) =
-        separated_list1(space_seperated_words, delimited(space0, tag(","), space0))(input)?;
+        separated_list1(delimited(space0, tag(","), space0), space_seperated_words)(input)?;
     let last = components.remove(0);
     let title = components.remove(0);
     let first = components.remove(0);
@@ -606,7 +606,7 @@ mod test {
         FullName {
             first: vec!["Henry"].into(),
             von: vec![].into(),
-            title: "Jr.".into(),
+            title: "Jr".into(),
             last: "Ford".into()
         }
     );
@@ -615,10 +615,10 @@ mod test {
         last_title_first,
         "King, Jr, Martin Luther",
         FullName {
-            first: vec!["Henry"].into(),
-            title: "Jr.".into(),
+            first: vec!["Martin", "Luther"].into(),
+            title: "Jr".into(),
             von: vec![].into(),
-            last: "Ford".into()
+            last: "King".into()
         }
     );
     parse_test!(
