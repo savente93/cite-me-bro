@@ -6,7 +6,7 @@ use biblatex::Pagination;
 // lint allows are just while developing, will be removed soon
 use nom::{
     branch::alt,
-    bytes::complete::{tag, take_until, take_while, take_while1},
+    bytes::complete::{tag, tag_no_case, take_until, take_while, take_while1},
     character::{
         complete::{char, line_ending, not_line_ending, one_of, space0, space1},
         is_space,
@@ -65,6 +65,98 @@ fn trim0(input: &str) -> IResult<&str, ()> {
 
 fn word(input: &str) -> IResult<&str, &str> {
     let (tail, word) = take_while1(AsChar::is_alpha)(input)?;
+    Ok((tail, word))
+}
+
+fn von_english(input: &str) -> IResult<&str, &str> {
+    let (tail, word) = tag_no_case("Of")(input)?;
+    Ok((tail, word))
+}
+fn von_dutch(input: &str) -> IResult<&str, &str> {
+    let (tail, word) = alt((
+        tag_no_case("Van der"),
+        tag_no_case("Van de"),
+        tag_no_case("Van"),
+    ))(input)?;
+    Ok((tail, word))
+}
+fn von_german(input: &str) -> IResult<&str, &str> {
+    let (tail, word) = alt((
+        tag_no_case("von der"),
+        tag_no_case("von"),
+        tag_no_case("zum"),
+        tag_no_case("zur"),
+        tag_no_case("zu"),
+    ))(input)?;
+    Ok((tail, word))
+}
+fn von_french(input: &str) -> IResult<&str, &str> {
+    let (tail, word) = alt((
+        tag_no_case("Des"),
+        // De case is commented because it interferes with cases like della in italian
+        // other languages have this case longer down the list, so it's still caught
+        // tag_no_case("De"),
+        tag_no_case("Du"),
+        tag_no_case("D'"),
+    ))(input)?;
+    Ok((tail, word))
+}
+fn von_italian(input: &str) -> IResult<&str, &str> {
+    let (tail, word) = alt((
+        tag_no_case("della"),
+        tag_no_case("delle"),
+        tag_no_case("del"),
+        tag_no_case("dei"),
+        tag_no_case("di"),
+        tag_no_case("d'"),
+    ))(input)?;
+    Ok((tail, word))
+}
+fn von_spanish(input: &str) -> IResult<&str, &str> {
+    let (tail, word) = alt((
+        tag_no_case("Del"),
+        tag_no_case("De los"),
+        tag_no_case("De las"),
+        tag_no_case("De la"),
+        tag_no_case("De"),
+    ))(input)?;
+    Ok((tail, word))
+}
+fn von_portuguese(input: &str) -> IResult<&str, &str> {
+    let (tail, word) = alt((
+        tag_no_case("Dos"),
+        tag_no_case("Das"),
+        tag_no_case("De"),
+        tag_no_case("Do"),
+        tag_no_case("Da"),
+    ))(input)?;
+    Ok((tail, word))
+}
+fn von_scandinavian(input: &str) -> IResult<&str, &str> {
+    let (tail, word) = tag_no_case("Af")(input)?;
+    Ok((tail, word))
+}
+fn von_russian(input: &str) -> IResult<&str, &str> {
+    let (tail, word) = alt((tag_no_case("Из"), tag_no_case("Iz")))(input)?;
+    Ok((tail, word))
+}
+fn von_polish(input: &str) -> IResult<&str, &str> {
+    let (tail, word) = alt((tag_no_case("Ze"), tag_no_case("Z")))(input)?;
+    Ok((tail, word))
+}
+fn von(input: &str) -> IResult<&str, &str> {
+    let (tail, word) = alt((
+        von_dutch,
+        von_english,
+        von_german,
+        von_french,
+        von_italian,
+        von_spanish,
+        von_portuguese,
+        von_scandinavian,
+        von_russian,
+        von_polish,
+    ))(input)?;
     Ok((tail, word))
 }
 
@@ -259,10 +351,63 @@ mod test {
 
         Ok(())
     }
-    // author = ""
-    // author = ""
+    #[test]
+    fn test_von() -> Result<()> {
+        // author = "{Barnes and Noble, Inc.}"
+        for (test, answer) in vec![
+            //english
+            ("of", "of"),
+            // dutch
+            ("van", "van"),
+            ("van de", "van de"),
+            ("van der", "van der"),
+            // german
+            ("von", "von"),
+            ("von der", "von der"),
+            ("zu", "zu"),
+            ("zum", "zum"),
+            ("zur", "zur"),
+            //french
+            ("de", "de"),
+            ("du", "du"),
+            ("des", "des"),
+            ("d'", "d'"),
+            //italian
+            ("di", "di"),
+            ("d'", "d'"),
+            ("del", "del"),
+            ("della", "della"),
+            ("dei", "dei"),
+            ("delle", "delle"),
+            // //spanish
+            ("de", "de"),
+            ("del", "del"),
+            ("de la", "de la"),
+            ("de los", "de los"),
+            ("de las", "de las"),
+            //portugese
+            ("de", "de"),
+            ("do", "do"),
+            ("da", "da"),
+            ("dos", "dos"),
+            ("das", "das"),
+            //scandanavvian
+            ("af", "af"),
+            //russian
+            ("из", "из"),
+            ("iz", "iz"),
+            // polish
+            ("z", "z"),
+            ("ze", "ze"),
+        ] {
+            dbg!(&test);
+            let (tail, name) = von(test)?;
+            assert_eq!(tail, "");
+            assert_eq!(name, answer);
+        }
 
-    //     }
+        Ok(())
+    }
     // Brinch Hansen, Per
     // Charles Louis Xavier Joseph de la Vallee Poussin -> First(Charles Louis Xavier Joseph) von(de la) Last(Vallee Poussin)
     //  "" "{Barnes and} {Noble, Inc.}" "{Barnes} {and} {Noble,} {Inc.}"
@@ -274,7 +419,6 @@ mod test {
     // % Corporate names or names of consortia
     // Donald E. Knuth
     // Frank Mittelbach and Michel Gossens and Johannes Braams and David Carlisle and Chris Rowley
-    // author =
     // author = {Geert {Van der Plas} and John Doe}
     // King, Jr, Martin Luther
     // Fisher, James AND John Clark
