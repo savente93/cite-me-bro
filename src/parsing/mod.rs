@@ -217,6 +217,21 @@ mod test {
     }
 
     #[test]
+    fn test_last_last_first() -> Result<()> {
+        let name = "Brinch Hansen, Per";
+        let (tail, name) = last_first(name)?;
+        assert_eq!(tail, "");
+        assert_eq!(
+            name,
+            FullName {
+                first: vec!["Per"].into(),
+                last: vec!["Brinch", "Hansen"].into()
+            }
+        );
+
+        Ok(())
+    }
+    #[test]
     fn test_last_first_first() -> Result<()> {
         let name = "Jackson, Michael Joseph";
         let (tail, name) = last_first(name)?;
@@ -343,6 +358,12 @@ mod test {
             ("{Barnes and Noble, Inc.}", "Barnes and Noble, Inc."),
             ("{FCC H2020 Project}", "FCC H2020 Project"),
             ("{World Health Organisation}", "World Health Organisation"),
+            ("{Barnes and}", "Barnes and"),
+            ("{Noble, Inc.}", "Noble, Inc."),
+            ("{Barnes}", "Barnes"),
+            ("{and}", "and"),
+            ("{Noble,}", "Noble,"),
+            ("{Inc.}", "Inc."),
         ] {
             let (tail, name) = brace_quoted_literal(test)?;
             assert_eq!(tail, "");
@@ -408,9 +429,7 @@ mod test {
 
         Ok(())
     }
-    // Brinch Hansen, Per
     // Charles Louis Xavier Joseph de la Vallee Poussin -> First(Charles Louis Xavier Joseph) von(de la) Last(Vallee Poussin)
-    //  "" "{Barnes and} {Noble, Inc.}" "{Barnes} {and} {Noble,} {Inc.}"
     // Ford, Jr., Henry
 
     // % An example with a suffix
