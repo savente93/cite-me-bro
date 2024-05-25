@@ -15,6 +15,7 @@ use nom::{
     sequence::{delimited, pair, preceded, separated_pair, terminated, tuple},
     AsChar, Err, IResult, Parser,
 };
+use nom_supreme::error::ErrorTree;
 
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct NameComponent<'a> {
@@ -655,12 +656,12 @@ mod test {
         }
     );
     parse_test!(
-        test_insanity,
+        test_many_name_components,
         first_von_last,
-        "Charles Louis Xavier Joseph de la Vallee Poussin",
+        "Charles Louis Xavier Joseph de la Vallee Poussin III",
         FullName {
             first: vec!["Charles", "Louis", "Xavier", "Joseph"].into(),
-            title: vec![].into(),
+            title: vec!["III"].into(),
             von: vec!["de", "la"].into(),
             last: vec!["Vallee", "Poussin"].into()
         }
