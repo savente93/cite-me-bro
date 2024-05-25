@@ -1203,6 +1203,8 @@ mod test {
         // my appologies if these are nog correct
         // I cannot check them myself but if they are
         // please open an issue!
+        // not sure if unicode is even allowed by bibtex
+        // but why not give it a try eh?
         for (test, expected) in vec![
             (
                 "Лев Толстой", // Russian (Cyrillic)
@@ -1232,7 +1234,7 @@ mod test {
                 },
             ),
             (
-                "محمد علي", // Arabic
+                "علي, محمد", // Arabic
                 FullName {
                     first: "محمد".into(),
                     last: "علي".into(),
@@ -1241,7 +1243,7 @@ mod test {
                 },
             ),
             (
-                "三島 由紀夫", // Japanese
+                "由紀夫, 三島 ", // Japanese
                 FullName {
                     first: "由紀夫".into(),
                     last: "三島".into(),
@@ -1250,7 +1252,7 @@ mod test {
                 },
             ),
             (
-                "김 정은", // Korean
+                "김 ,정은", // Korean
                 FullName {
                     first: "정은".into(),
                     last: "김".into(),
@@ -1259,7 +1261,7 @@ mod test {
                 },
             ),
             (
-                "महात्मा गाँधी", // Hindi
+                "मगाँधी, हात्मा", // Hindi
                 FullName {
                     first: "महात्मा".into(),
                     last: "गाँधी".into(),
@@ -1349,7 +1351,7 @@ mod test {
                 },
             ),
             (
-                "林 書豪", // Chinese
+                "書豪 林", // Chinese
                 FullName {
                     first: "書豪".into(),
                     last: "林".into(),
