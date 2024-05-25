@@ -832,7 +832,7 @@ mod test {
             (
                 "Dr. Seuss",
                 FullName {
-                    first: "".into(),
+                    first: vec![].into(),
                     last: "Seuss".into(),
                     von: vec![].into(),
                     title: "Dr".into(),
@@ -887,7 +887,7 @@ mod test {
                 "Homer",
                 FullName {
                     first: "Homer".into(),
-                    last: "".into(),
+                    last: vec![].into(),
                     von: vec![].into(),
                     title: vec![].into(),
                 },
@@ -1199,9 +1199,13 @@ mod test {
 
     #[test]
     fn stress_test_unicode() -> Result<()> {
+        // courtesy of Chat GPT
+        // my appologies if these are nog correct
+        // I cannot check them myself but if they are
+        // please open an issue!
         for (test, expected) in vec![
             (
-                "Лев Толстой",
+                "Лев Толстой", // Russian (Cyrillic)
                 FullName {
                     first: "Лев".into(),
                     last: "Толстой".into(),
@@ -1210,7 +1214,7 @@ mod test {
                 },
             ),
             (
-                "Αριστοτέλης",
+                "Αριστοτέλης", // Greek
                 FullName {
                     first: vec![].into(),
                     last: "Αριστοτέλης".into(),
@@ -1219,16 +1223,16 @@ mod test {
                 },
             ),
             (
-                "孔子",
+                "孔子", // Chinese
                 FullName {
-                    first: "孔子".into(),
-                    last: "".into(),
+                    first: vec![].into(),
+                    last: vec!["孔子"].into(),
                     von: vec![].into(),
                     title: vec![].into(),
                 },
             ),
             (
-                "محمد علي",
+                "محمد علي", // Arabic
                 FullName {
                     first: "محمد".into(),
                     last: "علي".into(),
@@ -1237,7 +1241,7 @@ mod test {
                 },
             ),
             (
-                "三島 由紀夫",
+                "三島 由紀夫", // Japanese
                 FullName {
                     first: "由紀夫".into(),
                     last: "三島".into(),
@@ -1246,7 +1250,7 @@ mod test {
                 },
             ),
             (
-                "김 정은",
+                "김 정은", // Korean
                 FullName {
                     first: "정은".into(),
                     last: "김".into(),
@@ -1255,7 +1259,7 @@ mod test {
                 },
             ),
             (
-                "महात्मा गाँधी",
+                "महात्मा गाँधी", // Hindi
                 FullName {
                     first: "महात्मा".into(),
                     last: "गाँधी".into(),
@@ -1264,7 +1268,7 @@ mod test {
                 },
             ),
             (
-                "รัชกาล ที่ ๙",
+                "รัชกาล ที่ ๙", // Thai
                 FullName {
                     first: "รัชกาล".into(),
                     last: "ที่ ๙".into(),
@@ -1273,7 +1277,7 @@ mod test {
                 },
             ),
             (
-                "אברהם לינקולן",
+                "אברהם לינקולן", // Hebrew
                 FullName {
                     first: "אברהם".into(),
                     last: "לינקולן".into(),
@@ -1282,7 +1286,7 @@ mod test {
                 },
             ),
             (
-                "नरेन्द्र मोदी",
+                "नरेन्द्र मोदी", // Devanagari (Hindi)
                 FullName {
                     first: "नरेन्द्र".into(),
                     last: "मोदी".into(),
@@ -1291,7 +1295,7 @@ mod test {
                 },
             ),
             (
-                "பெரியார் இ.வே. ராமசாமி",
+                "பெரியார் இ.வே. ராமசாமி", // Tamil
                 FullName {
                     first: "இ.வே.".into(),
                     last: "ராமசாமி".into(),
@@ -1300,7 +1304,7 @@ mod test {
                 },
             ),
             (
-                "สุทธาทิพย์ จันทร์พุทธา",
+                "สุทธาทิพย์ จันทร์พุทธา", // Thai
                 FullName {
                     first: "สุทธาทิพย์".into(),
                     last: "จันทร์พุทธา".into(),
@@ -1309,7 +1313,7 @@ mod test {
                 },
             ),
             (
-                "Тарас Шевченко",
+                "Тарас Шевченко", // Ukrainian (Cyrillic)
                 FullName {
                     first: "Тарас".into(),
                     last: "Шевченко".into(),
@@ -1318,7 +1322,7 @@ mod test {
                 },
             ),
             (
-                "ابن سينا",
+                "ابن سينا", // Persian (Arabic script)
                 FullName {
                     first: "ابن".into(),
                     last: "سينا".into(),
@@ -1327,7 +1331,7 @@ mod test {
                 },
             ),
             (
-                "ศรีสะเกษ นครหลวงโปรโมชั่น",
+                "ศรีสะเกษ นครหลวงโปรโมชั่น", // Thai
                 FullName {
                     first: "ศรีสะเกษ".into(),
                     last: "นครหลวงโปรโมชั่น".into(),
@@ -1336,7 +1340,7 @@ mod test {
                 },
             ),
             (
-                "สุรศักดิ์ เจริญศรี",
+                "สุรศักดิ์ เจริญศรี", // Thai
                 FullName {
                     first: "สุรศักดิ์".into(),
                     last: "เจริญศรี".into(),
@@ -1345,7 +1349,7 @@ mod test {
                 },
             ),
             (
-                "林 書豪",
+                "林 書豪", // Chinese
                 FullName {
                     first: "書豪".into(),
                     last: "林".into(),
@@ -1354,7 +1358,7 @@ mod test {
                 },
             ),
             (
-                "김 정환",
+                "김 정환", // Korean
                 FullName {
                     first: "정환".into(),
                     last: "김".into(),
@@ -1363,7 +1367,7 @@ mod test {
                 },
             ),
             (
-                "山田 太郎",
+                "山田 太郎", // Japanese
                 FullName {
                     first: "太郎".into(),
                     last: "山田".into(),
@@ -1372,7 +1376,7 @@ mod test {
                 },
             ),
             (
-                "Владимир Путин",
+                "Владимир Путин", // Russian (Cyrillic)
                 FullName {
                     first: "Владимир".into(),
                     last: "Путин".into(),
