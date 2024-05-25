@@ -140,6 +140,36 @@ mod test {
         Ok(())
     }
     #[test]
+    fn test_last_first_init() -> Result<()> {
+        let name = "Jackson, Michael J";
+        let (tail, name) = last_first(name)?;
+        assert_eq!(tail, "");
+        assert_eq!(
+            name,
+            FullName {
+                first: vec!["Michael", "J"].into(),
+                last: "Jackson".into()
+            }
+        );
+
+        Ok(())
+    }
+    #[test]
+    fn test_last_init_init() -> Result<()> {
+        let name = "Jackson, M J";
+        let (tail, name) = last_first(name)?;
+        assert_eq!(tail, "");
+        assert_eq!(
+            name,
+            FullName {
+                first: vec!["M", "J"].into(),
+                last: "Jackson".into()
+            }
+        );
+
+        Ok(())
+    }
+    #[test]
     fn test_first_last() -> Result<()> {
         let name = "Isaac Newton";
         let (tail, name) = first_last(name)?;
@@ -216,11 +246,16 @@ mod test {
     }
     #[test]
     fn test_quoted_literal() -> Result<()> {
-        //        pu
-        let name = "{Barnes and Noble, Inc.}";
-        let (tail, name) = brace_quoted_literal(name)?;
-        assert_eq!(tail, "");
-        assert_eq!(name, "Barnes and Noble, Inc.");
+        // author = "{Barnes and Noble, Inc.}"
+        for (test, answer) in vec![
+            ("{Barnes and Noble, Inc.}", "Barnes and Noble, Inc."),
+            ("{FCC H2020 Project}", "FCC H2020 Project"),
+            ("{World Health Organisation}", "World Health Organisation"),
+        ] {
+            let (tail, name) = brace_quoted_literal(test)?;
+            assert_eq!(tail, "");
+            assert_eq!(name, answer);
+        }
 
         Ok(())
     }
@@ -232,20 +267,14 @@ mod test {
     // Charles Louis Xavier Joseph de la Vallee Poussin -> First(Charles Louis Xavier Joseph) von(de la) Last(Vallee Poussin)
     //  "" "{Barnes and} {Noble, Inc.}" "{Barnes} {and} {Noble,} {Inc.}"
     // Ford, Jr., Henry
-    // author = "Jackson, Michael J"
-    // author = "Jackson, M J"
 
     // % An example with a suffix
     // author = "Stoner, Jr, Winifred Sackville"
 
-    // % An exmaple with a particle
-
     // % Corporate names or names of consortia
-    // author = "{Barnes and Noble, Inc.}"
-    // author = "{FCC H2020 Project}"
     // Donald E. Knuth
     // Frank Mittelbach and Michel Gossens and Johannes Braams and David Carlisle and Chris Rowley
-    // author = {{World Health Organisation}}
+    // author =
     // author = {Geert {Van der Plas} and John Doe}
     // King, Jr, Martin Luther
     // Fisher, James AND John Clark
