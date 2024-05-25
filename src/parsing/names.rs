@@ -12,7 +12,7 @@ use nom::{
     },
     combinator::{eof, map, recognize, verify},
     multi::{many1, many_till, separated_list0, separated_list1},
-    sequence::{delimited, pair, preceded, separated_pair, terminated},
+    sequence::{delimited, pair, preceded, separated_pair, terminated, tuple},
     AsChar, Err, IResult, Parser,
 };
 
@@ -229,6 +229,7 @@ fn last_title_first(input: &str) -> IResult<&str, FullName, nom::error::Error<&s
 }
 fn first_last(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
     let (tail, mut words) = space_seperated_words(input)?;
+
     let last = words.remove(&words.len() - 1);
     Ok((
         tail,
@@ -236,6 +237,38 @@ fn first_last(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
             first: words.into(),
             last: last.into(),
             von: vec![].into(),
+            title: vec![].into(),
+        },
+    ))
+}
+fn first_von_last(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
+    let (tail, (first, von, last)) = tuple((
+        space_seperated_words,
+        many1(terminated(von, space1)),
+        space_seperated_words,
+    ))(input)?;
+    Ok((
+        tail,
+        FullName {
+            first: first.into(),
+            last: last.into(),
+            von: von.into(),
+            title: vec![].into(),
+        },
+    ))
+}
+fn von_last_first(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
+    let (tail, ((von, last), first)) = separated_pair(
+        tuple((many1(terminated(von, space0)), space_seperated_words)),
+        delimited(space0, tag(","), space0),
+        space_seperated_words,
+    )(input)?;
+    Ok((
+        tail,
+        FullName {
+            first: first.into(),
+            last: last.into(),
+            von: von.into(),
             title: vec![].into(),
         },
     ))
@@ -361,34 +394,34 @@ mod test {
     );
     parse_test!(
         test_von_last_initial,
-        last_first,
+        von_last_first,
         "van      Beethoven ,    L",
         FullName {
             first: vec!["L"].into(),
-            last: vec!["van", "Beethoven"].into(),
-            von: vec![].into(),
+            last: vec!["Beethoven"].into(),
+            von: vec!["van"].into(),
             title: vec![].into(),
         }
     );
     parse_test!(
         test_von_last_first,
-        last_first,
+        von_last_first,
         "van Beethoven, Ludwig",
         FullName {
             first: vec!["Ludwig"].into(),
-            last: vec!["van", "Beethoven"].into(),
-            von: vec![].into(),
+            last: vec!["Beethoven"].into(),
+            von: vec!["van"].into(),
             title: vec![].into(),
         }
     );
     parse_test!(
         test_first_von_last,
-        first_last,
+        first_von_last,
         "Ludwig van Beethoven",
         FullName {
-            first: vec!["Ludwig", "van"].into(),
+            first: vec!["Ludwig"].into(),
             last: "Beethoven".into(),
-            von: vec![].into(),
+            von: vec!["van"].into(),
             title: vec![].into(),
         }
     );
@@ -623,11 +656,11 @@ mod test {
     );
     parse_test!(
         test_insanity,
-        first_last,
-        "Charles Louis Xavier Joseph de la Vallee Poussin III",
+        first_von_last,
+        "Charles Louis Xavier Joseph de la Vallee Poussin",
         FullName {
             first: vec!["Charles", "Louis", "Xavier", "Joseph"].into(),
-            title: vec!["III"].into(),
+            title: vec![].into(),
             von: vec!["de", "la"].into(),
             last: vec!["Vallee", "Poussin"].into()
         }
