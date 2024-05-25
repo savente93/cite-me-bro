@@ -22,6 +22,89 @@ pub struct NameComponent<'a> {
     components: Vec<&'a str>,
 }
 
+use lazy_static::*;
+use std::collections::BTreeSet;
+
+lazy_static! {
+    static ref VON: BTreeSet<&'static str> = {
+        let mut m = BTreeSet::new();
+        m.insert("d'");
+        m.insert("da");
+        m.insert("das");
+        m.insert("de la");
+        m.insert("de las");
+        m.insert("de los");
+        m.insert("de");
+        m.insert("del");
+        m.insert("des");
+        m.insert("do");
+        m.insert("dos");
+        m.insert("du");
+        m.insert("van de");
+        m.insert("van der");
+        m.insert("van");
+        m.insert("d'");
+        m.insert("dei");
+        m.insert("del");
+        m.insert("della");
+        m.insert("delle");
+        m.insert("di");
+        m.insert("la");
+        m.insert("las");
+        m.insert("los");
+        m.insert("von der");
+        m.insert("von");
+        m.insert("zu");
+        m.insert("zum");
+        m.insert("zur");
+        m.insert("af");
+        m.insert("ze");
+        m.insert("Z");
+        m.insert("из");
+        m.insert("iz");
+        m
+    };
+    static ref COUNT: usize = VON.len();
+    static ref TITLE: BTreeSet<&'static str> = {
+        let mut m = BTreeSet::new();
+        m.insert("sir");
+        m.insert("madam");
+        m.insert("monsieur");
+        m.insert("ir");
+        m.insert("dr");
+        // m.insert("");
+        // m.insert("");
+        // m.insert("");
+        // m.insert("");
+        // m.insert("");
+        // m.insert("");
+        // m.insert("");
+        // m.insert("");
+        // m.insert("");
+        // m.insert("");
+        // m.insert("");
+        // m.insert("");
+        // m.insert("");
+        // m.insert("");
+        // m.insert("");
+        // m.insert("");
+        // m.insert("");
+        // m.insert("");
+        // m.insert("");
+        // m.insert("");
+        // m.insert("");
+        // m.insert("");
+        // m.insert("");
+        // m.insert("");
+        // m.insert("");
+        // m.insert("");
+        // m.insert("");
+        // m.insert("");
+        // m.insert("");
+        m
+    };
+}
+
 impl<'a> NameComponent<'a> {
     pub fn new() -> Self {
         Self {
@@ -196,18 +279,23 @@ fn brace_quoted_literal(input: &str) -> IResult<&str, &str> {
 }
 
 fn last_first(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
-    let (tail, (last, first)) = separated_pair(
+    let (tail, (last_with_von, first_with_von)) = separated_pair(
         space_seperated_words,
         delimited(space0, tag(","), space0),
         space_seperated_words,
     )(input)?;
+    let (mut von, first): (Vec<&str>, Vec<&str>) =
+        first_with_von.iter().partition(|&w| VON.contains(w));
+    let (last_von, last): (Vec<&str>, Vec<&str>) =
+        last_with_von.iter().partition(|&w| VON.contains(w));
+    von.extend(last_von);
     Ok((
         tail,
         FullName {
             last: last.into(),
             first: first.into(),
             title: vec![].into(),
-            von: vec![].into(),
+            von: von.into(),
         },
     ))
 }
@@ -231,39 +319,36 @@ fn last_title_first(input: &str) -> IResult<&str, FullName, nom::error::Error<&s
 fn first_last(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
     let (tail, mut words) = space_seperated_words(input)?;
 
-    let last = words.remove(&words.len() - 1);
-    Ok((
-        tail,
-        FullName {
-            first: words.into(),
-            last: last.into(),
-            von: vec![].into(),
-            title: vec![].into(),
-        },
-    ))
-}
-fn first_von_last(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
-    let (tail, (first, von, last)) = tuple((
-        space_seperated_words,
-        many1(terminated(von, space1)),
-        space_seperated_words,
-    ))(input)?;
-    Ok((
-        tail,
-        FullName {
-            first: first.into(),
-            last: last.into(),
-            von: von.into(),
-            title: vec![].into(),
-        },
-    ))
-}
-fn von_last_first(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
-    let (tail, ((von, last), first)) = separated_pair(
-        tuple((many1(terminated(von, space0)), space_seperated_words)),
-        delimited(space0, tag(","), space0),
-        space_seperated_words,
-    )(input)?;
+    let first_von = words.iter().position(|w| VON.contains(w));
+    let last_von = words.iter().rev().position(|w| VON.contains(w));
+    let (first, von, last) = match first_von {
+        Some(i) => {
+            // not the prettiest code I've ever written I'll admit,
+            // but hey, it works
+            let num_words = words.len();
+            let mut first = vec![];
+            let mut von = vec![];
+            let mut last = vec![];
+            let j = last_von.unwrap();
+            for _ in 0..i {
+                first.push(words.remove(0))
+            }
+            for _ in i..=j {
+                von.push(words.remove(0))
+            }
+            for _ in j..num_words - 1 {
+                last.push(words.remove(0))
+            }
+            (first, von, last)
+        }
+        None => {
+            let last = vec![words.remove(&words.len() - 1)];
+            let first = words;
+            let von = vec![];
+            (first, von, last)
+        }
+    };
+
     Ok((
         tail,
         FullName {
@@ -276,7 +361,7 @@ fn von_last_first(input: &str) -> IResult<&str, FullName, nom::error::Error<&str
 }
 
 fn name(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
-    alt((first_last, first_von_last, last_first, last_title_first))(input)
+    alt((first_last, last_first))(input)
 }
 
 fn and_seperated_words(input: &str) -> IResult<&str, Vec<&str>> {
@@ -399,7 +484,7 @@ mod test {
     );
     parse_test!(
         test_von_last_initial,
-        von_last_first,
+        last_first,
         "van      Beethoven ,    L",
         FullName {
             first: vec!["L"].into(),
@@ -410,7 +495,7 @@ mod test {
     );
     parse_test!(
         test_von_last_first,
-        von_last_first,
+        last_first,
         "van Beethoven, Ludwig",
         FullName {
             first: vec!["Ludwig"].into(),
@@ -421,7 +506,7 @@ mod test {
     );
     parse_test!(
         test_first_von_last,
-        first_von_last,
+        first_last,
         "Ludwig van Beethoven",
         FullName {
             first: vec!["Ludwig"].into(),
@@ -661,7 +746,7 @@ mod test {
     );
     parse_test!(
         test_many_name_components,
-        first_von_last,
+        first_last,
         "Charles Louis Xavier Joseph de la Vallee Poussin III",
         FullName {
             first: vec!["Charles", "Louis", "Xavier", "Joseph"].into(),
@@ -685,15 +770,15 @@ mod test {
                     title: vec![].into(),
                 },
             ),
-            // (
-            //     "Dr. Emmet Brown",
-            //     FullName {
-            //         first: "Emmet".into(),
-            //         last: "Brown".into(),
-            //         von: vec![].into(),
-            //         title: "Dr".into(),
-            //     },
-            // ),
+            (
+                "Dr. Emmet Brown",
+                FullName {
+                    first: "Emmet".into(),
+                    last: "Brown".into(),
+                    von: vec![].into(),
+                    title: "Dr".into(),
+                },
+            ),
             (
                 "Leonardo da Vinci",
                 FullName {
@@ -703,15 +788,15 @@ mod test {
                     title: vec![].into(),
                 },
             ),
-            // (
-            //     "Sir Arthur Conan Doyle",
-            //     FullName {
-            //         first: "Arthur".into(),
-            //         last: vec!["Conan", "Doyle"].into(),
-            //         von: vec![].into(),
-            //         title: "Sir".into(),
-            //     },
-            // ),
+            (
+                "Sir Arthur Conan Doyle",
+                FullName {
+                    first: "Arthur".into(),
+                    last: vec!["Conan", "Doyle"].into(),
+                    von: vec![].into(),
+                    title: "Sir".into(),
+                },
+            ),
             (
                 "Madame Marie Curie",
                 FullName {
@@ -820,15 +905,15 @@ mod test {
                     title: vec![].into(),
                 },
             ),
-            // (
-            //     "Dr. Seuss",
-            //     FullName {
-            //         first: vec![].into(),
-            //         last: "Seuss".into(),
-            //         von: vec![].into(),
-            //         title: "Dr".into(),
-            //     },
-            // ),
+            (
+                "Dr. Seuss",
+                FullName {
+                    first: vec![].into(),
+                    last: "Seuss".into(),
+                    von: vec![].into(),
+                    title: "Dr".into(),
+                },
+            ),
             (
                 "Virginia Woolf",
                 FullName {
@@ -1305,15 +1390,15 @@ mod test {
                     title: vec![].into(),
                 },
             ),
-            // (
-            //     "ابن سينا", // Persian (Arabic script)
-            //     FullName {
-            //         first: "ابن".into(),
-            //         last: "سينا".into(),
-            //         von: vec![].into(),
-            //         title: vec![].into(),
-            //     },
-            // ),
+            (
+                "ابن سينا", // Persian (Arabic script)
+                FullName {
+                    first: "ابن".into(),
+                    last: "سينا".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
             (
                 "ศรีสะเกษ นครหลวงโปรโมชั่น", // Thai
                 FullName {
