@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use anyhow::Error;
 use biblatex::Pagination;
 // lint allows are just while developing, will be removed soon
@@ -31,11 +33,27 @@ impl<'a> NameComponent<'a> {
     }
 }
 
-#[derive(Debug, Default, Clone, PartialEq, Eq)]
+#[derive(Default, Clone, PartialEq, Eq)]
 pub struct FullName<'a> {
     first: NameComponent<'a>,
     last: NameComponent<'a>,
+    von: NameComponent<'a>,
+    title: NameComponent<'a>,
 }
+
+impl<'a> Debug for FullName<'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "First({}) Von({}) Last({}) Title({})",
+            &self.first.components.join(" "),
+            &self.von.components.join(" "),
+            &self.last.components.join(" "),
+            &self.title.components.join(" "),
+        )
+    }
+}
+
 impl<'a, 'b: 'a> From<Vec<&'b str>> for NameComponent<'a> {
     fn from(value: Vec<&'b str>) -> Self {
         Self { components: value }
@@ -187,10 +205,28 @@ fn last_first(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
         FullName {
             last: last.into(),
             first: first.into(),
+            title: vec![].into(),
+            von: vec![].into(),
         },
     ))
 }
 
+fn last_title_first(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
+    let (tail, mut components) =
+        separated_list1(space_seperated_words, delimited(space0, tag(","), space0))(input)?;
+    let last = components.remove(0);
+    let title = components.remove(0);
+    let first = components.remove(0);
+    Ok((
+        tail,
+        FullName {
+            first: first.into(),
+            last: last.into(),
+            von: vec![].into(),
+            title: title.into(),
+        },
+    ))
+}
 fn first_last(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
     let (tail, mut words) = space_seperated_words(input)?;
     let last = words.remove(&words.len() - 1);
@@ -199,6 +235,8 @@ fn first_last(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
         FullName {
             first: words.into(),
             last: last.into(),
+            von: vec![].into(),
+            title: vec![].into(),
         },
     ))
 }
@@ -249,6 +287,8 @@ mod test {
         "Newton, Isaac",
         FullName {
             first: "Isaac".into(),
+            title: vec![].into(),
+            von: vec![].into(),
             last: "Newton".into()
         }
     );
@@ -258,6 +298,8 @@ mod test {
         "Brinch Hansen, Per",
         FullName {
             first: vec!["Per"].into(),
+            title: vec![].into(),
+            von: vec![].into(),
             last: vec!["Brinch", "Hansen"].into()
         }
     );
@@ -268,7 +310,9 @@ mod test {
         "Jackson, Michael Joseph",
         FullName {
             first: vec!["Michael", "Joseph"].into(),
-            last: "Jackson".into()
+            last: "Jackson".into(),
+            von: vec![].into(),
+            title: vec![].into(),
         }
     );
     parse_test!(
@@ -277,7 +321,9 @@ mod test {
         "Jackson, Michael J",
         FullName {
             first: vec!["Michael", "J"].into(),
-            last: "Jackson".into()
+            last: "Jackson".into(),
+            von: vec![].into(),
+            title: vec![].into(),
         }
     );
     parse_test!(
@@ -286,7 +332,9 @@ mod test {
         "Jackson, M J",
         FullName {
             first: vec!["M", "J"].into(),
-            last: "Jackson".into()
+            last: "Jackson".into(),
+            von: vec![].into(),
+            title: vec![].into(),
         }
     );
     parse_test!(
@@ -295,7 +343,9 @@ mod test {
         "Isaac Newton",
         FullName {
             first: "Isaac".into(),
-            last: "Newton".into()
+            last: "Newton".into(),
+            von: vec![].into(),
+            title: vec![].into(),
         }
     );
     parse_test!(
@@ -304,7 +354,9 @@ mod test {
         "Michael Joseph Jackson",
         FullName {
             first: vec!["Michael", "Joseph"].into(),
-            last: "Jackson".into()
+            last: "Jackson".into(),
+            von: vec![].into(),
+            title: vec![].into(),
         }
     );
     parse_test!(
@@ -313,7 +365,9 @@ mod test {
         "van      Beethoven ,    L",
         FullName {
             first: vec!["L"].into(),
-            last: vec!["van", "Beethoven"].into()
+            last: vec!["van", "Beethoven"].into(),
+            von: vec![].into(),
+            title: vec![].into(),
         }
     );
     parse_test!(
@@ -322,7 +376,9 @@ mod test {
         "van Beethoven, Ludwig",
         FullName {
             first: vec!["Ludwig"].into(),
-            last: vec!["van", "Beethoven"].into()
+            last: vec!["van", "Beethoven"].into(),
+            von: vec![].into(),
+            title: vec![].into(),
         }
     );
     parse_test!(
@@ -331,7 +387,9 @@ mod test {
         "Ludwig van Beethoven",
         FullName {
             first: vec!["Ludwig", "van"].into(),
-            last: "Beethoven".into()
+            last: "Beethoven".into(),
+            von: vec![].into(),
+            title: vec![].into(),
         }
     );
     #[test]
@@ -419,6 +477,8 @@ mod test {
         "Donald E. Knuth",
         FullName {
             first: vec!["Donald", "E"].into(),
+            title: vec![].into(),
+            von: vec![].into(),
             last: "Knuth".into()
         }
     );
@@ -428,6 +488,8 @@ mod test {
         "Ronald {Van der Jawel}",
         FullName {
             first: vec!["Ronald"].into(),
+            title: vec![].into(),
+            von: vec![].into(),
             last: "Van der Jawel".into()
         }
     );
@@ -438,6 +500,8 @@ mod test {
         "Fisher, James",
         FullName {
             first: "James".into(),
+            title: vec![].into(),
+            von: vec![].into(),
             last: "Fisher".into()
         }
     );
@@ -447,6 +511,8 @@ mod test {
         "John Clark",
         FullName {
             first: "John".into(),
+            title: vec![].into(),
+            von: vec![].into(),
             last: "Clark".into()
         }
     );
@@ -457,10 +523,14 @@ mod test {
         vec![
             FullName {
                 first: "James".into(),
+                title: vec![].into(),
+                von: vec![].into(),
                 last: "Fisher".into()
             },
             FullName {
                 first: "John".into(),
+                title: vec![].into(),
+                von: vec![].into(),
                 last: "Clark".into()
             }
         ]
@@ -473,34 +543,93 @@ mod test {
         vec![
             FullName {
                 first: "Frank".into(),
+            title: vec![].into(),
+            von: vec![].into(),
                 last: "Mittelbach".into()
             },
             FullName {
                 first: "Michel".into(),
+            title: vec![].into(),
+            von: vec![].into(),
                 last: "Gossens".into()
             },
             FullName {
                 first: "Johannes".into(),
+            title: vec![].into(),
+            von: vec![].into(),
                 last: "Braams".into()
             },
             FullName {
                 first: "David".into(),
+            title: vec![].into(),
+            von: vec![].into(),
                 last: "Carlisle".into()
             },
             FullName {
                 first: "Chris".into(),
+            von: vec![].into(),
+            title: vec![].into(),
                 last: "Rowley".into()
             }
         ]
     );
+    parse_test!(
+        test_and_seperated_quoted,
+        and_seperated_names,
+        "Geert {Van der Plas} and John Doe and {Barnes and Noble}",
+        vec![
+            FullName {
+                first: "Geert".into(),
+                title: vec![].into(),
+                von: vec![].into(),
+                last: "Van der Plas".into()
+            },
+            FullName {
+                first: "John".into(),
+                title: vec![].into(),
+                von: vec![].into(),
+                last: "Doe".into()
+            },
+            FullName {
+                first: vec![].into(),
+                title: vec![].into(),
+                von: vec![].into(),
+                last: "Barnes and Noble".into()
+            },
+        ]
+    );
 
-    // Charles Louis Xavier Joseph de la Vallee Poussin -> First(Charles Louis Xavier Joseph) von(de la) Last(Vallee Poussin)
-    // Ford, Jr., Henry
-
-    // % An example with a suffix
-    // author = "Stoner, Jr, Winifred Sackville"
-
-    //
-    // author = {Geert {Van der Plas} and John Doe}
-    // King, Jr, Martin Luther
+    parse_test!(
+        test_last_title_dotted_first,
+        last_title_first,
+        "Ford , Jr. , Henry",
+        FullName {
+            first: vec!["Henry"].into(),
+            von: vec![].into(),
+            title: "Jr.".into(),
+            last: "Ford".into()
+        }
+    );
+    parse_test!(
+        test_last_title_first,
+        last_title_first,
+        "King, Jr, Martin Luther",
+        FullName {
+            first: vec!["Henry"].into(),
+            title: "Jr.".into(),
+            von: vec![].into(),
+            last: "Ford".into()
+        }
+    );
+    parse_test!(
+        test_insanity,
+        first_last,
+        "Charles Louis Xavier Joseph de la Vallee Poussin III",
+        FullName {
+            first: vec!["Charles", "Louis", "Xavier", "Joseph"].into(),
+            title: vec!["III"].into(),
+            von: vec!["de", "la"].into(),
+            last: vec!["Vallee", "Poussin"].into()
+        }
+    );
 }
