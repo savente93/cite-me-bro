@@ -275,6 +275,10 @@ fn von_last_first(input: &str) -> IResult<&str, FullName, nom::error::Error<&str
     ))
 }
 
+fn name(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
+    alt((first_last, first_von_last, last_first, last_title_first))(input)
+}
+
 fn and_seperated_words(input: &str) -> IResult<&str, Vec<&str>> {
     separated_list1(
         terminated(tag_no_case("and"), space0),
@@ -666,4 +670,721 @@ mod test {
             last: vec!["Vallee", "Poussin"].into()
         }
     );
+
+    // this one is more about being able to parse different naming conventions
+    // rather than any particular format
+    #[test]
+    fn stress_test() -> Result<()> {
+        for (test, expected) in vec![
+            (
+                "Albert Einstein",
+                FullName {
+                    first: "Albert".into(),
+                    last: "Einstein".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Dr. Emmet Brown",
+                FullName {
+                    first: "Emmet".into(),
+                    last: "Brown".into(),
+                    von: vec![].into(),
+                    title: "Dr".into(),
+                },
+            ),
+            (
+                "Leonardo da Vinci",
+                FullName {
+                    first: "Leonardo".into(),
+                    last: "Vinci".into(),
+                    von: "da".into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Sir Arthur Conan Doyle",
+                FullName {
+                    first: "Arthur".into(),
+                    last: vec!["Conan", "Doyle"].into(),
+                    von: vec![].into(),
+                    title: "Sir".into(),
+                },
+            ),
+            (
+                "Madame Marie Curie",
+                FullName {
+                    first: "Marie".into(),
+                    last: "Curie".into(),
+                    von: vec![].into(),
+                    title: "Madame".into(),
+                },
+            ),
+            (
+                "Jean-Jacques Rousseau",
+                FullName {
+                    first: "Jean-Jacques".into(),
+                    last: "Rousseau".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Friedrich Nietzsche",
+                FullName {
+                    first: "Friedrich".into(),
+                    last: "Nietzsche".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Ada Lovelace",
+                FullName {
+                    first: "Ada".into(),
+                    last: "Lovelace".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Vincent van Gogh",
+                FullName {
+                    first: "Vincent".into(),
+                    last: "Gogh".into(),
+                    von: "van".into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Amelia Earhart",
+                FullName {
+                    first: "Amelia".into(),
+                    last: "Earhart".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Hermann Hesse",
+                FullName {
+                    first: "Hermann".into(),
+                    last: "Hesse".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Alexandre Dumas",
+                FullName {
+                    first: "Alexandre".into(),
+                    last: "Dumas".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Gabriel Garcia Marquez",
+                FullName {
+                    first: "Gabriel".into(),
+                    last: vec!["Garcia", "Marquez"].into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Lise Meitner",
+                FullName {
+                    first: "Lise".into(),
+                    last: "Meitner".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Karl Marx",
+                FullName {
+                    first: "Karl".into(),
+                    last: "Marx".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Che Guevara",
+                FullName {
+                    first: "Che".into(),
+                    last: "Guevara".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Sigmund Freud",
+                FullName {
+                    first: "Sigmund".into(),
+                    last: "Freud".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Dr. Seuss",
+                FullName {
+                    first: "".into(),
+                    last: "Seuss".into(),
+                    von: vec![].into(),
+                    title: "Dr".into(),
+                },
+            ),
+            (
+                "Virginia Woolf",
+                FullName {
+                    first: "Virginia".into(),
+                    last: "Woolf".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Vasco da Gama",
+                FullName {
+                    first: "Vasco".into(),
+                    last: "Gama".into(),
+                    von: "da".into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Catherine de Medici",
+                FullName {
+                    first: "Catherine".into(),
+                    last: "Medici".into(),
+                    von: "de".into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Francisco de Goya",
+                FullName {
+                    first: "Francisco".into(),
+                    last: "Goya".into(),
+                    von: "de".into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "William Shakespeare",
+                FullName {
+                    first: "William".into(),
+                    last: "Shakespeare".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Homer",
+                FullName {
+                    first: "Homer".into(),
+                    last: "".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Niccolo Machiavelli",
+                FullName {
+                    first: "Niccolo".into(),
+                    last: "Machiavelli".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Dante Alighieri",
+                FullName {
+                    first: "Dante".into(),
+                    last: "Alighieri".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Gregor Mendel",
+                FullName {
+                    first: "Gregor".into(),
+                    last: "Mendel".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Emily Dickinson",
+                FullName {
+                    first: "Emily".into(),
+                    last: "Dickinson".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Jules Verne",
+                FullName {
+                    first: "Jules".into(),
+                    last: "Verne".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Edgar Allan Poe",
+                FullName {
+                    first: vec!["Edgar", "Allan"].into(),
+                    last: "Poe".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Simón Bolívar",
+                FullName {
+                    first: "Simón".into(),
+                    last: "Bolívar".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Søren Kierkegaard",
+                FullName {
+                    first: "Søren".into(),
+                    last: "Kierkegaard".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Fyodor Dostoevsky",
+                FullName {
+                    first: "Fyodor".into(),
+                    last: "Dostoevsky".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Mikhail Lomonosov",
+                FullName {
+                    first: "Mikhail".into(),
+                    last: "Lomonosov".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Aung San Suu Kyii",
+                FullName {
+                    first: vec!["Aung", " San"].into(),
+                    last: vec!["Suu", "Kyi"].into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Nguyễn Du",
+                FullName {
+                    first: "Nguyễn".into(),
+                    last: "Du".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Sun Yat-sen",
+                FullName {
+                    first: "Sun".into(),
+                    last: "Yat-sen".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Hugo Chávez",
+                FullName {
+                    first: "Hugo".into(),
+                    last: "Chávez".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Frida Kahlo",
+                FullName {
+                    first: "Frida".into(),
+                    last: "Kahlo".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Salvador Allende",
+                FullName {
+                    first: "Salvador".into(),
+                    last: "Allende".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Gabriel Garcia Márquez",
+                FullName {
+                    first: "Gabriel".into(),
+                    last: vec!["Garcia", "Márquez"].into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Antoni Gaudí",
+                FullName {
+                    first: "Antoni".into(),
+                    last: "Gaudí".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Johan Sebastian Bach",
+                FullName {
+                    first: vec!["Johan", "Sebastian"].into(),
+                    last: "Bach".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Blaise Pascal",
+                FullName {
+                    first: "Blaise".into(),
+                    last: "Pascal".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "René Descartes",
+                FullName {
+                    first: "René".into(),
+                    last: "Descartes".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Mahatma Gandhi",
+                FullName {
+                    first: "Mahatma".into(),
+                    last: "Gandhi".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Niels Bohr",
+                FullName {
+                    first: "Niels".into(),
+                    last: "Bohr".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Léon Blum",
+                FullName {
+                    first: "Léon".into(),
+                    last: "Blum".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Jacques Chirac",
+                FullName {
+                    first: "Jacques".into(),
+                    last: "Chirac".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Václav Havel",
+                FullName {
+                    first: "Václav".into(),
+                    last: "Havel".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Jorge Luis Borges",
+                FullName {
+                    first: vec!["Jorge", "Luis "].into(),
+                    last: "Borges".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Paulo Coelho",
+                FullName {
+                    first: "Paulo".into(),
+                    last: "Coelho".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "José Saramago",
+                FullName {
+                    first: "José".into(),
+                    last: "Saramago".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Arundhati Roy",
+                FullName {
+                    first: "Arundhati".into(),
+                    last: "Roy".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Haruki Murakami",
+                FullName {
+                    first: "Haruki".into(),
+                    last: "Murakami".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Kenzaburō Ōe",
+                FullName {
+                    first: "Kenzaburō".into(),
+                    last: "Ōe".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+            (
+                "Naguib, Mahfouz",
+                FullName {
+                    first: "Naguib".into(),
+                    last: "Mahfouz".into(),
+                    von: vec![].into(),
+                    title: vec![].into(),
+                },
+            ),
+        ] {
+            let (tail, name) = name(test)?;
+            assert_eq!(tail, "");
+            assert_eq!(name, expected);
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn stress_test_unicode() -> Result<()> {
+        for (test, expected) in vec![
+            (
+                "Лев Толстой",
+                FullName {
+                    first: "Лев".into(),
+                    last: "Толстой".into(),
+                    von: "".into(),
+                    title: "".into(),
+                },
+            ),
+            (
+                "Αριστοτέλης",
+                FullName {
+                    first: "Αριστοτέλης".into(),
+                    last: "".into(),
+                    von: "".into(),
+                    title: "".into(),
+                },
+            ),
+            (
+                "孔子",
+                FullName {
+                    first: "孔子".into(),
+                    last: "".into(),
+                    von: "".into(),
+                    title: "".into(),
+                },
+            ),
+            (
+                "محمد علي",
+                FullName {
+                    first: "محمد".into(),
+                    last: "علي".into(),
+                    von: "".into(),
+                    title: "".into(),
+                },
+            ),
+            (
+                "三島 由紀夫",
+                FullName {
+                    first: "由紀夫".into(),
+                    last: "三島".into(),
+                    von: "".into(),
+                    title: "".into(),
+                },
+            ),
+            (
+                "김 정은",
+                FullName {
+                    first: "정은".into(),
+                    last: "김".into(),
+                    von: "".into(),
+                    title: "".into(),
+                },
+            ),
+            (
+                "महात्मा गाँधी",
+                FullName {
+                    first: "महात्मा".into(),
+                    last: "गाँधी".into(),
+                    von: "".into(),
+                    title: "".into(),
+                },
+            ),
+            (
+                "รัชกาล ที่ ๙",
+                FullName {
+                    first: "รัชกาล".into(),
+                    last: "ที่ ๙".into(),
+                    von: "".into(),
+                    title: "".into(),
+                },
+            ),
+            (
+                "אברהם לינקולן",
+                FullName {
+                    first: "אברהם".into(),
+                    last: "לינקולן".into(),
+                    von: "".into(),
+                    title: "".into(),
+                },
+            ),
+            (
+                "नरेन्द्र मोदी",
+                FullName {
+                    first: "नरेन्द्र".into(),
+                    last: "मोदी".into(),
+                    von: "".into(),
+                    title: "".into(),
+                },
+            ),
+            (
+                "பெரியார் இ.வே. ராமசாமி",
+                FullName {
+                    first: "இ.வே.".into(),
+                    last: "ராமசாமி".into(),
+                    von: "".into(),
+                    title: "பெரியார்".into(),
+                },
+            ),
+            (
+                "สุทธาทิพย์ จันทร์พุทธา",
+                FullName {
+                    first: "สุทธาทิพย์".into(),
+                    last: "จันทร์พุทธา".into(),
+                    von: "".into(),
+                    title: "".into(),
+                },
+            ),
+            (
+                "Тарас Шевченко",
+                FullName {
+                    first: "Тарас".into(),
+                    last: "Шевченко".into(),
+                    von: "".into(),
+                    title: "".into(),
+                },
+            ),
+            (
+                "ابن سينا",
+                FullName {
+                    first: "ابن".into(),
+                    last: "سينا".into(),
+                    von: "".into(),
+                    title: "".into(),
+                },
+            ),
+            (
+                "ศรีสะเกษ นครหลวงโปรโมชั่น",
+                FullName {
+                    first: "ศรีสะเกษ".into(),
+                    last: "นครหลวงโปรโมชั่น".into(),
+                    von: "".into(),
+                    title: "".into(),
+                },
+            ),
+            (
+                "สุรศักดิ์ เจริญศรี",
+                FullName {
+                    first: "สุรศักดิ์".into(),
+                    last: "เจริญศรี".into(),
+                    von: "".into(),
+                    title: "".into(),
+                },
+            ),
+            (
+                "林 書豪",
+                FullName {
+                    first: "書豪".into(),
+                    last: "林".into(),
+                    von: "".into(),
+                    title: "".into(),
+                },
+            ),
+            (
+                "김 정환",
+                FullName {
+                    first: "정환".into(),
+                    last: "김".into(),
+                    von: "".into(),
+                    title: "".into(),
+                },
+            ),
+            (
+                "山田 太郎",
+                FullName {
+                    first: "太郎".into(),
+                    last: "山田".into(),
+                    von: "".into(),
+                    title: "".into(),
+                },
+            ),
+            (
+                "Владимир Путин",
+                FullName {
+                    first: "Владимир".into(),
+                    last: "Путин".into(),
+                    von: "".into(),
+                    title: "".into(),
+                },
+            ),
+        ] {
+            let (tail, name) = name(test)?;
+            assert_eq!(tail, "");
+            assert_eq!(name, expected);
+        }
+        Ok(())
+    }
 }
