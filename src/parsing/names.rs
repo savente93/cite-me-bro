@@ -202,28 +202,18 @@ fn first_last(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
         },
     ))
 }
-fn last(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
-    let (tail, last) = alt((initial, word))(input)?;
-    Ok((
-        tail,
-        FullName {
-            first: "".into(),
-            last: last.into(),
-        },
-    ))
-}
 
 fn and_seperated_words(input: &str) -> IResult<&str, Vec<&str>> {
     separated_list1(
-        terminated(tag_no_case("and"), trim0),
-        terminated(word, trim0),
+        terminated(tag_no_case("and"), space0),
+        terminated(space0, space0),
     )(input)
 }
 
 fn and_seperated_names(input: &str) -> IResult<&str, Vec<FullName>, nom::error::Error<&str>> {
     let (tail, names) = separated_list1(
-        delimited(trim0, tag_no_case("and"), trim0),
-        alt((last, first_last, last_first)),
+        delimited(space0, tag_no_case("and"), space0),
+        alt((last_first, first_last)),
     )(input)?;
 
     Ok((tail, names))
@@ -443,33 +433,35 @@ mod test {
     );
 
     parse_test!(
-        test_last,
-        last,
-        "Sam",
+        test_and_component_last_first,
+        last_first,
+        "Fisher, James",
         FullName {
-            first: "".into(),
-            last: "Sam".into()
+            first: "James".into(),
+            last: "Fisher".into()
         }
     );
     parse_test!(
-        test_and_seperated_words,
-        and_seperated_words,
-        "Sam and Steve",
-        vec!["Sam", "Steve"]
+        test_and_component_first_last,
+        first_last,
+        "John Clark",
+        FullName {
+            first: "John".into(),
+            last: "Clark".into()
+        }
     );
-
     parse_test!(
-        test_simple_multiple_names,
+        test_last_first_and_first_last,
         and_seperated_names,
-        "Sam and Steve",
+        "Fisher, James AND John Clark",
         vec![
             FullName {
-                first: "".into(),
-                last: "Sam".into()
+                first: "James".into(),
+                last: "Fisher".into()
             },
             FullName {
-                first: "".into(),
-                last: "Steve".into()
+                first: "John".into(),
+                last: "Clark".into()
             }
         ]
     );
@@ -483,5 +475,4 @@ mod test {
     // Frank Mittelbach and Michel Gossens and Johannes Braams and David Carlisle and Chris Rowley
     // author = {Geert {Van der Plas} and John Doe}
     // King, Jr, Martin Luther
-    // Fisher, James AND John Clark
 }
