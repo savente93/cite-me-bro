@@ -68,10 +68,15 @@ lazy_static! {
     static ref TITLE: BTreeSet<&'static str> = {
         let mut m = BTreeSet::new();
         m.insert("sir");
+        m.insert("Sir");
         m.insert("madam");
         m.insert("monsieur");
-        m.insert("ir");
+        m.insert("Madam");
+        m.insert("Monsieur");
+        m.insert("Ir");
         m.insert("dr");
+        m.insert("Dr");
+        m.insert("III");
         // m.insert("");
         // m.insert("");
         // m.insert("");
@@ -289,12 +294,15 @@ fn last_first(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
     let (last_von, last): (Vec<&str>, Vec<&str>) =
         last_with_von.iter().partition(|&w| VON.contains(w));
     von.extend(last_von);
+    let (mut title, first): (Vec<&str>, Vec<&str>) = first.iter().partition(|&w| TITLE.contains(w));
+    let (title_last, last): (Vec<&str>, Vec<&str>) = last.iter().partition(|&w| TITLE.contains(w));
+    title.extend(title_last);
     Ok((
         tail,
         FullName {
             last: last.into(),
             first: first.into(),
-            title: vec![].into(),
+            title: title.into(),
             von: von.into(),
         },
     ))
@@ -329,7 +337,10 @@ fn first_last(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
             let mut first = vec![];
             let mut von = vec![];
             let mut last = vec![];
-            let j = last_von.unwrap();
+
+            // if first will be found, so will last.
+            let j = num_words - last_von.unwrap() - 1;
+
             for _ in 0..i {
                 first.push(words.remove(0))
             }
@@ -349,13 +360,17 @@ fn first_last(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
         }
     };
 
+    let (mut title, first): (Vec<&str>, Vec<&str>) = first.iter().partition(|&w| TITLE.contains(w));
+    let (title_last, last): (Vec<&str>, Vec<&str>) = last.iter().partition(|&w| TITLE.contains(w));
+    title.extend(title_last);
+
     Ok((
         tail,
         FullName {
             first: first.into(),
             last: last.into(),
             von: von.into(),
-            title: vec![].into(),
+            title: title.into(),
         },
     ))
 }
