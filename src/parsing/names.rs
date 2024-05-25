@@ -466,13 +466,41 @@ mod test {
         ]
     );
 
+    parse_test!(
+        test_multiple_first_last_and_seperated,
+        and_seperated_names,
+        "Frank Mittelbach and Michel Gossens and Johannes Braams and David Carlisle and Chris Rowley",
+        vec![
+            FullName {
+                first: "Frank".into(),
+                last: "Mittelbach".into()
+            },
+            FullName {
+                first: "Michel".into(),
+                last: "Gossens".into()
+            },
+            FullName {
+                first: "Johannes".into(),
+                last: "Braams".into()
+            },
+            FullName {
+                first: "David".into(),
+                last: "Carlisle".into()
+            },
+            FullName {
+                first: "Chris".into(),
+                last: "Rowley".into()
+            }
+        ]
+    );
+
     // Charles Louis Xavier Joseph de la Vallee Poussin -> First(Charles Louis Xavier Joseph) von(de la) Last(Vallee Poussin)
     // Ford, Jr., Henry
 
     // % An example with a suffix
     // author = "Stoner, Jr, Winifred Sackville"
 
-    // Frank Mittelbach and Michel Gossens and Johannes Braams and David Carlisle and Chris Rowley
+    //
     // author = {Geert {Van der Plas} and John Doe}
     // King, Jr, Martin Luther
 }
