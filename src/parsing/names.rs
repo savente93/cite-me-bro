@@ -8,7 +8,7 @@ use nom::{
         complete::{char, line_ending, not_line_ending, one_of, space0, space1},
         is_space,
     },
-    combinator::{eof, map},
+    combinator::{eof, map, recognize, verify},
     multi::{many1, many_till, separated_list0, separated_list1},
     sequence::{delimited, pair, preceded, separated_pair, terminated},
     AsChar, Err, IResult, Parser,
@@ -61,7 +61,12 @@ fn trim0(input: &str) -> IResult<&str, ()> {
 }
 
 fn word(input: &str) -> IResult<&str, &str> {
-    let (tail, word) = alt((brace_quoted_literal, take_while1(AsChar::is_alpha)))(input)?;
+    let (tail, word) = alt((
+        brace_quoted_literal,
+        verify(take_while1(AsChar::is_alpha), |w: &str| {
+            w.to_lowercase() != "and"
+        }),
+    ))(input)?;
     Ok((tail, word))
 }
 
@@ -163,7 +168,8 @@ fn von(input: &str) -> IResult<&str, &str> {
 }
 
 fn space_seperated_words(input: &str) -> IResult<&str, Vec<&str>> {
-    separated_list1(space1, alt((initial, word)))(input)
+    let (tail, words) = separated_list1(space1, alt((initial, word)))(input)?;
+    Ok((tail, words))
 }
 
 fn brace_quoted_literal(input: &str) -> IResult<&str, &str> {
@@ -195,6 +201,32 @@ fn first_last(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
             last: last.into(),
         },
     ))
+}
+fn last(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
+    let (tail, last) = alt((initial, word))(input)?;
+    Ok((
+        tail,
+        FullName {
+            first: "".into(),
+            last: last.into(),
+        },
+    ))
+}
+
+fn and_seperated_words(input: &str) -> IResult<&str, Vec<&str>> {
+    separated_list1(
+        terminated(tag_no_case("and"), trim0),
+        terminated(word, trim0),
+    )(input)
+}
+
+fn and_seperated_names(input: &str) -> IResult<&str, Vec<FullName>, nom::error::Error<&str>> {
+    let (tail, names) = separated_list1(
+        delimited(trim0, tag_no_case("and"), trim0),
+        alt((last, first_last, last_first)),
+    )(input)?;
+
+    Ok((tail, names))
 }
 
 #[cfg(test)]
@@ -408,6 +440,38 @@ mod test {
             first: vec!["Ronald"].into(),
             last: "Van der Jawel".into()
         }
+    );
+
+    parse_test!(
+        test_last,
+        last,
+        "Sam",
+        FullName {
+            first: "".into(),
+            last: "Sam".into()
+        }
+    );
+    parse_test!(
+        test_and_seperated_words,
+        and_seperated_words,
+        "Sam and Steve",
+        vec!["Sam", "Steve"]
+    );
+
+    parse_test!(
+        test_simple_multiple_names,
+        and_seperated_names,
+        "Sam and Steve",
+        vec![
+            FullName {
+                first: "".into(),
+                last: "Sam".into()
+            },
+            FullName {
+                first: "".into(),
+                last: "Steve".into()
+            }
+        ]
     );
 
     // Charles Louis Xavier Joseph de la Vallee Poussin -> First(Charles Louis Xavier Joseph) von(de la) Last(Vallee Poussin)
