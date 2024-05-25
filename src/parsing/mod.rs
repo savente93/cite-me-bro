@@ -6,9 +6,9 @@ use biblatex::Pagination;
 // lint allows are just while developing, will be removed soon
 use nom::{
     branch::alt,
-    bytes::complete::{tag, take_while, take_while1},
+    bytes::complete::{tag, take_until, take_while, take_while1},
     character::{
-        complete::{line_ending, one_of, space0, space1},
+        complete::{char, line_ending, not_line_ending, one_of, space0, space1},
         is_space,
     },
     combinator::{eof, map},
@@ -70,6 +70,10 @@ fn word(input: &str) -> IResult<&str, &str> {
 
 fn space_seperated_words(input: &str) -> IResult<&str, Vec<&str>> {
     separated_list1(space1, word)(input)
+}
+
+fn brace_quoted_literal(input: &str) -> IResult<&str, &str> {
+    delimited(char('{'), take_until("}"), char('}'))(input)
 }
 
 fn last_first(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
@@ -210,13 +214,23 @@ mod test {
 
         Ok(())
     }
+    #[test]
+    fn test_quoted_literal() -> Result<()> {
+        //        pu
+        let name = "{Barnes and Noble, Inc.}";
+        let (tail, name) = brace_quoted_literal(name)?;
+        assert_eq!(tail, "");
+        assert_eq!(name, "Barnes and Noble, Inc.");
+
+        Ok(())
+    }
     // author = ""
     // author = ""
 
     //     }
     // Brinch Hansen, Per
     // Charles Louis Xavier Joseph de la Vallee Poussin -> First(Charles Louis Xavier Joseph) von(de la) Last(Vallee Poussin)
-    //  "{Barnes and Noble, Inc.}" "{Barnes and} {Noble, Inc.}" "{Barnes} {and} {Noble,} {Inc.}"
+    //  "" "{Barnes and} {Noble, Inc.}" "{Barnes} {and} {Noble,} {Inc.}"
     // Ford, Jr., Henry
     // author = "Jackson, Michael J"
     // author = "Jackson, M J"
