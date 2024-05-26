@@ -2,7 +2,11 @@ use crate::parsing::{entry::BibEntry, names::OwnedFullName};
 use unicode_segmentation::UnicodeSegmentation;
 
 pub fn fmt_reference_ieee(entry: BibEntry) -> String {
-    todo!();
+    format!(
+        "{}, {}",
+        fmt_author_ieee(entry.authors.clone()),
+        fmt_title_ieee(entry)
+    )
 }
 
 fn fmt_single_author_ieee(name: OwnedFullName) -> String {
@@ -53,16 +57,15 @@ fn fmt_author_ieee(mut authors: Vec<OwnedFullName>) -> String {
 }
 
 fn fmt_title_ieee(entry: BibEntry) -> String {
-    format!("\"{}\"", entry.fields.get("title").unwrap())
-}
-
-pub fn fmt_entry(entry: BibEntry) -> String {
-    todo!();
+    format!("\"{},\"", entry.fields.get("title").unwrap())
 }
 
 #[cfg(test)]
 mod test {
+    use std::collections::BTreeMap;
+
     use super::*;
+    use crate::parsing::entry::EntryType;
     use anyhow::Result;
     #[test]
     fn single_author_fmt() -> Result<()> {
@@ -236,6 +239,36 @@ mod test {
         ];
         let formated = fmt_author_ieee(authors);
         assert_eq!(formated, "A. M. Lovelace Augusta et al.");
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_random_forests_against_externally_generated() -> Result<()> {
+        let mut fields = BTreeMap::new();
+
+        fields.insert("journal".to_string(), "Machine learning".to_string());
+        fields.insert("pages".to_string(), "5--32".to_string());
+        fields.insert("publisher".to_string(), "Springer".to_string());
+        fields.insert("title".to_string(), "Random Forests".to_string());
+        fields.insert("volume".to_string(), "45".to_string());
+        fields.insert("year".to_string(), "2001".to_string());
+
+        let expected = "L. Breiman, \"Random Forests,\" Machine Learning, vol. 45, no. 1, pp. 5–32, 2001, doi: https://doi.org/10.1023/a:1010933404324.".to_string();
+        let entry = BibEntry {
+            kind: EntryType::Article,
+            key: "breiman2001random".to_string(),
+            authors: vec![OwnedFullName {
+                first: vec!["Leo".to_string()],
+                last: vec!["Breiman".to_string()],
+                von: vec![],
+                title: vec![],
+            }],
+            fields,
+        };
+        let answer = fmt_reference_ieee(entry);
+
+        assert_eq!(answer, expected);
 
         Ok(())
     }
