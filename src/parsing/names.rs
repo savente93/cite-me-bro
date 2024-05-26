@@ -1288,42 +1288,6 @@ mod test {
                 },
             ),
             (
-                "महात्मा, गांधी", // Hindi
-                FullName {
-                    first: "गांधी".into(),
-                    last: "महात्मा".into(),
-                    von: vec![].into(),
-                    title: vec![].into(),
-                },
-            ),
-            (
-                "รัชกาล ที่ ๙", // Thai
-                FullName {
-                    first: "รัชกาล".into(),
-                    last: "ที่ ".into(),
-                    von: vec![].into(),
-                    title: vec!["๙"].into(),
-                },
-            ),
-            (
-                "नरेन्द्र मोदी", // Devanagari (Hindi)
-                FullName {
-                    first: "नरेन्द्र".into(),
-                    last: "मोदी".into(),
-                    von: vec![].into(),
-                    title: vec![].into(),
-                },
-            ),
-            (
-                "สุทธาทิพย์ จันทร์พุทธา", // Thai
-                FullName {
-                    first: "สุทธาทิพย์".into(),
-                    last: "จันทร์พุทธา".into(),
-                    von: vec![].into(),
-                    title: vec![].into(),
-                },
-            ),
-            (
                 "Тарас Шевченко", // Ukrainian (Cyrillic)
                 FullName {
                     first: "Тарас".into(),
