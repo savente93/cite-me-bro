@@ -7,7 +7,7 @@ use nom::{
     branch::alt,
     bytes::complete::{tag, tag_no_case, take_until, take_while, take_while1},
     character::{
-        complete::{char, line_ending, not_line_ending, one_of, space0, space1},
+        complete::{char, line_ending, multispace0, not_line_ending, one_of, space0, space1},
         is_space,
     },
     combinator::{eof, map, recognize, verify},
@@ -139,13 +139,17 @@ fn trim0(input: &str) -> IResult<&str, ()> {
     }
 }
 
+fn hyphenated_word(input: &str) -> IResult<&str, &str> {
+    recognize(separated_list1(tag("-"), inner_word))(input)
+}
+
+fn inner_word(input: &str) -> IResult<&str, &str> {
+    verify(take_while1(|c: char| c.is_alphabetic()), |w: &str| {
+        w.to_lowercase() != "and"
+    })(input)
+}
 fn word(input: &str) -> IResult<&str, &str> {
-    let (tail, word) = alt((
-        brace_quoted_literal,
-        verify(take_while1(|c: char| c.is_alphabetic()), |w: &str| {
-            w.to_lowercase() != "and"
-        }),
-    ))(input)?;
+    let (tail, word) = alt((brace_quoted_literal, hyphenated_word, inner_word))(input)?;
     Ok((tail, word))
 }
 
@@ -258,7 +262,7 @@ fn brace_quoted_literal(input: &str) -> IResult<&str, &str> {
 fn last_first(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
     let (tail, (last_with_von, first_with_von)) = separated_pair(
         space_seperated_words,
-        delimited(space0, tag(","), space0),
+        delimited(multispace0, tag(","), multispace0),
         space_seperated_words,
     )(input)?;
     let (mut von, first): (Vec<&str>, Vec<&str>) =
