@@ -49,6 +49,39 @@ fn entry_type(input: &str) -> IResult<&str, &str> {
     ))(input)
 }
 
+fn field_type(input: &str) -> IResult<&str, &str> {
+    alt((
+        alt((
+            tag_no_case("address"),
+            tag_no_case("annote"),
+            tag_no_case("author"),
+            tag_no_case("booktitle"),
+            tag_no_case("chapter"),
+            tag_no_case("edition"),
+            tag_no_case("editor"),
+        )),
+        tag_no_case("howpublished"),
+        tag_no_case("institution"),
+        tag_no_case("journal"),
+        tag_no_case("month"),
+        tag_no_case("note"),
+        tag_no_case("number"),
+        tag_no_case("organization"),
+        tag_no_case("pages"),
+        tag_no_case("publisher"),
+        tag_no_case("school"),
+        tag_no_case("series"),
+        tag_no_case("title"),
+        tag_no_case("type"),
+        tag_no_case("volume"),
+        tag_no_case("year"),
+        tag_no_case("doi"),
+        tag_no_case("issn"),
+        tag_no_case("isbn"),
+        tag_no_case("url"),
+    ))(input)
+}
+
 fn entry_kind(input: &str) -> IResult<&str, &str> {
     preceded(tag("@"), entry_type)(input)
 }
@@ -122,6 +155,44 @@ mod test {
         let (tail, content) = entry_key(&key)?;
         assert_eq!(tail, "");
         assert_eq!(content, "10.1093/femsec/fiw174");
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_field_type_parsing() -> Result<()> {
+        for (test, expected) in vec![
+            ("address", "address"),
+            ("annote", "annote"),
+            ("author", "author"),
+            ("booktitle", "booktitle"),
+            ("chapter", "chapter"),
+            ("edition", "edition"),
+            ("editor", "editor"),
+            ("howpublished", "howpublished"),
+            ("institution", "institution"),
+            ("journal", "journal"),
+            ("month", "month"),
+            ("note", "note"),
+            ("number", "number"),
+            ("organization", "organization"),
+            ("pages", "pages"),
+            ("publisher", "publisher"),
+            ("school", "school"),
+            ("series", "series"),
+            ("title", "title"),
+            ("type", "type"),
+            ("volume", "volume"),
+            ("year", "year"),
+            ("doi", "doi"),
+            ("issn", "issn"),
+            ("isbn", "isbn"),
+            ("url", "url"),
+        ] {
+            let (tail, field) = field_type(test)?;
+            assert_eq!(tail, "");
+            assert_eq!(field, expected);
+        }
 
         Ok(())
     }
