@@ -98,6 +98,19 @@ pub struct BibEntry {
     pub fields: BTreeMap<String, String>,
 }
 
+impl BibEntry {
+    pub fn into_components(
+        self,
+    ) -> (
+        EntryType,
+        String,
+        Vec<OwnedFullName>,
+        BTreeMap<String, String>,
+    ) {
+        (self.kind, self.key, self.authors, self.fields)
+    }
+}
+
 impl<'a> Debug for BibEntry {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}({})\n", self.key, self.kind)?;
@@ -427,9 +440,10 @@ mod test {
                 "title".to_string() => "Random forests".to_string() ,
                 "journal".to_string() => "Machine learning".to_string() ,
                 "volume".to_string() => "45".to_string() ,
-                "pages".to_string() => "5--32".to_string() ,
+                "pages".to_string() => "5-32".to_string() ,
                 "year".to_string() => "2001".to_string() ,
-                "publisher".to_string() => "Springer".to_string()
+                "publisher".to_string() => "Springer".to_string(),
+                "doi".to_string() => "https://doi.org/10.1023/A:1010933404324".to_string()
                               ),
             }
         );

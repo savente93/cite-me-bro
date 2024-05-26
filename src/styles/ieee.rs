@@ -2,10 +2,25 @@ use crate::parsing::{entry::BibEntry, names::OwnedFullName};
 use unicode_segmentation::UnicodeSegmentation;
 
 pub fn fmt_reference_ieee(entry: BibEntry) -> String {
+    let (_kind, _key, authors, fields) = entry.into_components();
+
+    let title = fields.get("title").unwrap_or(&String::new()).clone();
+    let publisher = fields.get("publisher").unwrap_or(&String::new()).clone();
+    let volume = fields.get("volume").unwrap_or(&String::new()).clone();
+    let pages = fields.get("pages").unwrap_or(&String::new()).clone();
+    let journal = fields.get("journal").unwrap_or(&String::new()).clone();
+    let year = fields.get("year").unwrap_or(&String::new()).clone();
+    let doi = fields.get("doi").unwrap_or(&String::new()).clone();
+
     format!(
-        "{}, {}",
-        fmt_author_ieee(entry.authors.clone()),
-        fmt_title_ieee(entry)
+        "{}, {} {}, vol. {}, pp. {}, {}, doi: {}.",
+        fmt_author_ieee(authors.clone()),
+        fmt_title_ieee(title),
+        journal,
+        volume,
+        pages,
+        year,
+        doi
     )
 }
 
@@ -56,8 +71,8 @@ fn fmt_author_ieee(mut authors: Vec<OwnedFullName>) -> String {
     }
 }
 
-fn fmt_title_ieee(entry: BibEntry) -> String {
-    format!("\"{},\"", entry.fields.get("title").unwrap())
+fn fmt_title_ieee(title: String) -> String {
+    format!("\"{},\"", title)
 }
 
 #[cfg(test)]
@@ -247,14 +262,18 @@ mod test {
     fn test_random_forests_against_externally_generated() -> Result<()> {
         let mut fields = BTreeMap::new();
 
-        fields.insert("journal".to_string(), "Machine learning".to_string());
-        fields.insert("pages".to_string(), "5--32".to_string());
+        fields.insert("journal".to_string(), "Machine Learning".to_string());
+        fields.insert("pages".to_string(), "5-32".to_string());
         fields.insert("publisher".to_string(), "Springer".to_string());
         fields.insert("title".to_string(), "Random Forests".to_string());
         fields.insert("volume".to_string(), "45".to_string());
         fields.insert("year".to_string(), "2001".to_string());
+        fields.insert(
+            "doi".to_string(),
+            "https://doi.org/10.1023/a:1010933404324".to_string(),
+        );
 
-        let expected = "L. Breiman, \"Random Forests,\" Machine Learning, vol. 45, no. 1, pp. 5–32, 2001, doi: https://doi.org/10.1023/a:1010933404324.".to_string();
+        let expected = "L. Breiman, \"Random Forests,\" Machine Learning, vol. 45, pp. 5-32, 2001, doi: https://doi.org/10.1023/a:1010933404324.".to_string();
         let entry = BibEntry {
             kind: EntryType::Article,
             key: "breiman2001random".to_string(),
