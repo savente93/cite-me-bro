@@ -5,23 +5,50 @@ pub fn fmt_reference_ieee(entry: BibEntry) -> String {
     todo!();
 }
 
+fn fmt_single_author_ieee(name: OwnedFullName) -> String {
+    format!(
+        "{} {}",
+        name.first
+            .iter()
+            .map(|n| format!("{}.", n.graphemes(true).next().unwrap()))
+            .collect::<Vec<String>>()
+            .join(" "),
+        name.last.join(" ")
+    )
+}
+
 fn fmt_author_ieee(mut authors: Vec<OwnedFullName>) -> String {
     match &authors.len() {
         0 => String::new(),
         1 => {
             let author = authors.remove(0);
+            fmt_single_author_ieee(author)
+        }
+        2 => {
+            let author1 = authors.remove(0);
+            let author2 = authors.remove(0);
             format!(
-                "{} {}",
-                author
-                    .first
-                    .iter()
-                    .map(|n| format!("{}.", n.graphemes(true).next().unwrap()))
-                    .collect::<Vec<String>>()
-                    .join(" "),
-                author.last.join(" ")
+                "{} and {}",
+                fmt_single_author_ieee(author1),
+                fmt_single_author_ieee(author2)
             )
         }
-        _ => todo!(),
+        3..=6 => {
+            let last_author = authors.remove(authors.len() - 1);
+            format!(
+                "{} and {}",
+                authors
+                    .into_iter()
+                    .map(fmt_single_author_ieee)
+                    .collect::<Vec<String>>()
+                    .join(", "),
+                fmt_single_author_ieee(last_author)
+            )
+        }
+        7.. => {
+            let author = authors.remove(0);
+            format!("{} et al.", fmt_single_author_ieee(author))
+        }
     }
 }
 
@@ -88,7 +115,7 @@ mod test {
         let formated = fmt_author_ieee(authors);
         assert_eq!(
             formated,
-            "A. M. Lovelace Augusta, A. E. Noether, and S. Germain"
+            "A. M. Lovelace Augusta, A. E. Noether and S. Germain"
         );
 
         Ok(())
@@ -136,7 +163,7 @@ mod test {
         let formated = fmt_author_ieee(authors);
         assert_eq!(
             formated,
-            "A. M. Lovelace Augusta, A. E. Noether, S. Germain, S. Kovalevskaya, D. Vaughn, and M. Mirzakhani"
+            "A. M. Lovelace Augusta, A. E. Noether, S. Germain, S. Kovalevskaya, D. Vaughn and M. Mirzakhani"
         );
 
         Ok(())
@@ -200,7 +227,7 @@ mod test {
             },
         ];
         let formated = fmt_author_ieee(authors);
-        assert_eq!(formated, "A. M. Lovelace et al.");
+        assert_eq!(formated, "A. M. Lovelace Augusta et al.");
 
         Ok(())
     }
