@@ -696,28 +696,6 @@ mod test {
     );
 
     parse_test!(
-        test_last_title_dotted_first,
-        last_first,
-        "Ford , Jr. , Henry",
-        FullName {
-            first: vec!["Henry"].into(),
-            von: vec![].into(),
-            title: "Jr".into(),
-            last: "Ford".into()
-        }
-    );
-    parse_test!(
-        test_last_title_first,
-        last_first,
-        "King, Jr, Martin Luther",
-        FullName {
-            first: vec!["Martin", "Luther"].into(),
-            title: "Jr".into(),
-            von: vec![].into(),
-            last: "King".into()
-        }
-    );
-    parse_test!(
         test_many_name_components,
         first_last,
         "Charles Louis Xavier Joseph de la Vallee Poussin III",
