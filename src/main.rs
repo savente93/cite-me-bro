@@ -3,6 +3,7 @@ use std::path::PathBuf;
 // use styles::CitationStyles;
 
 mod parsing;
+pub mod styles;
 pub mod utils;
 // mod styles;
 #[derive(Parser)]
