@@ -15,7 +15,7 @@ use nom::{
         complete::{char, line_ending, multispace0, not_line_ending, one_of, space0, space1},
         is_space,
     },
-    combinator::{eof, map, recognize, verify},
+    combinator::{all_consuming, eof, map, opt, recognize, verify},
     multi::{many1, many_till, separated_list0, separated_list1},
     sequence::{delimited, pair, preceded, separated_pair, terminated, tuple},
     AsChar, Err, IResult, Parser,
@@ -184,7 +184,7 @@ fn unquoted_field(input: &str) -> IResult<&str, &str> {
 
 fn fields(input: &str) -> IResult<&str, Vec<(&str, &str)>> {
     separated_list1(
-        tag(","),
+        alt((tag(","), line_ending)),
         delimited(
             multispace0,
             separated_pair(
@@ -198,7 +198,7 @@ fn fields(input: &str) -> IResult<&str, Vec<(&str, &str)>> {
 }
 
 fn entry_kind(input: &str) -> IResult<&str, EntryType> {
-    preceded(tag("@"), entry_type)(input)
+    preceded(multispace0, preceded(tag("@"), entry_type))(input)
 }
 
 fn entry_content(input: &str) -> IResult<&str, &str> {
@@ -215,6 +215,7 @@ fn entry(input: &str) -> IResult<&str, (EntryType, &str, Vec<(&str, &str)>)> {
     let (rest_of_content, key) = entry_key(content)?;
 
     let (_, fields) = fields(rest_of_content)?;
+    let (tail, _) = multispace0(tail)?;
     Ok((tail, (kind, key, fields)))
 }
 
@@ -222,7 +223,9 @@ fn parse_bib_file(path: PathBuf) -> Result<Vec<BibEntry>> {
     let contents = fs::read_to_string(path).expect("Should have been able to read the file");
 
     let (_tail, entries): (&str, Vec<(EntryType, &str, Vec<(&str, &str)>)>) =
-        many1(entry)(&contents).unwrap();
+        all_consuming(many1(entry))(&contents).unwrap();
+    dbg!(&entries);
+    dbg!(&_tail);
     let entry_vec: Vec<BibEntry> = entries.into_iter().map(|t| t.into()).collect();
     Ok(entry_vec)
 }
@@ -272,8 +275,7 @@ mod test {
         let (tail, (kind, key, fields)) = entry(entries)?;
         assert_eq!(
             tail,
-            "
-        @misc{bar,
+            "@misc{bar,
         title = {d}
         }"
         );
@@ -403,6 +405,26 @@ mod test {
                 "year".to_string() => "2001".to_string() ,
                 "publisher".to_string() => "Springer".to_string()
                               ),
+            }
+        );
+        assert_eq!(
+            entries[1],
+            BibEntry {
+                kind: EntryType::Article,
+                key: String::from("10.1093/femsec/fiw174"),
+                fields: dict!(
+                "author".to_string() => "Liao, Jingqiu and Cao, Xiaofeng and Zhao, Lei and Wang, Jie and Gao, Zhe and Wang, Michael Cai and Huang, Yi".to_string(),
+                "title".to_string() => "The importance of neutral and niche processes for bacterial community assembly differs between habitat generalists and specialists".to_string(),
+                "journal".to_string() => "FEMS Microbiology Ecology".to_string(),
+                "volume".to_string() => "92".to_string(),
+                "number".to_string() => "11".to_string(),
+                "pages".to_string() => "fiw174".to_string(),
+                "year".to_string() => "2016".to_string(),
+                "month".to_string() => "08".to_string(),
+                "issn".to_string() => "0168-6496".to_string(),
+                "doi".to_string() => "10.1093/femsec/fiw174".to_string(),
+                "url".to_string() => "https://doi.org/10.1093/femsec/fiw174".to_string()
+                          ),
             }
         );
         Ok(())
