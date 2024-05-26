@@ -52,6 +52,14 @@ fn fmt_author_ieee(mut authors: Vec<OwnedFullName>) -> String {
     }
 }
 
+fn fmt_title_ieee(entry: BibEntry) -> String {
+    format!("\"{}\"", entry.fields.get("title").unwrap())
+}
+
+pub fn fmt_entry(entry: BibEntry) -> String {
+    todo!();
+}
+
 #[cfg(test)]
 mod test {
     use super::*;

@@ -90,12 +90,12 @@ impl TryFrom<&str> for EntryType {
 
 #[derive(PartialEq, Eq)]
 pub struct BibEntry {
-    kind: EntryType,
-    key: String,
+    pub kind: EntryType,
+    pub key: String,
     // authors have a special data set and are also included in μ-almost all entries
     // so it get's special treatment
-    authors: Vec<OwnedFullName>,
-    fields: BTreeMap<String, String>,
+    pub authors: Vec<OwnedFullName>,
+    pub fields: BTreeMap<String, String>,
 }
 
 impl<'a> Debug for BibEntry {
