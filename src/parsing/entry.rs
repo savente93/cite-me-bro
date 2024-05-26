@@ -82,6 +82,24 @@ fn field_type(input: &str) -> IResult<&str, &str> {
     ))(input)
 }
 
+fn brace_quoted_field(input: &str) -> IResult<&str, &str> {
+    delimited(tag("{"), take_until_unbalanced('{', '}'), tag("}"))(input)
+}
+fn quote_quoted_field(input: &str) -> IResult<&str, &str> {
+    delimited(tag("\""), take_until_unbalanced('"', '"'), tag("\""))(input)
+}
+fn field(input: &str) -> IResult<&str, (&str, &str)> {
+    separated_pair(
+        field_type,
+        tag("="),
+        alt((brace_quoted_field, quote_quoted_field)),
+    )(input)
+}
+
+fn fields(input: &str) -> IResult<&str, Vec<(&str, &str)>> {
+    many1(field)(input)
+}
+
 fn entry_kind(input: &str) -> IResult<&str, &str> {
     preceded(tag("@"), entry_type)(input)
 }
@@ -146,6 +164,35 @@ mod test {
         }"
         );
 
+        Ok(())
+    }
+
+    fn parse_dummy_fields() -> Result<()> {
+        let dummy_content = "
+        foo = {bar}
+        baz = {
+            multi
+            line
+            content
+        }
+        asdf = \"whatever\"";
+        let (tail, fields) = fields(&dummy_content)?;
+        assert_eq!(tail, "");
+        assert_eq!(
+            fields,
+            vec![
+                ("foo", "bar"),
+                (
+                    "bas",
+                    "            multi
+            line
+            content
+"
+                ),
+                ("asdf", "whatever"),
+                ("foo", "bar"),
+            ]
+        );
         Ok(())
     }
 
