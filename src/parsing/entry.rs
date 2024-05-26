@@ -23,6 +23,8 @@ use nom::{
 use nom_supreme::error::ErrorTree;
 use parse_hyperlinks::take_until_unbalanced;
 
+use super::names::{self, and_seperated_names, FullName, OwnedFullName};
+
 #[derive(Debug, PartialEq, Eq)]
 pub enum EntryType {
     Article,
@@ -90,12 +92,19 @@ impl TryFrom<&str> for EntryType {
 pub struct BibEntry {
     kind: EntryType,
     key: String,
+    // authors have a special data set and are also included in μ-almost all entries
+    // so it get's special treatment
+    authors: Vec<OwnedFullName>,
     fields: BTreeMap<String, String>,
 }
 
 impl<'a> Debug for BibEntry {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}({})\n", self.key, self.kind)?;
+        write!(f, "  - Authors:\n")?;
+        for auth in self.authors.iter() {
+            write!(f, "    - {:?}\n", auth)?;
+        }
         for (k, v) in self.fields.iter() {
             write!(f, "  - {} = {}\n", k, v)?;
         }
@@ -107,12 +116,24 @@ impl<'a> Debug for BibEntry {
 impl<'a> From<(EntryType, &'a str, Vec<(&'a str, &'a str)>)> for BibEntry {
     fn from(value: (EntryType, &'a str, Vec<(&'a str, &'a str)>)) -> Self {
         let mut fields = BTreeMap::new();
+
         for (k, v) in value.2 {
+            // authors get special treatment
             fields.insert(String::from(k), String::from(v));
         }
+
+        let authors: Vec<OwnedFullName> = match fields.remove_entry("author") {
+            Some((_k, v)) => {
+                let (_tail, auth) = and_seperated_names(&v).unwrap();
+                auth.into_iter().map(|n| n.into()).collect()
+            }
+            None => vec![],
+        };
+
         Self {
             kind: value.0,
             key: String::from(value.1),
+            authors,
             fields,
         }
     }
@@ -396,9 +417,14 @@ mod test {
             BibEntry {
                 kind: EntryType::Article,
                 key: String::from("breiman2001random"),
+                authors: vec![OwnedFullName {
+                    first: vec!["Leo".to_string()],
+                    last: vec!["Breiman".to_string()],
+                    von: Vec::new(),
+                    title: Vec::new()
+                }],
                 fields: dict!(
                 "title".to_string() => "Random forests".to_string() ,
-                "author".to_string() => "Breiman, Leo".to_string() ,
                 "journal".to_string() => "Machine learning".to_string() ,
                 "volume".to_string() => "45".to_string() ,
                 "pages".to_string() => "5--32".to_string() ,
@@ -412,8 +438,51 @@ mod test {
             BibEntry {
                 kind: EntryType::Article,
                 key: String::from("10.1093/femsec/fiw174"),
+                authors: vec![
+                    OwnedFullName {
+                        first: vec!["Jingqiu".to_string()],
+                        last: vec!["Liao".to_string()],
+                        von: Vec::new(),
+                        title: Vec::new()
+                    },
+                    OwnedFullName {
+                        first: vec!["Xiaofeng".to_string()],
+                        last: vec!["Cao".to_string()],
+                        von: Vec::new(),
+                        title: Vec::new()
+                    },
+                    OwnedFullName {
+                        first: vec!["Lei".to_string()],
+                        last: vec!["Zhao".to_string()],
+                        von: Vec::new(),
+                        title: Vec::new()
+                    },
+                    OwnedFullName {
+                        first: vec!["Jie".to_string()],
+                        last: vec!["Wang".to_string()],
+                        von: Vec::new(),
+                        title: Vec::new()
+                    },
+                    OwnedFullName {
+                        first: vec!["Zhe".to_string()],
+                        last: vec!["Gao".to_string()],
+                        von: Vec::new(),
+                        title: Vec::new()
+                    },
+                    OwnedFullName {
+                        first: vec!["Michael".to_string(), "Cai".to_string()],
+                        last: vec!["Wang".to_string()],
+                        von: Vec::new(),
+                        title: Vec::new()
+                    },
+                    OwnedFullName {
+                        first: vec!["Yi".to_string()],
+                        last: vec!["Huang".to_string()],
+                        von: Vec::new(),
+                        title: Vec::new()
+                    },
+                ],
                 fields: dict!(
-                "author".to_string() => "Liao, Jingqiu and Cao, Xiaofeng and Zhao, Lei and Wang, Jie and Gao, Zhe and Wang, Michael Cai and Huang, Yi".to_string(),
                 "title".to_string() => "The importance of neutral and niche processes for bacterial community assembly differs between habitat generalists and specialists".to_string(),
                 "journal".to_string() => "FEMS Microbiology Ecology".to_string(),
                 "volume".to_string() => "92".to_string(),
