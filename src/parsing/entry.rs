@@ -5,7 +5,7 @@ use biblatex::Pagination;
 // lint allows are just while developing, will be removed soon
 use nom::{
     branch::alt,
-    bytes::complete::{tag, tag_no_case, take_until, take_while, take_while1},
+    bytes::complete::{tag, tag_no_case, take_till1, take_until, take_while, take_while1},
     character::{
         complete::{char, line_ending, not_line_ending, one_of, space0, space1},
         is_space,
@@ -16,6 +16,7 @@ use nom::{
     AsChar, Err, IResult, Parser,
 };
 use nom_supreme::error::ErrorTree;
+use parse_hyperlinks::take_until_unbalanced;
 
 #[derive(Debug)]
 pub enum EntryType {
@@ -52,6 +53,14 @@ fn entry_kind(input: &str) -> IResult<&str, &str> {
     preceded(tag("@"), entry_type)(input)
 }
 
+fn entry_content(input: &str) -> IResult<&str, &str> {
+    delimited(tag("{"), take_until_unbalanced('{', '}'), tag("}"))(input)
+}
+
+fn entry_key(input: &str) -> IResult<&str, &str> {
+    terminated(take_till1(|c| c == ','), char(','))(input)
+}
+
 #[cfg(test)]
 mod test {
     use super::entry_type;
@@ -79,6 +88,41 @@ mod test {
             assert_eq!(tail, "");
             assert_eq!(kind, expected);
         }
+        Ok(())
+    }
+
+    #[test]
+    fn parse_dummy_entry() -> Result<()> {
+        let dummy_entry = "{asdf,
+        foo = {bar}
+        baz = {
+            multi
+            line
+            content
+        }}";
+        let (tail, content) = entry_content(&dummy_entry)?;
+        assert_eq!(tail, "");
+        assert_eq!(
+            content,
+            "asdf,
+        foo = {bar}
+        baz = {
+            multi
+            line
+            content
+        }"
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_key_parsing() -> Result<()> {
+        let key = "10.1093/femsec/fiw174,";
+        let (tail, content) = entry_key(&key)?;
+        assert_eq!(tail, "");
+        assert_eq!(content, "10.1093/femsec/fiw174");
+
         Ok(())
     }
 }

@@ -10,4 +10,5 @@ clap = { version = "4.5.4", features = ["derive", "unicode"] }
 lazy_static = "1.4.0"
 nom = { version = "7.1.3", features = ["alloc"] }
 nom-supreme = "0.8.0"
+parse-hyperlinks = "0.27.2"
 serde = { version = "1.0.202", features = ["derive"] }
