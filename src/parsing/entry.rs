@@ -1,13 +1,13 @@
 use std::{collections::HashMap, fmt::Debug};
 
 use anyhow::Error;
-use biblatex::Pagination;
+use biblatex::{Entry, Pagination};
 // lint allows are just while developing, will be removed soon
 use nom::{
     branch::alt,
     bytes::complete::{tag, tag_no_case, take_till1, take_until, take_while, take_while1},
     character::{
-        complete::{char, line_ending, not_line_ending, one_of, space0, space1},
+        complete::{char, line_ending, multispace0, not_line_ending, one_of, space0, space1},
         is_space,
     },
     combinator::{eof, map, recognize, verify},
@@ -88,11 +88,21 @@ fn brace_quoted_field(input: &str) -> IResult<&str, &str> {
 fn quote_quoted_field(input: &str) -> IResult<&str, &str> {
     delimited(tag("\""), take_until_unbalanced('"', '"'), tag("\""))(input)
 }
+fn unquoted_field(input: &str) -> IResult<&str, &str> {
+    take_until(",")(input)
+}
 fn field(input: &str) -> IResult<&str, (&str, &str)> {
-    separated_pair(
-        field_type,
-        tag("="),
-        alt((brace_quoted_field, quote_quoted_field)),
+    delimited(
+        multispace0,
+        terminated(
+            separated_pair(
+                field_type,
+                delimited(multispace0, tag("="), multispace0),
+                alt((brace_quoted_field, quote_quoted_field, unquoted_field)),
+            ),
+            tag(","),
+        ),
+        multispace0,
     )(input)
 }
 
@@ -110,6 +120,15 @@ fn entry_content(input: &str) -> IResult<&str, &str> {
 
 fn entry_key(input: &str) -> IResult<&str, &str> {
     terminated(take_till1(|c| c == ','), char(','))(input)
+}
+
+fn entry(input: &str) -> IResult<&str, (&str, &str, Vec<(&str, &str)>)> {
+    let (tail, kind) = entry_kind(input)?;
+    let (tail, content) = entry_content(tail)?;
+    let (rest_of_content, key) = entry_key(content)?;
+
+    let (_, fields) = fields(rest_of_content)?;
+    Ok((tail, (kind, key, fields)))
 }
 
 #[cfg(test)]
@@ -142,6 +161,28 @@ mod test {
         Ok(())
     }
 
+    #[test]
+    fn parse_multiple_entry() -> Result<()> {
+        let entries = "@misc{foo,
+        title = {blurb},
+        }
+        @misc{bar,
+        title = {d}
+        }";
+        let (tail, (kind, key, fields)) = entry(entries)?;
+        assert_eq!(
+            tail,
+            "
+        @misc{bar,
+        title = {d}
+        }"
+        );
+
+        assert_eq!(kind, "misc");
+        assert_eq!(key, "foo");
+        assert_eq!(fields, vec![("title", "blurb")]);
+        Ok(())
+    }
     #[test]
     fn parse_dummy_entry() -> Result<()> {
         let dummy_entry = "{asdf,
