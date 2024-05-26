@@ -1,7 +1,6 @@
 use std::{collections::HashMap, fmt::Debug};
 
 use anyhow::Error;
-use biblatex::{Entry, Pagination};
 // lint allows are just while developing, will be removed soon
 use nom::{
     branch::alt,
@@ -18,10 +17,44 @@ use nom::{
 use nom_supreme::error::ErrorTree;
 use parse_hyperlinks::take_until_unbalanced;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum EntryType {
     Book,
-    Article,
+    Booklet,
+    Conference,
+    Inbook,
+    Incollection,
+    Inproceedings,
+    Manual,
+    Mastersthesis,
+    Misc,
+    Phdthesis,
+    Proceedings,
+    Techreport,
+    Unpublished,
+}
+
+impl TryFrom<&str> for EntryType {
+    type Error = &'static str;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        match value {
+            "booklet" => Ok(EntryType::Booklet),
+            "conference" => Ok(EntryType::Conference),
+            "inbook" => Ok(EntryType::Inbook),
+            "book" => Ok(EntryType::Book),
+            "incollection" => Ok(EntryType::Incollection),
+            "inproceedings" => Ok(EntryType::Inproceedings),
+            "manual" => Ok(EntryType::Manual),
+            "mastersthesis" => Ok(EntryType::Mastersthesis),
+            "misc" => Ok(EntryType::Misc),
+            "phdthesis" => Ok(EntryType::Phdthesis),
+            "proceedings" => Ok(EntryType::Proceedings),
+            "techreport" => Ok(EntryType::Techreport),
+            "unpublished" => Ok(EntryType::Unpublished),
+            _ => Err("unknown kind"),
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -31,8 +64,8 @@ pub struct BibEntry<'a> {
     fields: HashMap<&'a str, &'a str>,
 }
 
-fn entry_type(input: &str) -> IResult<&str, &str> {
-    alt((
+fn entry_type(input: &str) -> IResult<&str, EntryType> {
+    let (tail, t) = alt((
         tag_no_case("booklet"),
         tag_no_case("conference"),
         tag_no_case("inbook"),
@@ -46,7 +79,9 @@ fn entry_type(input: &str) -> IResult<&str, &str> {
         tag_no_case("proceedings"),
         tag_no_case("techreport"),
         tag_no_case("unpublished"),
-    ))(input)
+    ))(input)?;
+    let t = EntryType::try_from(t).expect("Unknown entry type");
+    Ok((tail, t))
 }
 
 fn field_type(input: &str) -> IResult<&str, &str> {
@@ -110,7 +145,7 @@ fn fields(input: &str) -> IResult<&str, Vec<(&str, &str)>> {
     many1(field)(input)
 }
 
-fn entry_kind(input: &str) -> IResult<&str, &str> {
+fn entry_kind(input: &str) -> IResult<&str, EntryType> {
     preceded(tag("@"), entry_type)(input)
 }
 
@@ -122,7 +157,7 @@ fn entry_key(input: &str) -> IResult<&str, &str> {
     terminated(take_till1(|c| c == ','), char(','))(input)
 }
 
-fn entry(input: &str) -> IResult<&str, (&str, &str, Vec<(&str, &str)>)> {
+fn entry(input: &str) -> IResult<&str, (EntryType, &str, Vec<(&str, &str)>)> {
     let (tail, kind) = entry_kind(input)?;
     let (tail, content) = entry_content(tail)?;
     let (rest_of_content, key) = entry_key(content)?;
@@ -140,19 +175,19 @@ mod test {
     #[test]
     fn parse_entry_types() -> Result<()> {
         for (test, expected) in vec![
-            ("@book", "book"),
-            ("@booklet", "booklet"),
-            ("@conference", "conference"),
-            ("@inbook", "inbook"),
-            ("@incollection", "incollection"),
-            ("@inproceedings", "inproceedings"),
-            ("@manual", "manual"),
-            ("@mastersthesis", "mastersthesis"),
-            ("@misc", "misc"),
-            ("@phdthesis", "phdthesis"),
-            ("@proceedings", "proceedings"),
-            ("@techreport", "techreport"),
-            ("@unpublished", "unpublished"),
+            ("@book", EntryType::Book),
+            ("@booklet", EntryType::Booklet),
+            ("@conference", EntryType::Conference),
+            ("@inbook", EntryType::Inbook),
+            ("@incollection", EntryType::Incollection),
+            ("@inproceedings", EntryType::Inproceedings),
+            ("@manual", EntryType::Manual),
+            ("@mastersthesis", EntryType::Mastersthesis),
+            ("@misc", EntryType::Misc),
+            ("@phdthesis", EntryType::Phdthesis),
+            ("@proceedings", EntryType::Proceedings),
+            ("@techreport", EntryType::Techreport),
+            ("@unpublished", EntryType::Unpublished),
         ] {
             let (tail, kind) = entry_kind(test)?;
             assert_eq!(tail, "");
@@ -178,7 +213,7 @@ mod test {
         }"
         );
 
-        assert_eq!(kind, "misc");
+        assert_eq!(kind, EntryType::Misc);
         assert_eq!(key, "foo");
         assert_eq!(fields, vec![("title", "blurb")]);
         Ok(())
@@ -219,6 +254,7 @@ mod test {
         asdf = \"whatever\"";
         let (tail, fields) = fields(&dummy_content)?;
         assert_eq!(tail, "");
+        // weird spacing needs to be maintained to get the pased content to line up
         assert_eq!(
             fields,
             vec![
