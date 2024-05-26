@@ -1,6 +1,12 @@
-use std::{collections::HashMap, fmt::Debug};
+use core::fmt;
+use std::{
+    collections::{hash_map, BTreeMap},
+    fmt::Debug,
+    fs,
+    path::{Path, PathBuf},
+};
 
-use anyhow::Error;
+use anyhow::{Error, Result};
 // lint allows are just while developing, will be removed soon
 use nom::{
     branch::alt,
@@ -19,6 +25,7 @@ use parse_hyperlinks::take_until_unbalanced;
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum EntryType {
+    Article,
     Book,
     Booklet,
     Conference,
@@ -34,11 +41,33 @@ pub enum EntryType {
     Unpublished,
 }
 
+impl fmt::Display for EntryType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            EntryType::Article => write!(f, "Article"),
+            EntryType::Book => write!(f, "Book"),
+            EntryType::Booklet => write!(f, "Booklet"),
+            EntryType::Conference => write!(f, "Conference"),
+            EntryType::Inbook => write!(f, "Inbook"),
+            EntryType::Incollection => write!(f, "Incollection"),
+            EntryType::Inproceedings => write!(f, "Inproceedings"),
+            EntryType::Manual => write!(f, "Manual"),
+            EntryType::Mastersthesis => write!(f, "Mastersthesis"),
+            EntryType::Misc => write!(f, "Misc"),
+            EntryType::Phdthesis => write!(f, "Phdthesis"),
+            EntryType::Proceedings => write!(f, "Proceedings"),
+            EntryType::Techreport => write!(f, "Techreport"),
+            EntryType::Unpublished => write!(f, "Unpublished"),
+        }
+    }
+}
+
 impl TryFrom<&str> for EntryType {
     type Error = &'static str;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         match value {
+            "article" => Ok(EntryType::Article),
             "booklet" => Ok(EntryType::Booklet),
             "conference" => Ok(EntryType::Conference),
             "inbook" => Ok(EntryType::Inbook),
@@ -57,15 +86,41 @@ impl TryFrom<&str> for EntryType {
     }
 }
 
-#[derive(Debug)]
-pub struct BibEntry<'a> {
+#[derive(PartialEq, Eq)]
+pub struct BibEntry {
     kind: EntryType,
-    key: &'a str,
-    fields: HashMap<&'a str, &'a str>,
+    key: String,
+    fields: BTreeMap<String, String>,
+}
+
+impl<'a> Debug for BibEntry {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}({})\n", self.key, self.kind)?;
+        for (k, v) in self.fields.iter() {
+            write!(f, "  - {} = {}\n", k, v)?;
+        }
+
+        Ok(())
+    }
+}
+
+impl<'a> From<(EntryType, &'a str, Vec<(&'a str, &'a str)>)> for BibEntry {
+    fn from(value: (EntryType, &'a str, Vec<(&'a str, &'a str)>)) -> Self {
+        let mut fields = BTreeMap::new();
+        for (k, v) in value.2 {
+            fields.insert(String::from(k), String::from(v));
+        }
+        Self {
+            kind: value.0,
+            key: String::from(value.1),
+            fields,
+        }
+    }
 }
 
 fn entry_type(input: &str) -> IResult<&str, EntryType> {
     let (tail, t) = alt((
+        tag_no_case("article"),
         tag_no_case("booklet"),
         tag_no_case("conference"),
         tag_no_case("inbook"),
@@ -126,23 +181,20 @@ fn quote_quoted_field(input: &str) -> IResult<&str, &str> {
 fn unquoted_field(input: &str) -> IResult<&str, &str> {
     take_until(",")(input)
 }
-fn field(input: &str) -> IResult<&str, (&str, &str)> {
-    delimited(
-        multispace0,
-        terminated(
+
+fn fields(input: &str) -> IResult<&str, Vec<(&str, &str)>> {
+    separated_list1(
+        tag(","),
+        delimited(
+            multispace0,
             separated_pair(
                 field_type,
                 delimited(multispace0, tag("="), multispace0),
                 alt((brace_quoted_field, quote_quoted_field, unquoted_field)),
             ),
-            tag(","),
+            multispace0,
         ),
-        multispace0,
     )(input)
-}
-
-fn fields(input: &str) -> IResult<&str, Vec<(&str, &str)>> {
-    many1(field)(input)
 }
 
 fn entry_kind(input: &str) -> IResult<&str, EntryType> {
@@ -166,8 +218,21 @@ fn entry(input: &str) -> IResult<&str, (EntryType, &str, Vec<(&str, &str)>)> {
     Ok((tail, (kind, key, fields)))
 }
 
+fn parse_bib_file(path: PathBuf) -> Result<Vec<BibEntry>> {
+    let contents = fs::read_to_string(path).expect("Should have been able to read the file");
+
+    let (_tail, entries): (&str, Vec<(EntryType, &str, Vec<(&str, &str)>)>) =
+        many1(entry)(&contents).unwrap();
+    let entry_vec: Vec<BibEntry> = entries.into_iter().map(|t| t.into()).collect();
+    Ok(entry_vec)
+}
+
 #[cfg(test)]
 mod test {
+    use std::str::FromStr;
+
+    use crate::dict;
+
     use super::entry_type;
     use super::*;
     use anyhow::Result;
@@ -318,6 +383,28 @@ mod test {
             assert_eq!(field, expected);
         }
 
+        Ok(())
+    }
+    #[test]
+    fn test_bib_file_parse() -> Result<()> {
+        let path = PathBuf::from_str("cite.bib")?;
+        let entries = parse_bib_file(path)?;
+        assert_eq!(
+            entries[0],
+            BibEntry {
+                kind: EntryType::Article,
+                key: String::from("breiman2001random"),
+                fields: dict!(
+                "title".to_string() => "Random forests".to_string() ,
+                "author".to_string() => "Breiman, Leo".to_string() ,
+                "journal".to_string() => "Machine learning".to_string() ,
+                "volume".to_string() => "45".to_string() ,
+                "pages".to_string() => "5--32".to_string() ,
+                "year".to_string() => "2001".to_string() ,
+                "publisher".to_string() => "Springer".to_string()
+                              ),
+            }
+        );
         Ok(())
     }
 }
