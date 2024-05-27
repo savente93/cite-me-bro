@@ -14,7 +14,7 @@ pub fn fmt_reference_ieee(entry: BibEntry) -> String {
 
     format!(
         "{}, {} {}, vol. {}, pp. {}, {}, doi: {}.",
-        fmt_author_ieee(authors.clone()),
+        fmt_authors_ieee(authors.clone()),
         fmt_title_ieee(title),
         journal,
         volume,
@@ -36,7 +36,7 @@ fn fmt_single_author_ieee(name: OwnedFullName) -> String {
     )
 }
 
-fn fmt_author_ieee(mut authors: Vec<OwnedFullName>) -> String {
+fn fmt_authors_ieee(mut authors: Vec<OwnedFullName>) -> String {
     match &authors.len() {
         0 => String::new(),
         1 => {
@@ -90,7 +90,7 @@ mod test {
             von: vec![],
             title: vec![],
         };
-        let formated = fmt_author_ieee(vec![author]);
+        let formated = fmt_authors_ieee(vec![author]);
         assert_eq!(formated, "A. M. Lovelace Augusta");
 
         Ok(())
@@ -111,7 +111,7 @@ mod test {
                 title: vec![],
             },
         ];
-        let formated = fmt_author_ieee(authors);
+        let formated = fmt_authors_ieee(authors);
         assert_eq!(formated, "A. M. Lovelace Augusta and A. E. Noether");
 
         Ok(())
@@ -138,7 +138,7 @@ mod test {
                 title: vec![],
             },
         ];
-        let formated = fmt_author_ieee(authors);
+        let formated = fmt_authors_ieee(authors);
         assert_eq!(
             formated,
             "A. M. Lovelace Augusta, A. E. Noether and S. Germain"
@@ -186,7 +186,7 @@ mod test {
                 title: vec![],
             },
         ];
-        let formated = fmt_author_ieee(authors);
+        let formated = fmt_authors_ieee(authors);
         assert_eq!(
             formated,
             "A. M. Lovelace Augusta, A. E. Noether, S. Germain, S. Kovalevskaya, D. Vaughn and M. Mirzakhani"
@@ -252,7 +252,7 @@ mod test {
                 title: vec![],
             },
         ];
-        let formated = fmt_author_ieee(authors);
+        let formated = fmt_authors_ieee(authors);
         assert_eq!(formated, "A. M. Lovelace Augusta et al.");
 
         Ok(())
