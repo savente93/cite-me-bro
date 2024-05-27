@@ -440,10 +440,11 @@ mod test {
                 "title".to_string() => "Random forests".to_string() ,
                 "journal".to_string() => "Machine learning".to_string() ,
                 "volume".to_string() => "45".to_string() ,
+                "number".to_string() => "1".to_string() ,
                 "pages".to_string() => "5-32".to_string() ,
                 "year".to_string() => "2001".to_string() ,
                 "publisher".to_string() => "Springer".to_string(),
-                "doi".to_string() => "https://doi.org/10.1023/A:1010933404324".to_string()
+                "doi".to_string() => "https://doi.org/10.1023/a:1010933404324".to_string()
                               ),
             }
         );

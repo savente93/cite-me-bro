@@ -5,7 +5,6 @@ pub fn fmt_reference_ieee(entry: BibEntry) -> String {
     let (_kind, _key, authors, fields) = entry.into_components();
 
     let title = fields.get("title").unwrap_or(&String::new()).clone();
-    let publisher = fields.get("publisher").unwrap_or(&String::new()).clone();
     let volume = fields.get("volume").unwrap_or(&String::new()).clone();
     let pages = fields.get("pages").unwrap_or(&String::new()).clone();
     let journal = fields.get("journal").unwrap_or(&String::new()).clone();
@@ -262,10 +261,10 @@ mod test {
     fn test_random_forests_against_externally_generated() -> Result<()> {
         let mut fields = BTreeMap::new();
 
-        fields.insert("journal".to_string(), "Machine Learning".to_string());
+        fields.insert("journal".to_string(), "Machine learning".to_string());
         fields.insert("pages".to_string(), "5-32".to_string());
         fields.insert("publisher".to_string(), "Springer".to_string());
-        fields.insert("title".to_string(), "Random Forests".to_string());
+        fields.insert("title".to_string(), "Random forests".to_string());
         fields.insert("volume".to_string(), "45".to_string());
         fields.insert("year".to_string(), "2001".to_string());
         fields.insert(
@@ -273,7 +272,7 @@ mod test {
             "https://doi.org/10.1023/a:1010933404324".to_string(),
         );
 
-        let expected = "L. Breiman, \"Random Forests,\" Machine Learning, vol. 45, pp. 5-32, 2001, doi: https://doi.org/10.1023/a:1010933404324.".to_string();
+        let expected = "L. Breiman, \"Random forests,\" Machine learning, vol. 45, pp. 5-32, 2001, doi: https://doi.org/10.1023/a:1010933404324.".to_string();
         let entry = BibEntry {
             kind: EntryType::Article,
             key: "breiman2001random".to_string(),

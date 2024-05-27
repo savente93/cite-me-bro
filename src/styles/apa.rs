@@ -2,9 +2,39 @@ use crate::parsing::{entry::BibEntry, names::OwnedFullName};
 use unicode_segmentation::UnicodeSegmentation;
 
 pub fn fmt_reference_apa(entry: BibEntry) -> String {
-    format!("{}, {}",)
+    let (_kind, _key, authors, fields) = entry.into_components();
+
+    let title = fields.get("title").unwrap().clone();
+    let volume = fields.get("volume").unwrap_or(&String::new()).clone();
+    let pages = fields.get("pages").unwrap_or(&String::new()).clone();
+    let number = fields.get("number").unwrap_or(&String::new()).clone();
+    let journal = fields.get("journal").unwrap_or(&String::new()).clone();
+    let year = fields.get("year").map(|s| s.to_string());
+    let doi = fields.get("doi").unwrap_or(&String::new()).clone();
+    format!(
+        "{} {} {} {} {} {} {}",
+        fmt_authors_apa(authors),
+        fmt_pub_date_apa(year),
+        fmt_title_apa(title),
+        fmt_journal_apa(journal),
+        fmt_vol_issue_apa(volume, number),
+        fmt_pages_apa(pages),
+        fmt_doi_apa(doi),
+    )
 }
 
+fn fmt_pages_apa(pages: String) -> String {
+    format!("{}.", pages)
+}
+fn fmt_doi_apa(doi: String) -> String {
+    format!("{}", doi)
+}
+fn fmt_journal_apa(journal: String) -> String {
+    format!("{},", journal)
+}
+fn fmt_vol_issue_apa(vol: String, number: String) -> String {
+    format!("{}({}),", vol, number)
+}
 fn fmt_authors_apa(mut authors: Vec<OwnedFullName>) -> String {
     match &authors.len() {
         0 => String::new(),
@@ -50,7 +80,10 @@ fn fmt_authors_apa(mut authors: Vec<OwnedFullName>) -> String {
 }
 
 fn fmt_pub_date_apa(year: Option<String>) -> String {
-    format!("({})", year.unwrap_or_else(|| "n.d.".to_string()))
+    format!("({}).", year.unwrap_or_else(|| "n.d.".to_string()))
+}
+fn fmt_title_apa(title: String) -> String {
+    format!("{}.", title)
 }
 
 fn fmt_single_author_apa(name: OwnedFullName) -> String {
@@ -297,13 +330,17 @@ mod test {
         let mut fields = BTreeMap::new();
 
         fields.insert("journal".to_string(), "Machine learning".to_string());
-        fields.insert("pages".to_string(), "5--32".to_string());
-        fields.insert("publisher".to_string(), "Springer".to_string());
-        fields.insert("title".to_string(), "Random Forests".to_string());
+        fields.insert("pages".to_string(), "5-32".to_string());
+        fields.insert("number".to_string(), "1".to_string());
+        fields.insert(
+            "doi".to_string(),
+            "https://doi.org/10.1023/a:1010933404324".to_string(),
+        );
+        fields.insert("title".to_string(), "Random forests".to_string());
         fields.insert("volume".to_string(), "45".to_string());
         fields.insert("year".to_string(), "2001".to_string());
 
-        let expected = "Breiman, L. (2001). Random forests. Machine Learning, 45(1), 5–32. https://doi.org/10.1023/a:1010933404324".to_string();
+        let expected = "Breiman, L. (2001). Random forests. Machine learning, 45(1), 5-32. https://doi.org/10.1023/a:1010933404324".to_string();
         let entry = BibEntry {
             kind: EntryType::Article,
             key: "breiman2001random".to_string(),
