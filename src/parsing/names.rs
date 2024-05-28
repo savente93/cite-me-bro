@@ -15,7 +15,6 @@ use nom::{
     sequence::{delimited, pair, preceded, separated_pair, terminated, tuple},
     AsChar, Err, IResult, Parser,
 };
-use nom_supreme::error::ErrorTree;
 
 use lazy_static::*;
 use std::collections::BTreeSet;
@@ -151,7 +150,12 @@ fn inner_word(input: &str) -> IResult<&str, &str> {
     })(input)
 }
 fn word(input: &str) -> IResult<&str, &str> {
-    let (tail, word) = alt((brace_quoted_literal, hyphenated_word, inner_word))(input)?;
+    let (tail, word) = alt((
+        brace_quoted_literal,
+        quote_quoted_literal,
+        hyphenated_word,
+        inner_word,
+    ))(input)?;
     Ok((tail, word))
 }
 
@@ -260,6 +264,9 @@ fn space_seperated_words(input: &str) -> IResult<&str, Vec<&str>> {
 fn brace_quoted_literal(input: &str) -> IResult<&str, &str> {
     delimited(char('{'), take_until("}"), char('}'))(input)
 }
+fn quote_quoted_literal(input: &str) -> IResult<&str, &str> {
+    delimited(tag("\""), take_until("\""), tag("\""))(input)
+}
 
 fn last_first(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
     let (tail, (last_with_von, first_with_von)) = separated_pair(
@@ -362,6 +369,7 @@ mod test {
 
     use super::*;
     use anyhow::Result;
+    use nom::character::is_alphabetic;
 
     macro_rules! parse_assert {
         ($func:ident, $test:expr, $expected:expr) => {

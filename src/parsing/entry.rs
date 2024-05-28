@@ -20,7 +20,6 @@ use nom::{
     sequence::{delimited, pair, preceded, separated_pair, terminated, tuple},
     AsChar, Err, IResult, Parser,
 };
-use nom_supreme::error::ErrorTree;
 use parse_hyperlinks::take_until_unbalanced;
 
 use super::names::{self, and_seperated_names, FullName, OwnedFullName};
