@@ -252,7 +252,7 @@ fn entry(input: &str) -> IResult<&str, (EntryType, &str, Vec<(&str, &str)>)> {
     Ok((tail, (kind, key, fields)))
 }
 
-fn parse_bib_file(path: PathBuf) -> Result<Vec<BibEntry>> {
+pub fn parse_bib_file(path: PathBuf) -> Result<Vec<BibEntry>> {
     let contents = fs::read_to_string(path).expect("Should have been able to read the file");
 
     let (_tail, entries): (&str, Vec<(EntryType, &str, Vec<(&str, &str)>)>) =
