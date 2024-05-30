@@ -2,27 +2,69 @@ use crate::parsing::{entry::BibEntry, names::OwnedFullName};
 use unicode_segmentation::UnicodeSegmentation;
 
 pub fn fmt_reference_ieee(entry: BibEntry) -> String {
-    let (_kind, _key, authors, fields) = entry.into_components();
-
+    let (kind, _key, authors, fields) = entry.into_components();
     let title = fields.get("title").unwrap_or(&String::new()).clone();
     let volume = fields.get("volume").unwrap_or(&String::new()).clone();
     let pages = fields.get("pages").unwrap_or(&String::new()).clone();
     let journal = fields.get("journal").unwrap_or(&String::new()).clone();
     let number = fields.get("number").unwrap_or(&String::new()).clone();
     let year = fields.get("year").unwrap_or(&String::new()).clone();
-    let doi = fields.get("doi").unwrap_or(&String::new()).clone();
+    let doi = fields.get("doi");
 
-    format!(
-        "{}, {} {}, vol. {}, no. {}, pp. {}, {}. doi: {}.",
-        fmt_authors_ieee(authors.clone()),
-        fmt_title_ieee(title),
-        journal,
-        volume,
-        number,
-        pages,
-        year,
-        doi
-    )
+    match kind {
+        crate::parsing::entry::EntryType::Article => {
+            fmt_article_ieee(authors, title, journal, volume, pages, number, year, doi)
+        }
+        crate::parsing::entry::EntryType::Book => todo!(),
+        crate::parsing::entry::EntryType::Booklet => todo!(),
+        crate::parsing::entry::EntryType::Conference => todo!(),
+        crate::parsing::entry::EntryType::Inbook => todo!(),
+        crate::parsing::entry::EntryType::Incollection => todo!(),
+        crate::parsing::entry::EntryType::Inproceedings => todo!(),
+        crate::parsing::entry::EntryType::Manual => todo!(),
+        crate::parsing::entry::EntryType::Mastersthesis => todo!(),
+        crate::parsing::entry::EntryType::Misc => todo!(),
+        crate::parsing::entry::EntryType::Phdthesis => todo!(),
+        crate::parsing::entry::EntryType::Proceedings => todo!(),
+        crate::parsing::entry::EntryType::Techreport => todo!(),
+        crate::parsing::entry::EntryType::Unpublished => todo!(),
+    }
+}
+
+fn fmt_article_ieee(
+    authors: Vec<OwnedFullName>,
+    title: String,
+    journal: String,
+    volume: String,
+    pages: String,
+    number: String,
+    year: String,
+    doi: Option<&String>,
+) -> String {
+    let mut out = String::new();
+    out.push_str(&fmt_authors_ieee(authors.clone()));
+    out.push_str(", ");
+    out.push_str(&fmt_title_ieee(title));
+    out.push_str(" ");
+    out.push_str(&journal);
+    out.push_str(", vol. ");
+    out.push_str(&volume);
+    out.push_str(", no. ");
+    out.push_str(&number);
+    out.push_str(", pp. ");
+    out.push_str(&pages);
+    out.push_str(", ");
+    out.push_str(&year);
+    out.push_str(".");
+
+    if let Some(d) = doi {
+        out.push_str(" doi: ");
+        out.push_str(&d);
+        out.push_str(".");
+    } else {
+    };
+
+    out
 }
 
 fn fmt_single_author_ieee(name: OwnedFullName) -> String {
@@ -66,8 +108,15 @@ fn fmt_authors_ieee(mut authors: Vec<OwnedFullName>) -> String {
             )
         }
         7.. => {
-            let author = authors.remove(0);
-            format!("{} et al.", fmt_single_author_ieee(author))
+            let first_three_authors = authors.drain(0..3);
+            format!(
+                "{}, et al.",
+                (first_three_authors
+                    .into_iter()
+                    .map(fmt_single_author_ieee)
+                    .collect::<Vec<String>>()
+                    .join(", "))
+            )
         }
     }
 }
