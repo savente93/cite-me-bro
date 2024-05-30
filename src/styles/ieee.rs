@@ -8,15 +8,17 @@ pub fn fmt_reference_ieee(entry: BibEntry) -> String {
     let volume = fields.get("volume").unwrap_or(&String::new()).clone();
     let pages = fields.get("pages").unwrap_or(&String::new()).clone();
     let journal = fields.get("journal").unwrap_or(&String::new()).clone();
+    let number = fields.get("number").unwrap_or(&String::new()).clone();
     let year = fields.get("year").unwrap_or(&String::new()).clone();
     let doi = fields.get("doi").unwrap_or(&String::new()).clone();
 
     format!(
-        "{}, {} {}, vol. {}, pp. {}, {}, doi: {}.",
+        "{}, {} {}, vol. {}, no. {}, pp. {}, {}, doi: {}.",
         fmt_authors_ieee(authors.clone()),
         fmt_title_ieee(title),
         journal,
         volume,
+        number,
         pages,
         year,
         doi
@@ -54,7 +56,7 @@ fn fmt_authors_ieee(mut authors: Vec<OwnedFullName>) -> String {
         3..=6 => {
             let last_author = authors.remove(authors.len() - 1);
             format!(
-                "{} and {}",
+                "{}, and {}",
                 authors
                     .into_iter()
                     .map(fmt_single_author_ieee)
@@ -85,7 +87,7 @@ mod test {
     #[test]
     fn random_forests_formatted_citation() -> Result<()> {
         let key = "breiman2001random";
-        let formatted_citation = "L. Breiman, \"Random forests,\" Machine learning, vol. 45, no. 1, pp. 5–32, 2001. doi: https://doi.org/10.1023/a:1010933404324.";
+        let formatted_citation = "L. Breiman, \"Random forests,\" Machine learning, vol. 45, no. 1, pp. 5-32, 2001. doi: https://doi.org/10.1023/a:1010933404324.";
         let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
         let entry = entries.into_iter().find(|e| e.key == key).unwrap();
         let citation = fmt_reference_ieee(entry);
@@ -105,7 +107,7 @@ mod test {
     #[test]
     fn article_formatted_citation() -> Result<()> {
         let key = "article";
-        let formatted_citation= "P. J. Cohen, \"The independence of the continuum hypothesis,\" Proceedings of the National Academy of Sciences, vol. 50, no. 6, pp. 1143–1148, 1963.";
+        let formatted_citation= "P. J. Cohen, \"The independence of the continuum hypothesis,\" Proceedings of the National Academy of Sciences, vol. 50, no. 6, pp. 1143-1148, 1963.";
         let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
         let entry = entries.into_iter().find(|e| e.key == key).unwrap();
         let citation = fmt_reference_ieee(entry);
@@ -135,7 +137,7 @@ mod test {
     #[test]
     fn inbook_formatted_citation() -> Result<()> {
         let key = "inbook";
-        let formatted_citation= "L. A. Urry, M. L. Cain, S. A. Wasserman, P. V. Minorsky, and J. B. Reece, \"Photosynthesis,\" in Campbell Biology. New York, NY: Pearson, 2016, pp. 187–221.";
+        let formatted_citation= "L. A. Urry, M. L. Cain, S. A. Wasserman, P. V. Minorsky, and J. B. Reece, \"Photosynthesis,\" in Campbell Biology. New York, NY: Pearson, 2016, pp. 187-221.";
         let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
         let entry = entries.into_iter().find(|e| e.key == key).unwrap();
         let citation = fmt_reference_ieee(entry);
@@ -145,7 +147,7 @@ mod test {
     #[test]
     fn incollection_formatted_citation() -> Result<()> {
         let key = "incollection";
-        let formatted_citation= "H. M. Shapiro, \"Flow cytometry: The glass is half full,\" in Flow Cytometry Protocols, T. S. Hawley and R. G. Hawley, Eds., New York, NY: Springer, 2018, pp. 1–10.";
+        let formatted_citation= "H. M. Shapiro, \"Flow cytometry: The glass is half full,\" in Flow Cytometry Protocols, T. S. Hawley and R. G. Hawley, Eds., New York, NY: Springer, 2018, pp. 1-10.";
         let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
         let entry = entries.into_iter().find(|e| e.key == key).unwrap();
         let citation = fmt_reference_ieee(entry);
@@ -155,7 +157,7 @@ mod test {
     #[test]
     fn inprocedings_formatted_citation() -> Result<()> {
         let key = "inproceedings";
-        let formatted_citation= "P. Holleis, M. Wagner, and J. Koolwaaij, \"Studying mobile context-aware social services in the wild,\" in Proc. of the 6th Nordic Conf. on Human-Computer Interaction, ser. NordiCHI, New York, NY: ACM, 2010, pp. 207–216.";
+        let formatted_citation= "P. Holleis, M. Wagner, and J. Koolwaaij, \"Studying mobile context-aware social services in the wild,\" in Proc. of the 6th Nordic Conf. on Human-Computer Interaction, ser. NordiCHI, New York, NY: ACM, 2010, pp. 207-216.";
         let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
         let entry = entries.into_iter().find(|e| e.key == key).unwrap();
         let citation = fmt_reference_ieee(entry);
