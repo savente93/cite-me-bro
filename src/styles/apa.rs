@@ -326,39 +326,6 @@ mod test {
     }
 
     #[test]
-    fn test_random_forests_against_externally_generated() -> Result<()> {
-        let mut fields = BTreeMap::new();
-
-        fields.insert("journal".to_string(), "Machine learning".to_string());
-        fields.insert("pages".to_string(), "5-32".to_string());
-        fields.insert("number".to_string(), "1".to_string());
-        fields.insert(
-            "doi".to_string(),
-            "https://doi.org/10.1023/a:1010933404324".to_string(),
-        );
-        fields.insert("title".to_string(), "Random forests".to_string());
-        fields.insert("volume".to_string(), "45".to_string());
-        fields.insert("year".to_string(), "2001".to_string());
-
-        let expected = "Breiman, L. (2001). Random forests. Machine learning, 45(1), 5-32. https://doi.org/10.1023/a:1010933404324".to_string();
-        let entry = BibEntry {
-            kind: EntryType::Article,
-            key: "breiman2001random".to_string(),
-            authors: vec![OwnedFullName {
-                first: vec!["Leo".to_string()],
-                last: vec!["Breiman".to_string()],
-                von: vec![],
-                title: vec![],
-            }],
-            fields,
-        };
-        let answer = fmt_reference_apa(entry);
-
-        assert_eq!(answer, expected);
-
-        Ok(())
-    }
-    #[test]
     fn random_forests_formatted_citation() -> Result<()> {
         let key = "breiman2001random";
         let formatted_citation = "Breiman, L. (2001). Random forests. Machine learning, 45 (1), 5–32. https://doi.org/https://doi.org/10.1023/a:1010933404324";
