@@ -328,7 +328,7 @@ mod test {
     #[test]
     fn random_forests_formatted_citation() -> Result<()> {
         let key = "breiman2001random";
-        let formatted_citation = "Breiman, L. (2001). Random forests. Machine learning, 45 (1), 5–32. https://doi.org/https://doi.org/10.1023/a:1010933404324";
+        let formatted_citation = "Breiman, L. (2001). Random forests. Machine learning, 45 (1), 5-32. https://doi.org/https://doi.org/10.1023/a:1010933404324";
         let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
         let entry = entries.into_iter().find(|e| e.key == key).unwrap();
         let citation = fmt_reference_apa(entry);
@@ -348,7 +348,7 @@ mod test {
     #[test]
     fn article_formatted_citation() -> Result<()> {
         let key = "article";
-        let formatted_citation= "Cohen, P. J. (1963). The independence of the continuum hypothesis. Proceedings of the National Academy of Sciences, 50 (6), 1143–1148";
+        let formatted_citation= "Cohen, P. J. (1963). The independence of the continuum hypothesis. Proceedings of the National Academy of Sciences, 50 (6), 1143-1148.";
         let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
         let entry = entries.into_iter().find(|e| e.key == key).unwrap();
         let citation = fmt_reference_apa(entry);
@@ -358,7 +358,7 @@ mod test {
     #[test]
     fn book_formatted_citation() -> Result<()> {
         let key = "book";
-        let formatted_citation= "Susskind, L., & Hrabovsky, G. (2014). Classical mechanics: The theoretical min- imum. Penguin Random House";
+        let formatted_citation= "Susskind, L., & Hrabovsky, G. (2014). Classical mechanics: The theoretical minimum. Penguin Random House.";
         let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
         let entry = entries.into_iter().find(|e| e.key == key).unwrap();
         let citation = fmt_reference_apa(entry);
@@ -378,7 +378,7 @@ mod test {
     #[test]
     fn inbook_formatted_citation() -> Result<()> {
         let key = "inbook";
-        let formatted_citation= "Urry, L. A., Cain, M. L., Wasserman, S. A., Minorsky, P. V., & Reece, J. B. (2016). Photosynthesis. In Campbell biology (pp. 187–221). Pearson";
+        let formatted_citation= "Urry, L. A., Cain, M. L., Wasserman, S. A., Minorsky, P. V., & Reece, J. B. (2016). Photosynthesis. In Campbell biology (pp. 187-221). Pearson.";
         let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
         let entry = entries.into_iter().find(|e| e.key == key).unwrap();
         let citation = fmt_reference_apa(entry);
@@ -388,7 +388,7 @@ mod test {
     #[test]
     fn incollection_formatted_citation() -> Result<()> {
         let key = "incollection";
-        let formatted_citation= "Shapiro, H. M. (2018). Flow cytometry: The glass is half full. In T. S. Hawley & R. G. Hawley (Eds.), Flow cytometry protocols (pp. 1–10). Springer.";
+        let formatted_citation= "Shapiro, H. M. (2018). Flow cytometry: The glass is half full. In T. S. Hawley & R. G. Hawley (Eds.), Flow cytometry protocols (pp. 1-10). Springer.";
         let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
         let entry = entries.into_iter().find(|e| e.key == key).unwrap();
         let citation = fmt_reference_apa(entry);
@@ -398,7 +398,7 @@ mod test {
     #[test]
     fn inprocedings_formatted_citation() -> Result<()> {
         let key = "inproceedings";
-        let formatted_citation= "Holleis, P., Wagner, M., & Koolwaaij, J. (2010). Studying mobile context-aware social services in the wild. Proc. of the 6th Nordic Conf. on Human- Computer Interaction, 207–216.";
+        let formatted_citation= "Holleis, P., Wagner, M., & Koolwaaij, J. (2010). Studying mobile context-aware social services in the wild. Proc. of the 6th Nordic Conf. on Human- Computer Interaction, 207-216.";
         let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
         let entry = entries.into_iter().find(|e| e.key == key).unwrap();
         let citation = fmt_reference_apa(entry);
