@@ -33,7 +33,7 @@ fn fmt_journal_apa(journal: String) -> String {
     format!("{},", journal)
 }
 fn fmt_vol_issue_apa(vol: String, number: String) -> String {
-    format!("{}({}),", vol, number)
+    format!("{} ({}),", vol, number)
 }
 fn fmt_authors_apa(mut authors: Vec<OwnedFullName>) -> String {
     match &authors.len() {

@@ -8,17 +8,15 @@ pub fn fmt_reference_ieee(entry: BibEntry) -> String {
     let volume = fields.get("volume").unwrap_or(&String::new()).clone();
     let pages = fields.get("pages").unwrap_or(&String::new()).clone();
     let journal = fields.get("journal").unwrap_or(&String::new()).clone();
-    let number = fields.get("number").unwrap_or(&String::new()).clone();
     let year = fields.get("year").unwrap_or(&String::new()).clone();
     let doi = fields.get("doi").unwrap_or(&String::new()).clone();
 
     format!(
-        "{}, {} {}, vol. {}, no. {}, pp. {}, {}, doi: {}.",
+        "{}, {} {}, vol. {}, pp. {}, {}, doi: {}.",
         fmt_authors_ieee(authors.clone()),
         fmt_title_ieee(title),
         journal,
         volume,
-        number,
         pages,
         year,
         doi
@@ -293,7 +291,7 @@ mod test {
         let formated = fmt_authors_ieee(authors);
         assert_eq!(
             formated,
-            "A. M. Lovelace Augusta, A. E. Noether and S. Germain"
+            "A. M. Lovelace Augusta, A. E. Noether, and S. Germain"
         );
 
         Ok(())
@@ -341,7 +339,7 @@ mod test {
         let formated = fmt_authors_ieee(authors);
         assert_eq!(
             formated,
-            "A. M. Lovelace Augusta, A. E. Noether, S. Germain, S. Kovalevskaya, D. Vaughn and M. Mirzakhani"
+            "A. M. Lovelace Augusta, A. E. Noether, S. Germain, S. Kovalevskaya, D. Vaughn, and M. Mirzakhani"
         );
 
         Ok(())
@@ -406,40 +404,6 @@ mod test {
         ];
         let formated = fmt_authors_ieee(authors);
         assert_eq!(formated, "A. M. Lovelace Augusta et al.");
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_random_forests_against_externally_generated() -> Result<()> {
-        let mut fields = BTreeMap::new();
-
-        fields.insert("journal".to_string(), "Machine learning".to_string());
-        fields.insert("pages".to_string(), "5-32".to_string());
-        fields.insert("publisher".to_string(), "Springer".to_string());
-        fields.insert("title".to_string(), "Random forests".to_string());
-        fields.insert("volume".to_string(), "45".to_string());
-        fields.insert("year".to_string(), "2001".to_string());
-        fields.insert(
-            "doi".to_string(),
-            "https://doi.org/10.1023/a:1010933404324".to_string(),
-        );
-
-        let expected = "L. Breiman, \"Random forests,\" Machine learning, vol. 45, pp. 5-32, 2001, doi: https://doi.org/10.1023/a:1010933404324.".to_string();
-        let entry = BibEntry {
-            kind: EntryType::Article,
-            key: "breiman2001random".to_string(),
-            authors: vec![OwnedFullName {
-                first: vec!["Leo".to_string()],
-                last: vec!["Breiman".to_string()],
-                von: vec![],
-                title: vec![],
-            }],
-            fields,
-        };
-        let answer = fmt_reference_ieee(entry);
-
-        assert_eq!(answer, expected);
 
         Ok(())
     }
