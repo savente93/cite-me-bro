@@ -10,7 +10,9 @@ use anyhow::{Error, Result};
 // lint allows are just while developing, will be removed soon
 use nom::{
     branch::alt,
-    bytes::complete::{tag, tag_no_case, take_till1, take_until, take_while, take_while1},
+    bytes::complete::{
+        tag, tag_no_case, take_till, take_till1, take_until, take_while, take_while1,
+    },
     character::{
         complete::{char, line_ending, multispace0, not_line_ending, one_of, space0, space1},
         is_space,
@@ -209,7 +211,7 @@ fn brace_quoted_field(input: &str) -> IResult<&str, &str> {
     delimited(tag("{"), take_until_unbalanced('{', '}'), tag("}"))(input)
 }
 fn quote_quoted_field(input: &str) -> IResult<&str, &str> {
-    delimited(tag("\""), take_until_unbalanced('"', '"'), tag("\""))(input)
+    delimited(tag("\""), take_till(|c| c == '"'), tag("\""))(input)
 }
 fn unquoted_field(input: &str) -> IResult<&str, &str> {
     take_until(",")(input)
@@ -272,6 +274,15 @@ mod test {
     use super::entry_type;
     use super::*;
     use anyhow::Result;
+
+    #[test]
+    fn test_quoted() -> Result<()> {
+        let input = "\"Shapiro, Howard M.\"";
+        let (tail, field) = quote_quoted_field(input)?;
+        assert_eq!(tail, "");
+        assert_eq!(field, "Shapiro, Howard M.");
+        Ok(())
+    }
 
     #[test]
     fn parse_entry_types() -> Result<()> {
