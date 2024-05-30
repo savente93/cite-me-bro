@@ -259,8 +259,6 @@ pub fn parse_bib_file(path: PathBuf) -> Result<Vec<BibEntry>> {
 
     let (_tail, entries): (&str, Vec<(EntryType, &str, Vec<(&str, &str)>)>) =
         all_consuming(many1(entry))(&contents).unwrap();
-    dbg!(&entries);
-    dbg!(&_tail);
     let entry_vec: Vec<BibEntry> = entries.into_iter().map(|t| t.into()).collect();
     Ok(entry_vec)
 }

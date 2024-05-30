@@ -568,7 +568,6 @@ mod test {
             ("z", "z"),
             ("ze", "ze"),
         ] {
-            dbg!(&test);
             let (tail, name) = von(test)?;
             assert_eq!(tail, "");
             assert_eq!(name, answer);
