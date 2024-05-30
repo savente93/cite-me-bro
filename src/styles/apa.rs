@@ -27,7 +27,7 @@ fn fmt_pages_apa(pages: String) -> String {
     format!("{}.", pages)
 }
 fn fmt_doi_apa(doi: String) -> String {
-    format!("{}", doi)
+    doi.to_string()
 }
 fn fmt_journal_apa(journal: String) -> String {
     format!("{},", journal)

@@ -114,13 +114,13 @@ impl BibEntry {
 
 impl<'a> Debug for BibEntry {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}({})\n", self.key, self.kind)?;
-        write!(f, "  - Authors:\n")?;
+        writeln!(f, "{}({})", self.key, self.kind)?;
+        writeln!(f, "  - Authors:")?;
         for auth in self.authors.iter() {
-            write!(f, "    - {:?}\n", auth)?;
+            writeln!(f, "    - {:?}", auth)?;
         }
         for (k, v) in self.fields.iter() {
-            write!(f, "  - {} = {}\n", k, v)?;
+            writeln!(f, "  - {} = {}", k, v)?;
         }
 
         Ok(())
@@ -336,7 +336,7 @@ mod test {
             line
             content
         }}";
-        let (tail, content) = entry_content(&dummy_entry)?;
+        let (tail, content) = entry_content(dummy_entry)?;
         assert_eq!(tail, "");
         assert_eq!(
             content,
@@ -361,7 +361,7 @@ mod test {
             content
         }
         asdf = \"whatever\"";
-        let (tail, fields) = fields(&dummy_content)?;
+        let (tail, fields) = fields(dummy_content)?;
         assert_eq!(tail, "");
         // weird spacing needs to be maintained to get the pased content to line up
         assert_eq!(
@@ -385,7 +385,7 @@ mod test {
     #[test]
     fn test_key_parsing() -> Result<()> {
         let key = "10.1093/femsec/fiw174,";
-        let (tail, content) = entry_key(&key)?;
+        let (tail, content) = entry_key(key)?;
         assert_eq!(tail, "");
         assert_eq!(content, "10.1093/femsec/fiw174");
 

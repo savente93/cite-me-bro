@@ -285,10 +285,10 @@ fn last_first(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
     Ok((
         tail,
         FullName {
-            last: last.into(),
-            first: first.into(),
-            title: title.into(),
-            von: von.into(),
+            last,
+            first,
+            title,
+            von,
         },
     ))
 }
@@ -336,10 +336,10 @@ fn first_last(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
     Ok((
         tail,
         FullName {
-            first: first.into(),
-            last: last.into(),
-            von: von.into(),
-            title: title.into(),
+            first,
+            last,
+            von,
+            title,
         },
     ))
 }
@@ -395,8 +395,8 @@ mod test {
         "Newton, Isaac",
         FullName {
             first: vec!["Isaac"],
-            title: vec![].into(),
-            von: vec![].into(),
+            title: vec![],
+            von: vec![],
             last: vec!["Newton"]
         }
     );
@@ -405,10 +405,10 @@ mod test {
         last_first,
         "Brinch Hansen, Per",
         FullName {
-            first: vec!["Per"].into(),
-            title: vec![].into(),
-            von: vec![].into(),
-            last: vec!["Brinch", "Hansen"].into()
+            first: vec!["Per"],
+            title: vec![],
+            von: vec![],
+            last: vec!["Brinch", "Hansen"]
         }
     );
 
@@ -417,10 +417,10 @@ mod test {
         last_first,
         "Jackson, Michael Joseph",
         FullName {
-            first: vec!["Michael", "Joseph"].into(),
+            first: vec!["Michael", "Joseph"],
             last: vec!["Jackson"],
-            von: vec![].into(),
-            title: vec![].into(),
+            von: vec![],
+            title: vec![],
         }
     );
     parse_test!(
@@ -428,10 +428,10 @@ mod test {
         last_first,
         "Jackson, Michael J",
         FullName {
-            first: vec!["Michael", "J"].into(),
+            first: vec!["Michael", "J"],
             last: vec!["Jackson"],
-            von: vec![].into(),
-            title: vec![].into(),
+            von: vec![],
+            title: vec![],
         }
     );
     parse_test!(
@@ -439,10 +439,10 @@ mod test {
         last_first,
         "Jackson, M J",
         FullName {
-            first: vec!["M", "J"].into(),
+            first: vec!["M", "J"],
             last: vec!["Jackson"],
-            von: vec![].into(),
-            title: vec![].into(),
+            von: vec![],
+            title: vec![],
         }
     );
     parse_test!(
@@ -452,8 +452,8 @@ mod test {
         FullName {
             first: vec!["Isaac"],
             last: vec!["Newton"],
-            von: vec![].into(),
-            title: vec![].into(),
+            von: vec![],
+            title: vec![],
         }
     );
     parse_test!(
@@ -461,10 +461,10 @@ mod test {
         first_last,
         "Michael Joseph Jackson",
         FullName {
-            first: vec!["Michael", "Joseph"].into(),
+            first: vec!["Michael", "Joseph"],
             last: vec!["Jackson"],
-            von: vec![].into(),
-            title: vec![].into(),
+            von: vec![],
+            title: vec![],
         }
     );
     parse_test!(
@@ -472,10 +472,10 @@ mod test {
         last_first,
         "van      Beethoven ,    L",
         FullName {
-            first: vec!["L"].into(),
-            last: vec!["Beethoven"].into(),
-            von: vec!["van"].into(),
-            title: vec![].into(),
+            first: vec!["L"],
+            last: vec!["Beethoven"],
+            von: vec!["van"],
+            title: vec![],
         }
     );
     parse_test!(
@@ -483,10 +483,10 @@ mod test {
         last_first,
         "van Beethoven, Ludwig",
         FullName {
-            first: vec!["Ludwig"].into(),
-            last: vec!["Beethoven"].into(),
-            von: vec!["van"].into(),
-            title: vec![].into(),
+            first: vec!["Ludwig"],
+            last: vec!["Beethoven"],
+            von: vec!["van"],
+            title: vec![],
         }
     );
     parse_test!(
@@ -494,10 +494,10 @@ mod test {
         first_last,
         "Ludwig van Beethoven",
         FullName {
-            first: vec!["Ludwig"].into(),
+            first: vec!["Ludwig"],
             last: vec!["Beethoven"],
-            von: vec!["van"].into(),
-            title: vec![].into(),
+            von: vec!["van"],
+            title: vec![],
         }
     );
     #[test]
@@ -581,9 +581,9 @@ mod test {
         first_last,
         "Donald E. Knuth",
         FullName {
-            first: vec!["Donald", "E"].into(),
-            title: vec![].into(),
-            von: vec![].into(),
+            first: vec!["Donald", "E"],
+            title: vec![],
+            von: vec![],
             last: vec!["Knuth"]
         }
     );
@@ -592,9 +592,9 @@ mod test {
         first_last,
         "Ronald {Van der Jawel}",
         FullName {
-            first: vec!["Ronald"].into(),
-            title: vec![].into(),
-            von: vec![].into(),
+            first: vec!["Ronald"],
+            title: vec![],
+            von: vec![],
             last: vec!["Van der Jawel"]
         }
     );
@@ -605,8 +605,8 @@ mod test {
         "Fisher, James",
         FullName {
             first: vec!["James"],
-            title: vec![].into(),
-            von: vec![].into(),
+            title: vec![],
+            von: vec![],
             last: vec!["Fisher"]
         }
     );
@@ -616,8 +616,8 @@ mod test {
         "John Clark",
         FullName {
             first: vec!["John"],
-            title: vec![].into(),
-            von: vec![].into(),
+            title: vec![],
+            von: vec![],
             last: vec!["Clark"]
         }
     );
@@ -628,14 +628,14 @@ mod test {
         vec![
             FullName {
                 first: vec!["James"],
-                title: vec![].into(),
-                von: vec![].into(),
+                title: vec![],
+                von: vec![],
                 last: vec!["Fisher"]
             },
             FullName {
                 first: vec!["John"],
-                title: vec![].into(),
-                von: vec![].into(),
+                title: vec![],
+                von: vec![],
                 last: vec!["Clark"]
             }
         ]
@@ -648,32 +648,32 @@ mod test {
         vec![
             FullName {
                 first: vec!["Frank"],
-            title: vec![].into(),
-            von: vec![].into(),
+            title: vec![],
+            von: vec![],
                 last: vec!["Mittelbach"]
             },
             FullName {
                 first: vec!["Michel"],
-            title: vec![].into(),
-            von: vec![].into(),
+            title: vec![],
+            von: vec![],
                 last: vec!["Gossens"]
             },
             FullName {
                 first: vec!["Johannes"],
-            title: vec![].into(),
-            von: vec![].into(),
+            title: vec![],
+            von: vec![],
                 last: vec!["Braams"]
             },
             FullName {
                 first: vec!["David"],
-            title: vec![].into(),
-            von: vec![].into(),
+            title: vec![],
+            von: vec![],
                 last: vec!["Carlisle"]
             },
             FullName {
                 first: vec!["Chris"],
-            von: vec![].into(),
-            title: vec![].into(),
+            von: vec![],
+            title: vec![],
                 last: vec!["Rowley"]
             }
         ]
@@ -685,20 +685,20 @@ mod test {
         vec![
             FullName {
                 first: vec!["Geert"],
-                title: vec![].into(),
-                von: vec![].into(),
+                title: vec![],
+                von: vec![],
                 last: vec!["Van der Plas"]
             },
             FullName {
                 first: vec!["John"],
-                title: vec![].into(),
-                von: vec![].into(),
+                title: vec![],
+                von: vec![],
                 last: vec!["Doe"]
             },
             FullName {
-                first: vec![].into(),
-                title: vec![].into(),
-                von: vec![].into(),
+                first: vec![],
+                title: vec![],
+                von: vec![],
                 last: vec!["Barnes and Noble"]
             },
         ]
@@ -709,10 +709,10 @@ mod test {
         first_last,
         "Charles Louis Xavier Joseph de la Vallee Poussin III",
         FullName {
-            first: vec!["Charles", "Louis", "Xavier", "Joseph"].into(),
-            title: vec!["III"].into(),
-            von: vec!["de", "la"].into(),
-            last: vec!["Vallee", "Poussin"].into()
+            first: vec!["Charles", "Louis", "Xavier", "Joseph"],
+            title: vec!["III"],
+            von: vec!["de", "la"],
+            last: vec!["Vallee", "Poussin"]
         }
     );
 
@@ -726,8 +726,8 @@ mod test {
                 FullName {
                     first: vec!["Albert"],
                     last: vec!["Einstein"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -735,7 +735,7 @@ mod test {
                 FullName {
                     first: vec!["Emmet"],
                     last: vec!["Brown"],
-                    von: vec![].into(),
+                    von: vec![],
                     title: vec!["Dr"],
                 },
             ),
@@ -745,15 +745,15 @@ mod test {
                     first: vec!["Leonardo"],
                     last: vec!["Vinci"],
                     von: vec!["da"],
-                    title: vec![].into(),
+                    title: vec![],
                 },
             ),
             (
                 "Conan Doyle, Sir Arthur",
                 FullName {
                     first: vec!["Arthur"],
-                    last: vec!["Conan", "Doyle"].into(),
-                    von: vec![].into(),
+                    last: vec!["Conan", "Doyle"],
+                    von: vec![],
                     title: vec!["Sir"],
                 },
             ),
@@ -762,7 +762,7 @@ mod test {
                 FullName {
                     first: vec!["Marie"],
                     last: vec!["Curie"],
-                    von: vec![].into(),
+                    von: vec![],
                     title: vec!["Madame"],
                 },
             ),
@@ -771,8 +771,8 @@ mod test {
                 FullName {
                     first: vec!["Jean-Jacques"],
                     last: vec!["Rousseau"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -780,8 +780,8 @@ mod test {
                 FullName {
                     first: vec!["Friedrich"],
                     last: vec!["Nietzsche"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -789,8 +789,8 @@ mod test {
                 FullName {
                     first: vec!["Ada"],
                     last: vec!["Lovelace"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -799,7 +799,7 @@ mod test {
                     first: vec!["Vincent"],
                     last: vec!["Gogh"],
                     von: vec!["van"],
-                    title: vec![].into(),
+                    title: vec![],
                 },
             ),
             (
@@ -807,8 +807,8 @@ mod test {
                 FullName {
                     first: vec!["Amelia"],
                     last: vec!["Earhart"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -816,8 +816,8 @@ mod test {
                 FullName {
                     first: vec!["Hermann"],
                     last: vec!["Hesse"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -825,8 +825,8 @@ mod test {
                 FullName {
                     first: vec!["Alexandre"],
                     last: vec!["Dumas"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -834,8 +834,8 @@ mod test {
                 FullName {
                     first: vec!["Lise"],
                     last: vec!["Meitner"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -843,8 +843,8 @@ mod test {
                 FullName {
                     first: vec!["Karl"],
                     last: vec!["Marx"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -852,8 +852,8 @@ mod test {
                 FullName {
                     first: vec!["Che"],
                     last: vec!["Guevara"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -861,16 +861,16 @@ mod test {
                 FullName {
                     first: vec!["Sigmund"],
                     last: vec!["Freud"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
                 "Dr. Seuss",
                 FullName {
-                    first: vec![].into(),
+                    first: vec![],
                     last: vec!["Seuss"],
-                    von: vec![].into(),
+                    von: vec![],
                     title: vec!["Dr"],
                 },
             ),
@@ -879,8 +879,8 @@ mod test {
                 FullName {
                     first: vec!["Virginia"],
                     last: vec!["Woolf"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -889,7 +889,7 @@ mod test {
                     first: vec!["Vasco"],
                     last: vec!["Gama"],
                     von: vec!["da"],
-                    title: vec![].into(),
+                    title: vec![],
                 },
             ),
             (
@@ -898,7 +898,7 @@ mod test {
                     first: vec!["Catherine"],
                     last: vec!["Medici"],
                     von: vec!["de"],
-                    title: vec![].into(),
+                    title: vec![],
                 },
             ),
             (
@@ -907,7 +907,7 @@ mod test {
                     first: vec!["Francisco"],
                     last: vec!["Goya"],
                     von: vec!["de"],
-                    title: vec![].into(),
+                    title: vec![],
                 },
             ),
             (
@@ -915,8 +915,8 @@ mod test {
                 FullName {
                     first: vec!["William"],
                     last: vec!["Shakespeare"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -924,8 +924,8 @@ mod test {
                 FullName {
                     first: vec!["Niccolo"],
                     last: vec!["Machiavelli"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -933,8 +933,8 @@ mod test {
                 FullName {
                     first: vec!["Dante"],
                     last: vec!["Alighieri"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -942,8 +942,8 @@ mod test {
                 FullName {
                     first: vec!["Gregor"],
                     last: vec!["Mendel"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -951,8 +951,8 @@ mod test {
                 FullName {
                     first: vec!["Emily"],
                     last: vec!["Dickinson"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -960,17 +960,17 @@ mod test {
                 FullName {
                     first: vec!["Jules"],
                     last: vec!["Verne"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
                 "Edgar Allan Poe",
                 FullName {
-                    first: vec!["Edgar", "Allan"].into(),
+                    first: vec!["Edgar", "Allan"],
                     last: vec!["Poe"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -978,8 +978,8 @@ mod test {
                 FullName {
                     first: vec!["Simón"],
                     last: vec!["Bolívar"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -987,8 +987,8 @@ mod test {
                 FullName {
                     first: vec!["Søren"],
                     last: vec!["Kierkegaard"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -996,8 +996,8 @@ mod test {
                 FullName {
                     first: vec!["Fyodor"],
                     last: vec!["Dostoevsky"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -1005,17 +1005,17 @@ mod test {
                 FullName {
                     first: vec!["Mikhail"],
                     last: vec!["Lomonosov"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
                 "Suu Kyii, Aung San",
                 FullName {
-                    first: vec!["Aung", "San"].into(),
-                    last: vec!["Suu", "Kyii"].into(),
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    first: vec!["Aung", "San"],
+                    last: vec!["Suu", "Kyii"],
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -1023,8 +1023,8 @@ mod test {
                 FullName {
                     first: vec!["Nguyễn"],
                     last: vec!["Du"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -1032,8 +1032,8 @@ mod test {
                 FullName {
                     first: vec!["Sun"],
                     last: vec!["Yat-sen"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -1041,8 +1041,8 @@ mod test {
                 FullName {
                     first: vec!["Hugo"],
                     last: vec!["Chávez"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -1050,8 +1050,8 @@ mod test {
                 FullName {
                     first: vec!["Frida"],
                     last: vec!["Kahlo"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -1059,17 +1059,17 @@ mod test {
                 FullName {
                     first: vec!["Salvador"],
                     last: vec!["Allende"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
                 "Garcia Márquez, Gabriel",
                 FullName {
                     first: vec!["Gabriel"],
-                    last: vec!["Garcia", "Márquez"].into(),
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    last: vec!["Garcia", "Márquez"],
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -1077,17 +1077,17 @@ mod test {
                 FullName {
                     first: vec!["Antoni"],
                     last: vec!["Gaudí"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
                 "Johan Sebastian Bach",
                 FullName {
-                    first: vec!["Johan", "Sebastian"].into(),
+                    first: vec!["Johan", "Sebastian"],
                     last: vec!["Bach"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -1095,8 +1095,8 @@ mod test {
                 FullName {
                     first: vec!["Blaise"],
                     last: vec!["Pascal"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -1104,8 +1104,8 @@ mod test {
                 FullName {
                     first: vec!["René"],
                     last: vec!["Descartes"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -1113,8 +1113,8 @@ mod test {
                 FullName {
                     first: vec!["Mahatma"],
                     last: vec!["Gandhi"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -1122,8 +1122,8 @@ mod test {
                 FullName {
                     first: vec!["Niels"],
                     last: vec!["Bohr"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -1131,8 +1131,8 @@ mod test {
                 FullName {
                     first: vec!["Léon"],
                     last: vec!["Blum"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -1140,8 +1140,8 @@ mod test {
                 FullName {
                     first: vec!["Jacques"],
                     last: vec!["Chirac"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -1149,17 +1149,17 @@ mod test {
                 FullName {
                     first: vec!["Václav"],
                     last: vec!["Havel"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
                 "Jorge Luis Borges",
                 FullName {
-                    first: vec!["Jorge", "Luis"].into(),
+                    first: vec!["Jorge", "Luis"],
                     last: vec!["Borges"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -1167,8 +1167,8 @@ mod test {
                 FullName {
                     first: vec!["Paulo"],
                     last: vec!["Coelho"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -1176,8 +1176,8 @@ mod test {
                 FullName {
                     first: vec!["José"],
                     last: vec!["Saramago"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -1185,8 +1185,8 @@ mod test {
                 FullName {
                     first: vec!["Arundhati"],
                     last: vec!["Roy"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -1194,8 +1194,8 @@ mod test {
                 FullName {
                     first: vec!["Haruki"],
                     last: vec!["Murakami"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -1203,8 +1203,8 @@ mod test {
                 FullName {
                     first: vec!["Kenzaburō"],
                     last: vec!["Ōe"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -1212,8 +1212,8 @@ mod test {
                 FullName {
                     last: vec!["Naguib"],
                     first: vec!["Mahfouz"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
         ] {
@@ -1238,26 +1238,26 @@ mod test {
                 FullName {
                     first: vec!["Лев"],
                     last: vec!["Толстой"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
                 "Αριστοτέλης", // Greek
                 FullName {
-                    first: vec![].into(),
+                    first: vec![],
                     last: vec!["Αριστοτέλης"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
                 "孔子", // Chinese
                 FullName {
-                    first: vec![].into(),
-                    last: vec!["孔子"].into(),
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    first: vec![],
+                    last: vec!["孔子"],
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -1265,8 +1265,8 @@ mod test {
                 FullName {
                     first: vec!["אברהם"],
                     last: vec!["לינקולן"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -1274,8 +1274,8 @@ mod test {
                 FullName {
                     first: vec!["محمد"],
                     last: vec!["علي"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -1283,8 +1283,8 @@ mod test {
                 FullName {
                     first: vec!["由紀夫"],
                     last: vec!["三島"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -1292,8 +1292,8 @@ mod test {
                 FullName {
                     first: vec!["정은"],
                     last: vec!["김"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -1301,8 +1301,8 @@ mod test {
                 FullName {
                     first: vec!["Тарас"],
                     last: vec!["Шевченко"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -1310,8 +1310,8 @@ mod test {
                 FullName {
                     first: vec!["ابن"],
                     last: vec!["سينا"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -1319,8 +1319,8 @@ mod test {
                 FullName {
                     first: vec!["書豪"],
                     last: vec!["林"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -1328,8 +1328,8 @@ mod test {
                 FullName {
                     first: vec!["정환"],
                     last: vec!["김"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -1337,8 +1337,8 @@ mod test {
                 FullName {
                     last: vec!["太郎"],
                     first: vec!["山田"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
             (
@@ -1346,8 +1346,8 @@ mod test {
                 FullName {
                     first: vec!["Владимир"],
                     last: vec!["Путин"],
-                    von: vec![].into(),
-                    title: vec![].into(),
+                    von: vec![],
+                    title: vec![],
                 },
             ),
         ] {
