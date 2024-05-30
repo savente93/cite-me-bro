@@ -8,15 +8,17 @@ pub fn fmt_reference_ieee(entry: BibEntry) -> String {
     let volume = fields.get("volume").unwrap_or(&String::new()).clone();
     let pages = fields.get("pages").unwrap_or(&String::new()).clone();
     let journal = fields.get("journal").unwrap_or(&String::new()).clone();
+    let number = fields.get("number").unwrap_or(&String::new()).clone();
     let year = fields.get("year").unwrap_or(&String::new()).clone();
     let doi = fields.get("doi").unwrap_or(&String::new()).clone();
 
     format!(
-        "{}, {} {}, vol. {}, pp. {}, {}, doi: {}.",
+        "{}, {} {}, vol. {}, no. {}, pp. {}, {}. doi: {}.",
         fmt_authors_ieee(authors.clone()),
         fmt_title_ieee(title),
         journal,
         volume,
+        number,
         pages,
         year,
         doi
