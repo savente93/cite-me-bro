@@ -65,6 +65,40 @@ enum ThesisKind {
     Msc,
 }
 
+fn fmt_ym(year: Option<&String>, month: Option<&String>) -> String {
+    let mut out = String::new();
+    match (year, month) {
+        (None, None) => (),
+        (None, Some(_)) => (),
+
+        (Some(y), None) => {
+            out.push(' ');
+            out.push_str(y);
+            out.push('.');
+        }
+        (Some(y), Some(m)) => {
+            out.push(' ');
+            // years generally don't get represented as anything other than number so unwrapping here is fine
+            let y_parsed = y.parse::<i32>().unwrap();
+            let m_parsed = m.parse::<u32>();
+            let date_formatted = match m_parsed {
+                Ok(m) => {
+                    let date = NaiveDate::from_ymd_opt(y_parsed, m, 1).unwrap();
+                    date.format("%b").to_string()
+                }
+                // if it's not a number just capitalise the first letter
+                Err(_) => m[0..1].to_uppercase() + &m[1..],
+            };
+            out.push_str(&date_formatted);
+            out.push_str(". ");
+            out.push_str(y);
+            out.push('.');
+        }
+    };
+
+    out
+}
+
 fn fmt_article_ieee(
     authors: Vec<OwnedFullName>,
     title: String,
@@ -83,39 +117,14 @@ fn fmt_article_ieee(
     out.push_str(", ");
     out.push_str(&fmt_title_ieee(title));
     out.push(' ');
-    out.push_str(&journal);
-    out.push_str(", vol. ");
-    out.push_str(&volume);
-    out.push_str(", no. ");
-    out.push_str(&number);
+    out.push_str(&format!("{}, vol. {}, no. {}", journal, &volume, &number));
     out.push(',');
     if let Some(p) = pages {
         out.push_str(" pp. ");
         out.push_str(p);
         out.push(',');
     }
-    match (year, month) {
-        (None, None) => (),
-        (None, Some(_)) => (),
-
-        (Some(y), None) => {
-            out.push(' ');
-            out.push_str(y);
-            out.push('.');
-        }
-        (Some(y), Some(m)) => {
-            out.push(' ');
-            out.push_str(
-                &NaiveDate::from_ymd_opt(y.parse::<i32>().unwrap(), m.parse::<u32>().unwrap(), 1)
-                    .unwrap()
-                    .format("%b")
-                    .to_string(),
-            );
-            out.push_str(". ");
-            out.push_str(y);
-            out.push(',');
-        }
-    }
+    out.push_str(&fmt_ym(year, month));
 
     if let Some(i) = issn {
         out.push_str(" issn: ");
@@ -169,29 +178,7 @@ fn fmt_thesis_ieee(
         out.push(',');
     }
     dbg!(&out);
-    dbg!(&year, &month);
-    match (year, month) {
-        (None, None) => (),
-        (None, Some(_)) => (),
-
-        (Some(y), None) => {
-            out.push(' ');
-            out.push_str(y);
-            out.push('.');
-        }
-        (Some(y), Some(m)) => {
-            out.push(' ');
-            out.push_str(
-                &NaiveDate::from_ymd_opt(y.parse::<i32>().unwrap(), m.parse::<u32>().unwrap(), 1)
-                    .unwrap()
-                    .format("%b")
-                    .to_string(),
-            );
-            out.push_str(". ");
-            out.push_str(y);
-            out.push(',');
-        }
-    }
+    out.push_str(&fmt_ym(year, month));
     dbg!(&out);
 
     out

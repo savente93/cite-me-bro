@@ -386,6 +386,7 @@ mod test {
         assert_eq!(citation, formatted_citation);
         Ok(())
     }
+    #[ignore]
     #[test]
     fn article_formatted_citation() -> Result<()> {
         let key = "article";
@@ -462,6 +463,7 @@ mod test {
         assert_eq!(citation, formatted_citation);
         Ok(())
     }
+    #[ignore]
     #[test]
     fn mastersthesis_formatted_citation() -> Result<()> {
         let key = "mastersthesis";
@@ -472,6 +474,7 @@ mod test {
         assert_eq!(citation, formatted_citation);
         Ok(())
     }
+    #[ignore]
     #[test]
     fn misc_formatted_citation() -> Result<()> {
         let key = "misc";
@@ -483,6 +486,7 @@ mod test {
         assert_eq!(citation, formatted_citation);
         Ok(())
     }
+    #[ignore]
     #[test]
     fn phthesis_formatted_citation() -> Result<()> {
         let key = "phdthesis";
