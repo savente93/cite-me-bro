@@ -138,10 +138,10 @@ fn fmt_single_author_apa(name: OwnedFullName) -> String {
 }
 #[cfg(test)]
 mod test {
-    use std::{collections::BTreeMap, path::PathBuf};
+    use std::path::PathBuf;
 
     use super::*;
-    use crate::parsing::entry::{parse_bib_file, EntryType};
+    use crate::parsing::entry::parse_bib_file;
     use anyhow::Result;
     #[test]
     fn single_author_fmt() -> Result<()> {
