@@ -4,6 +4,7 @@ use unicode_segmentation::UnicodeSegmentation;
 
 pub fn fmt_reference_ieee(entry: BibEntry) -> String {
     let (kind, _key, authors, fields) = entry.into_components();
+    dbg!(&authors);
     dbg!(&fields);
     let title = fields.get("title").unwrap_or(&String::new()).clone();
     let volume = fields.get("volume").unwrap_or(&String::new()).clone();
@@ -17,6 +18,8 @@ pub fn fmt_reference_ieee(entry: BibEntry) -> String {
     let doi = fields.get("doi");
     let issn = fields.get("issn");
     let url = fields.get("url");
+    let howpublished = fields.get("howpublished");
+    let note = fields.get("note");
 
     match kind {
         crate::parsing::entry::EntryType::Article => fmt_article_ieee(
@@ -39,7 +42,9 @@ pub fn fmt_reference_ieee(entry: BibEntry) -> String {
             month,
         ),
 
-        crate::parsing::entry::EntryType::Misc => fmt_misc_ieee(authors, title, url),
+        crate::parsing::entry::EntryType::Misc => {
+            fmt_misc_ieee(authors, title, howpublished, note, year)
+        }
         crate::parsing::entry::EntryType::Phdthesis => fmt_thesis_ieee(
             ThesisKind::Phd,
             authors,
@@ -70,7 +75,6 @@ fn fmt_ym(year: Option<&String>, month: Option<&String>) -> String {
         (Some(y), None) => {
             out.push(' ');
             out.push_str(y);
-            out.push('.');
         }
         (Some(y), Some(m)) => {
             out.push(' ');
@@ -88,7 +92,6 @@ fn fmt_ym(year: Option<&String>, month: Option<&String>) -> String {
             out.push_str(&date_formatted);
             out.push_str(". ");
             out.push_str(y);
-            out.push('.');
         }
     };
 
@@ -123,12 +126,13 @@ fn fmt_article_ieee(
     out.push_str(&fmt_ym(year, month));
 
     if let Some(i) = issn {
+        out.push(',');
         out.push_str(" issn: ");
         out.push_str(i);
-        out.push('.');
     };
 
     if let Some(d) = doi {
+        out.push('.');
         out.push_str(" doi: ");
         out.push_str(d);
         out.push('.');
@@ -171,20 +175,35 @@ fn fmt_thesis_ieee(
         out.push(',');
     }
     out.push_str(&fmt_ym(year, month));
+    out.push_str(".");
 
     out
 }
 
-fn fmt_misc_ieee(authors: Vec<OwnedFullName>, title: String, url: Option<&String>) -> String {
+fn fmt_misc_ieee(
+    authors: Vec<OwnedFullName>,
+    title: String,
+    howpublished: Option<&String>,
+    note: Option<&String>,
+    year: Option<&String>,
+) -> String {
     let mut out = String::new();
+    dbg!(&authors);
     out.push_str(&fmt_authors_ieee(authors.clone()));
     out.push_str(", ");
-    out.push_str(&fmt_title_ieee(title));
-    out.push(' ');
+    out.push_str(&title);
 
-    if let Some(u) = url {
-        out.push_str(" [Online]. Available: ");
+    if let Some(u) = howpublished {
+        out.push_str(", ");
         out.push_str(u);
+    };
+    if let Some(n) = note {
+        out.push_str(", ");
+        out.push_str(n);
+    };
+    if let Some(y) = year {
+        out.push_str(", ");
+        out.push_str(y);
         out.push('.');
     };
 
@@ -192,15 +211,24 @@ fn fmt_misc_ieee(authors: Vec<OwnedFullName>, title: String, url: Option<&String
 }
 
 fn fmt_single_author_ieee(name: OwnedFullName) -> String {
-    format!(
-        "{} {}",
-        name.first
-            .iter()
-            .map(|n| format!("{}.", n.graphemes(true).next().unwrap()))
-            .collect::<Vec<String>>()
-            .join(" "),
-        name.last.join(" ")
-    )
+    let mut out = String::new();
+    if name.first.len() > 0 {
+        out.push_str(
+            &name
+                .first
+                .iter()
+                .map(|n| format!("{}.", n.graphemes(true).next().unwrap()))
+                .collect::<Vec<String>>()
+                .join(" "),
+        )
+    };
+    if name.last.len() > 0 {
+        if name.first.len() > 0 {
+            out.push(' ');
+        }
+        out.push_str(&name.last.join(" "));
+    }
+    out
 }
 
 fn fmt_authors_ieee(mut authors: Vec<OwnedFullName>) -> String {

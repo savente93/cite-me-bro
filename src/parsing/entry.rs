@@ -548,7 +548,7 @@ mod test {
     }
     #[test]
     fn unquoted_year_comma() -> Result<()> {
-        let input = "year    = 1956   ,\n";
+        let input = "year    = 1956   ,  \n";
         let (tail, (kind, content)) = field(input)?;
         assert_eq!(tail, "");
         assert_eq!(kind, "year");
