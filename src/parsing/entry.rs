@@ -214,21 +214,31 @@ fn quote_quoted_field(input: &str) -> IResult<&str, &str> {
     delimited(tag("\""), take_till(|c| c == '"'), tag("\""))(input)
 }
 fn unquoted_field(input: &str) -> IResult<&str, &str> {
-    take_until(",")(input)
+    alt((
+        delimited(
+            multispace0,
+            terminated(take_until(",\n"), tag(",\n")),
+            multispace0,
+        ),
+        delimited(
+            multispace0,
+            terminated(take_until("\n"), tag("\n")),
+            multispace0,
+        ),
+    ))(input)
 }
 
+fn field(input: &str) -> IResult<&str, (&str, &str)> {
+    separated_pair(
+        field_type,
+        delimited(multispace0, tag("="), multispace0),
+        alt((brace_quoted_field, quote_quoted_field, unquoted_field)),
+    )(input)
+}
 fn fields(input: &str) -> IResult<&str, Vec<(&str, &str)>> {
     separated_list1(
         alt((tag(","), line_ending)),
-        delimited(
-            multispace0,
-            separated_pair(
-                field_type,
-                delimited(multispace0, tag("="), multispace0),
-                alt((brace_quoted_field, quote_quoted_field, unquoted_field)),
-            ),
-            multispace0,
-        ),
+        delimited(multispace0, field, multispace0),
     )(input)
 }
 
@@ -518,6 +528,35 @@ mod test {
                           ),
             }
         );
+        Ok(())
+    }
+    #[test]
+    fn unquoted_field_comma() -> Result<()> {
+        let input = "year    = 1956,\n";
+        let (tail, (kind, content)) = field(input)?;
+        assert_eq!(tail, "");
+        assert_eq!(kind, "year");
+        assert_eq!(content, "1956");
+
+        Ok(())
+    }
+    #[test]
+    fn unquoted_field_last() -> Result<()> {
+        let input = "month   = jun \n";
+        let (tail, (kind, content)) = field(input)?;
+        assert_eq!(tail, "");
+        assert_eq!(kind, "month");
+        assert_eq!(content, "jun ");
+
+        Ok(())
+    }
+    #[test]
+    fn unquoted_value_last() -> Result<()> {
+        let input = " jun \n";
+        let (tail, content) = unquoted_field(input)?;
+        assert_eq!(tail, "");
+        assert_eq!(content, "jun ");
+
         Ok(())
     }
 }

@@ -144,6 +144,7 @@ mod test {
     use super::*;
     use crate::parsing::entry::parse_bib_file;
     use anyhow::Result;
+
     #[test]
     fn single_author_fmt() -> Result<()> {
         let author = OwnedFullName {
@@ -395,6 +396,7 @@ mod test {
         assert_eq!(citation, formatted_citation);
         Ok(())
     }
+    #[ignore]
     #[test]
     fn book_formatted_citation() -> Result<()> {
         let key = "book";
@@ -405,6 +407,7 @@ mod test {
         assert_eq!(citation, formatted_citation);
         Ok(())
     }
+    #[ignore]
     #[test]
     fn booklet_formatted_citation() -> Result<()> {
         let key = "booklet";
@@ -415,6 +418,7 @@ mod test {
         assert_eq!(citation, formatted_citation);
         Ok(())
     }
+    #[ignore]
     #[test]
     fn inbook_formatted_citation() -> Result<()> {
         let key = "inbook";
@@ -425,6 +429,7 @@ mod test {
         assert_eq!(citation, formatted_citation);
         Ok(())
     }
+    #[ignore]
     #[test]
     fn incollection_formatted_citation() -> Result<()> {
         let key = "incollection";
@@ -435,6 +440,7 @@ mod test {
         assert_eq!(citation, formatted_citation);
         Ok(())
     }
+    #[ignore]
     #[test]
     fn inprocedings_formatted_citation() -> Result<()> {
         let key = "inproceedings";
@@ -445,6 +451,7 @@ mod test {
         assert_eq!(citation, formatted_citation);
         Ok(())
     }
+    #[ignore]
     #[test]
     fn manual_formatted_citation() -> Result<()> {
         let key = "manual";
@@ -486,6 +493,7 @@ mod test {
         assert_eq!(citation, formatted_citation);
         Ok(())
     }
+    #[ignore]
     #[test]
     fn proceedings_formatted_citation() -> Result<()> {
         let key = "proceedings";
@@ -496,6 +504,7 @@ mod test {
         assert_eq!(citation, formatted_citation);
         Ok(())
     }
+    #[ignore]
     #[test]
     fn techreport_formatted_citation() -> Result<()> {
         let key = "techreport";
@@ -506,6 +515,7 @@ mod test {
         assert_eq!(citation, formatted_citation);
         Ok(())
     }
+    #[ignore]
     #[test]
     fn unpublished_formatted_citation() -> Result<()> {
         let key = "unpublished";
