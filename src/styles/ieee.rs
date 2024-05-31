@@ -144,6 +144,10 @@ fn fmt_article_ieee(
         out.push('.');
     };
 
+    if url.is_none() && doi.is_none() && issn.is_none() {
+        out.push('.')
+    }
+
     out
 }
 
