@@ -10,10 +10,10 @@ pub fn fmt_reference_apa(entry: BibEntry) -> String {
     let number = fields.get("number").unwrap_or(&String::new()).clone();
     let journal = fields.get("journal").unwrap_or(&String::new()).clone();
     let year = fields.get("year").map(|s| s.to_string());
-    let doi = fields.get("doi").unwrap_or(&String::new()).clone();
+    let doi = fields.get("doi");
     match kind {
         crate::parsing::entry::EntryType::Article => {
-            fmt_article_apa(authors, title, journal, volume, pages, number, year, None)
+            fmt_article_apa(authors, title, journal, volume, pages, number, year, doi)
         }
         crate::parsing::entry::EntryType::Book => todo!(),
         crate::parsing::entry::EntryType::Booklet => todo!(),
@@ -54,14 +54,16 @@ fn fmt_article_apa(
     out.push_str(" ");
     out.push_str(&fmt_pages_apa(pages));
 
+    if let Some(d) = doi {
+        out.push_str(" ");
+        out.push_str(&d);
+    }
+
     out
 }
 
 fn fmt_pages_apa(pages: String) -> String {
     format!("{}.", pages)
-}
-fn fmt_doi_apa(doi: String) -> String {
-    doi.to_string()
 }
 fn fmt_journal_apa(journal: String) -> String {
     format!("{},", journal)
@@ -362,7 +364,7 @@ mod test {
     #[test]
     fn random_forests_formatted_citation() -> Result<()> {
         let key = "breiman2001random";
-        let formatted_citation = "Breiman, L. (2001). Random forests. Machine learning, 45 (1), 5-32. https://doi.org/https://doi.org/10.1023/a:1010933404324";
+        let formatted_citation = "Breiman, L. (2001). Random forests. Machine learning, 45 (1), 5-32. https://doi.org/10.1023/a:1010933404324";
         let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
         let entry = entries.into_iter().find(|e| e.key == key).unwrap();
         let citation = fmt_reference_apa(entry);
