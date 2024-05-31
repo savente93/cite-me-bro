@@ -6,7 +6,7 @@ pub fn fmt_reference_apa(entry: BibEntry) -> String {
 
     let title = fields.get("title").unwrap().clone();
     let volume = fields.get("volume").unwrap_or(&String::new()).clone();
-    let pages = fields.get("pages").clone();
+    let pages = fields.get("pages");
     let number = fields.get("number").unwrap_or(&String::new()).clone();
     let journal = fields.get("journal").unwrap_or(&String::new()).clone();
     let year = fields.get("year").map(|s| s.to_string());
@@ -43,23 +43,23 @@ fn fmt_article_apa(
 ) -> String {
     let mut out = String::new();
     out.push_str(&fmt_authors_apa(authors.clone()));
-    out.push_str(" ");
+    out.push(' ');
     out.push_str(&fmt_pub_date_apa(year));
-    out.push_str(" ");
+    out.push(' ');
     out.push_str(&fmt_title_apa(title));
-    out.push_str(" ");
+    out.push(' ');
     out.push_str(&fmt_journal_apa(journal));
-    out.push_str(" ");
+    out.push(' ');
     out.push_str(&fmt_vol_issue_apa(volume, number));
-    out.push_str(" ");
+    out.push(' ');
     if let Some(p) = pages {
         out.push_str(" pp. ");
         out.push_str(&fmt_pages_apa(p));
-        out.push_str(",");
+        out.push(',');
     };
 
     if let Some(d) = doi {
-        out.push_str(&d);
+        out.push_str(d);
     }
 
     out

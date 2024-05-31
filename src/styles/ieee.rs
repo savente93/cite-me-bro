@@ -6,11 +6,11 @@ pub fn fmt_reference_ieee(entry: BibEntry) -> String {
     let (kind, _key, authors, fields) = entry.into_components();
     let title = fields.get("title").unwrap_or(&String::new()).clone();
     let volume = fields.get("volume").unwrap_or(&String::new()).clone();
-    let pages = fields.get("pages").clone();
+    let pages = fields.get("pages");
     let journal = fields.get("journal").unwrap_or(&String::new()).clone();
     let number = fields.get("number").unwrap_or(&String::new()).clone();
-    let year = fields.get("year").clone();
-    let month = fields.get("month").clone();
+    let year = fields.get("year");
+    let month = fields.get("month");
     let doi = fields.get("doi");
     let issn = fields.get("issn");
     let url = fields.get("url");
@@ -52,29 +52,29 @@ fn fmt_article_ieee(
     out.push_str(&fmt_authors_ieee(authors.clone()));
     out.push_str(", ");
     out.push_str(&fmt_title_ieee(title));
-    out.push_str(" ");
+    out.push(' ');
     out.push_str(&journal);
     out.push_str(", vol. ");
     out.push_str(&volume);
     out.push_str(", no. ");
     out.push_str(&number);
-    out.push_str(",");
+    out.push(',');
     if let Some(p) = pages {
         out.push_str(" pp. ");
-        out.push_str(&p);
-        out.push_str(",");
+        out.push_str(p);
+        out.push(',');
     }
     match (year, month) {
         (None, None) => (),
         (None, Some(_)) => (),
 
         (Some(y), None) => {
-            out.push_str(" ");
+            out.push(' ');
             out.push_str(y);
-            out.push_str(".");
+            out.push('.');
         }
         (Some(y), Some(m)) => {
-            out.push_str(" ");
+            out.push(' ');
             out.push_str(
                 &NaiveDate::from_ymd_opt(y.parse::<i32>().unwrap(), m.parse::<u32>().unwrap(), 1)
                     .unwrap()
@@ -83,26 +83,26 @@ fn fmt_article_ieee(
             );
             out.push_str(". ");
             out.push_str(y);
-            out.push_str(",");
+            out.push(',');
         }
     }
 
     if let Some(i) = issn {
         out.push_str(" issn: ");
-        out.push_str(&i);
-        out.push_str(".");
+        out.push_str(i);
+        out.push('.');
     };
 
     if let Some(d) = doi {
         out.push_str(" doi: ");
-        out.push_str(&d);
-        out.push_str(".");
+        out.push_str(d);
+        out.push('.');
     };
 
     if let Some(u) = url {
         out.push_str(" [Online]. Available: ");
-        out.push_str(&u);
-        out.push_str(".");
+        out.push_str(u);
+        out.push('.');
     };
 
     out
