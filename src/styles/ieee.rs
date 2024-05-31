@@ -37,8 +37,6 @@ pub fn fmt_reference_ieee(entry: BibEntry) -> String {
             address,
             year,
             month,
-            doi,
-            url,
         ),
 
         crate::parsing::entry::EntryType::Misc => fmt_misc_ieee(authors, title, url),
@@ -50,8 +48,6 @@ pub fn fmt_reference_ieee(entry: BibEntry) -> String {
             address,
             year,
             month,
-            doi,
-            url,
         ),
 
         crate::parsing::entry::EntryType::Proceedings => todo!(),
@@ -155,8 +151,6 @@ fn fmt_thesis_ieee(
     address: Option<&String>,
     year: Option<&String>,
     month: Option<&String>,
-    doi: Option<&String>,
-    url: Option<&String>,
 ) -> String {
     let mut out = String::new();
     out.push_str(&fmt_authors_ieee(authors.clone()));
@@ -171,15 +165,12 @@ fn fmt_thesis_ieee(
         out.push_str(&s);
         out.push(',');
     }
-    dbg!(&out);
     if let Some(a) = address {
         out.push(' ');
         out.push_str(&a);
         out.push(',');
     }
-    dbg!(&out);
     out.push_str(&fmt_ym(year, month));
-    dbg!(&out);
 
     out
 }

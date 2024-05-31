@@ -3,6 +3,7 @@ use std::{
     collections::{hash_map, BTreeMap},
     fmt::Debug,
     fs,
+    iter::Take,
     path::{Path, PathBuf},
 };
 
@@ -11,7 +12,7 @@ use anyhow::{Error, Result};
 use nom::{
     branch::alt,
     bytes::complete::{
-        tag, tag_no_case, take_till, take_till1, take_until, take_while, take_while1,
+        tag, tag_no_case, take_till, take_till1, take_until, take_until1, take_while, take_while1,
     },
     character::{
         complete::{char, line_ending, multispace0, not_line_ending, one_of, space0, space1},
@@ -42,6 +43,12 @@ pub enum EntryType {
     Proceedings,
     Techreport,
     Unpublished,
+}
+
+macro_rules! nows {
+    ($parser:expr) => {
+        delimited(multispace0, $parser, multispace0)
+    };
 }
 
 impl fmt::Display for EntryType {
@@ -214,7 +221,7 @@ fn quote_quoted_field(input: &str) -> IResult<&str, &str> {
     delimited(tag("\""), take_till(|c| c == '"'), tag("\""))(input)
 }
 fn unquoted_field(input: &str) -> IResult<&str, &str> {
-    alt((
+    let (tail, val) = alt((
         delimited(
             multispace0,
             terminated(take_until(",\n"), tag(",\n")),
@@ -225,21 +232,30 @@ fn unquoted_field(input: &str) -> IResult<&str, &str> {
             terminated(take_until("\n"), tag("\n")),
             multispace0,
         ),
-    ))(input)
+    ))(input)?;
+
+    let (_, striped_val) = terminated(take_until1(" "), multispace0)(val)?;
+    Ok((tail, striped_val))
 }
 
 fn field(input: &str) -> IResult<&str, (&str, &str)> {
-    separated_pair(
+    let (tail, (kind, value)) = separated_pair(
         field_type,
         delimited(multispace0, tag("="), multispace0),
         alt((brace_quoted_field, quote_quoted_field, unquoted_field)),
-    )(input)
+    )(input)?;
+    Ok((tail, (kind, value)))
 }
 fn fields(input: &str) -> IResult<&str, Vec<(&str, &str)>> {
-    separated_list1(
-        alt((tag(","), line_ending)),
+    let (tail, fields) = separated_list1(
+        alt((
+            delimited(multispace0, tag(","), multispace0),
+            preceded(multispace0, line_ending),
+        )),
         delimited(multispace0, field, multispace0),
-    )(input)
+    )(input)?;
+
+    Ok((tail, fields))
 }
 
 fn entry_kind(input: &str) -> IResult<&str, EntryType> {
@@ -531,8 +547,18 @@ mod test {
         Ok(())
     }
     #[test]
-    fn unquoted_field_comma() -> Result<()> {
-        let input = "year    = 1956,\n";
+    fn unquoted_year_comma() -> Result<()> {
+        let input = "year    = 1956   ,\n";
+        let (tail, (kind, content)) = field(input)?;
+        assert_eq!(tail, "");
+        assert_eq!(kind, "year");
+        assert_eq!(content, "1956");
+
+        Ok(())
+    }
+    #[test]
+    fn unquoted_year_no_comma() -> Result<()> {
+        let input = "year    = 1956   \n";
         let (tail, (kind, content)) = field(input)?;
         assert_eq!(tail, "");
         assert_eq!(kind, "year");
@@ -546,7 +572,7 @@ mod test {
         let (tail, (kind, content)) = field(input)?;
         assert_eq!(tail, "");
         assert_eq!(kind, "month");
-        assert_eq!(content, "jun ");
+        assert_eq!(content, "jun");
 
         Ok(())
     }
@@ -555,7 +581,7 @@ mod test {
         let input = " jun \n";
         let (tail, content) = unquoted_field(input)?;
         assert_eq!(tail, "");
-        assert_eq!(content, "jun ");
+        assert_eq!(content, "jun");
 
         Ok(())
     }
