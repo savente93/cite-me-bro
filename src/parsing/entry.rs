@@ -510,7 +510,6 @@ mod test {
                 "journal".to_string() => "FEMS Microbiology Ecology".to_string(),
                 "volume".to_string() => "92".to_string(),
                 "number".to_string() => "11".to_string(),
-                "pages".to_string() => "fiw174".to_string(),
                 "year".to_string() => "2016".to_string(),
                 "month".to_string() => "08".to_string(),
                 "issn".to_string() => "0168-6496".to_string(),

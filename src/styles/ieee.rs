@@ -1,20 +1,24 @@
 use crate::parsing::{entry::BibEntry, names::OwnedFullName};
+use chrono::prelude::*;
 use unicode_segmentation::UnicodeSegmentation;
 
 pub fn fmt_reference_ieee(entry: BibEntry) -> String {
     let (kind, _key, authors, fields) = entry.into_components();
     let title = fields.get("title").unwrap_or(&String::new()).clone();
     let volume = fields.get("volume").unwrap_or(&String::new()).clone();
-    let pages = fields.get("pages").unwrap_or(&String::new()).clone();
+    let pages = fields.get("pages").clone();
     let journal = fields.get("journal").unwrap_or(&String::new()).clone();
     let number = fields.get("number").unwrap_or(&String::new()).clone();
-    let year = fields.get("year").unwrap_or(&String::new()).clone();
+    let year = fields.get("year").clone();
+    let month = fields.get("month").clone();
     let doi = fields.get("doi");
+    let issn = fields.get("issn");
+    let url = fields.get("url");
 
     match kind {
-        crate::parsing::entry::EntryType::Article => {
-            fmt_article_ieee(authors, title, journal, volume, pages, number, year, doi)
-        }
+        crate::parsing::entry::EntryType::Article => fmt_article_ieee(
+            authors, title, journal, volume, pages, number, issn, year, month, doi, url,
+        ),
         crate::parsing::entry::EntryType::Book => todo!(),
         crate::parsing::entry::EntryType::Booklet => todo!(),
         crate::parsing::entry::EntryType::Conference => todo!(),
@@ -36,10 +40,13 @@ fn fmt_article_ieee(
     title: String,
     journal: String,
     volume: String,
-    pages: String,
+    pages: Option<&String>,
     number: String,
-    year: String,
+    issn: Option<&String>,
+    year: Option<&String>,
+    month: Option<&String>,
     doi: Option<&String>,
+    url: Option<&String>,
 ) -> String {
     let mut out = String::new();
     out.push_str(&fmt_authors_ieee(authors.clone()));
@@ -51,17 +58,51 @@ fn fmt_article_ieee(
     out.push_str(&volume);
     out.push_str(", no. ");
     out.push_str(&number);
-    out.push_str(", pp. ");
-    out.push_str(&pages);
-    out.push_str(", ");
-    out.push_str(&year);
-    out.push_str(".");
+    out.push_str(",");
+    if let Some(p) = pages {
+        out.push_str(" pp. ");
+        out.push_str(&p);
+        out.push_str(",");
+    }
+    match (year, month) {
+        (None, None) => (),
+        (None, Some(_)) => (),
+
+        (Some(y), None) => {
+            out.push_str(" ");
+            out.push_str(y);
+            out.push_str(".");
+        }
+        (Some(y), Some(m)) => {
+            out.push_str(" ");
+            out.push_str(
+                &NaiveDate::from_ymd_opt(y.parse::<i32>().unwrap(), m.parse::<u32>().unwrap(), 1)
+                    .unwrap()
+                    .format("%b")
+                    .to_string(),
+            );
+            out.push_str(". ");
+            out.push_str(y);
+            out.push_str(",");
+        }
+    }
+
+    if let Some(i) = issn {
+        out.push_str(" issn: ");
+        out.push_str(&i);
+        out.push_str(".");
+    };
 
     if let Some(d) = doi {
         out.push_str(" doi: ");
         out.push_str(&d);
         out.push_str(".");
-    } else {
+    };
+
+    if let Some(u) = url {
+        out.push_str(" [Online]. Available: ");
+        out.push_str(&u);
+        out.push_str(".");
     };
 
     out
@@ -146,7 +187,7 @@ mod test {
     #[test]
     fn bacterial_formatted_citation() -> Result<()> {
         let key = "10.1093/femsec/fiw174";
-        let formatted_citation= "J. Liao, X. Cao, L. Zhao, et al., \"The importance of neutral and niche processes for bacterial community assembly differs between habitat generalists and specialists,\" FEMS Microbiology Ecology, vol. 92, no. 11, fiw174, Aug. 2016, issn: 0168-6496. doi:10.1093/femsec/fiw174. [Online]. Available: https://doi.org/10.1093/femsec/fiw174.";
+        let formatted_citation= "J. Liao, X. Cao, L. Zhao, et al., \"The importance of neutral and niche processes for bacterial community assembly differs between habitat generalists and specialists,\" FEMS Microbiology Ecology, vol. 92, no. 11, Aug. 2016, issn: 0168-6496. doi: https://doi.org/10.1093/femsec/fiw174. [Online]. Available: https://doi.org/10.1093/femsec/fiw174.";
         let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
         let entry = entries.into_iter().find(|e| e.key == key).unwrap();
         let citation = fmt_reference_ieee(entry);

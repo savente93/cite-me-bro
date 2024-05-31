@@ -6,7 +6,7 @@ pub fn fmt_reference_apa(entry: BibEntry) -> String {
 
     let title = fields.get("title").unwrap().clone();
     let volume = fields.get("volume").unwrap_or(&String::new()).clone();
-    let pages = fields.get("pages").unwrap_or(&String::new()).clone();
+    let pages = fields.get("pages").clone();
     let number = fields.get("number").unwrap_or(&String::new()).clone();
     let journal = fields.get("journal").unwrap_or(&String::new()).clone();
     let year = fields.get("year").map(|s| s.to_string());
@@ -36,7 +36,7 @@ fn fmt_article_apa(
     title: String,
     journal: String,
     volume: String,
-    pages: String,
+    pages: Option<&String>,
     number: String,
     year: Option<String>,
     doi: Option<&String>,
@@ -52,17 +52,20 @@ fn fmt_article_apa(
     out.push_str(" ");
     out.push_str(&fmt_vol_issue_apa(volume, number));
     out.push_str(" ");
-    out.push_str(&fmt_pages_apa(pages));
+    if let Some(p) = pages {
+        out.push_str(" pp. ");
+        out.push_str(&fmt_pages_apa(p));
+        out.push_str(",");
+    };
 
     if let Some(d) = doi {
-        out.push_str(" ");
         out.push_str(&d);
     }
 
     out
 }
 
-fn fmt_pages_apa(pages: String) -> String {
+fn fmt_pages_apa(pages: &String) -> String {
     format!("{}.", pages)
 }
 fn fmt_journal_apa(journal: String) -> String {
@@ -374,7 +377,7 @@ mod test {
     #[test]
     fn bacterial_formatted_citation() -> Result<()> {
         let key = "10.1093/femsec/fiw174";
-        let formatted_citation= "Liao, J., Cao, X., Zhao, L., Wang, J., Gao, Z., Wang, M. C., & Huang, Y. (2016). The importance of neutral and niche processes for bacterial community assembly differs between habitat generalists and specialists. FEMS Microbiology Ecology, 92 (11), fiw174. https://doi.org/10.1093/femsec/fiw174";
+        let formatted_citation= "Liao, J., Cao, X., Zhao, L., Wang, J., Gao, Z., Wang, M. C., & Huang, Y. (2016). The importance of neutral and niche processes for bacterial community assembly differs between habitat generalists and specialists. FEMS Microbiology Ecology, 92 (11), https://doi.org/10.1093/femsec/fiw174";
         let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
         let entry = entries.into_iter().find(|e| e.key == key).unwrap();
         let citation = fmt_reference_apa(entry);
