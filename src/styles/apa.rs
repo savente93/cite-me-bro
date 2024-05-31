@@ -2,7 +2,7 @@ use crate::parsing::{entry::BibEntry, names::OwnedFullName};
 use unicode_segmentation::UnicodeSegmentation;
 
 pub fn fmt_reference_apa(entry: BibEntry) -> String {
-    let (_kind, _key, authors, fields) = entry.into_components();
+    let (kind, _key, authors, fields) = entry.into_components();
 
     let title = fields.get("title").unwrap().clone();
     let volume = fields.get("volume").unwrap_or(&String::new()).clone();
@@ -11,16 +11,50 @@ pub fn fmt_reference_apa(entry: BibEntry) -> String {
     let journal = fields.get("journal").unwrap_or(&String::new()).clone();
     let year = fields.get("year").map(|s| s.to_string());
     let doi = fields.get("doi").unwrap_or(&String::new()).clone();
-    format!(
-        "{} {} {} {} {} {} {}",
-        fmt_authors_apa(authors),
-        fmt_pub_date_apa(year),
-        fmt_title_apa(title),
-        fmt_journal_apa(journal),
-        fmt_vol_issue_apa(volume, number),
-        fmt_pages_apa(pages),
-        fmt_doi_apa(doi),
-    )
+    match kind {
+        crate::parsing::entry::EntryType::Article => {
+            fmt_article_apa(authors, title, journal, volume, pages, number, year, None)
+        }
+        crate::parsing::entry::EntryType::Book => todo!(),
+        crate::parsing::entry::EntryType::Booklet => todo!(),
+        crate::parsing::entry::EntryType::Conference => todo!(),
+        crate::parsing::entry::EntryType::Inbook => todo!(),
+        crate::parsing::entry::EntryType::Incollection => todo!(),
+        crate::parsing::entry::EntryType::Inproceedings => todo!(),
+        crate::parsing::entry::EntryType::Manual => todo!(),
+        crate::parsing::entry::EntryType::Mastersthesis => todo!(),
+        crate::parsing::entry::EntryType::Misc => todo!(),
+        crate::parsing::entry::EntryType::Phdthesis => todo!(),
+        crate::parsing::entry::EntryType::Proceedings => todo!(),
+        crate::parsing::entry::EntryType::Techreport => todo!(),
+        crate::parsing::entry::EntryType::Unpublished => todo!(),
+    }
+}
+
+fn fmt_article_apa(
+    authors: Vec<OwnedFullName>,
+    title: String,
+    journal: String,
+    volume: String,
+    pages: String,
+    number: String,
+    year: Option<String>,
+    doi: Option<&String>,
+) -> String {
+    let mut out = String::new();
+    out.push_str(&fmt_authors_apa(authors.clone()));
+    out.push_str(" ");
+    out.push_str(&fmt_pub_date_apa(year));
+    out.push_str(" ");
+    out.push_str(&fmt_title_apa(title));
+    out.push_str(" ");
+    out.push_str(&fmt_journal_apa(journal));
+    out.push_str(" ");
+    out.push_str(&fmt_vol_issue_apa(volume, number));
+    out.push_str(" ");
+    out.push_str(&fmt_pages_apa(pages));
+
+    out
 }
 
 fn fmt_pages_apa(pages: String) -> String {
