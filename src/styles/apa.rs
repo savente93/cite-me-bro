@@ -53,12 +53,13 @@ fn fmt_article_apa(
     out.push_str(&fmt_vol_issue_apa(volume, number));
     out.push(' ');
     if let Some(p) = pages {
-        out.push_str(" pp. ");
         out.push_str(&fmt_pages_apa(p));
-        out.push(',');
     };
 
     if let Some(d) = doi {
+        if pages.is_some() {
+            out.push(' ');
+        }
         out.push_str(d);
     }
 
