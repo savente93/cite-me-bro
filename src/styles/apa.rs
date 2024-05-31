@@ -82,7 +82,7 @@ fn fmt_authors_apa(mut authors: Vec<OwnedFullName>) -> String {
             let author1 = authors.remove(0);
             let author2 = authors.remove(0);
             format!(
-                "{} & {}",
+                "{}, & {}",
                 fmt_single_author_apa(author1),
                 fmt_single_author_apa(author2)
             )
@@ -90,7 +90,7 @@ fn fmt_authors_apa(mut authors: Vec<OwnedFullName>) -> String {
         3..=21 => {
             let last_author = authors.remove(authors.len() - 1);
             format!(
-                "{} & {}",
+                "{}, & {}",
                 authors
                     .into_iter()
                     .map(fmt_single_author_apa)
@@ -170,7 +170,7 @@ mod test {
             },
         ];
         let formated = fmt_authors_apa(authors);
-        assert_eq!(formated, "Lovelace Augusta, A. M. & Noether, A. E.");
+        assert_eq!(formated, "Lovelace Augusta, A. M., & Noether, A. E.");
 
         Ok(())
     }
@@ -199,7 +199,7 @@ mod test {
         let formated = fmt_authors_apa(authors);
         assert_eq!(
             formated,
-            "Lovelace Augusta, A. M., Noether, A. E. & Germain, S."
+            "Lovelace Augusta, A. M., Noether, A. E., & Germain, S."
         );
 
         Ok(())

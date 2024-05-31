@@ -454,7 +454,10 @@ mod test {
             },
         ];
         let formated = fmt_authors_ieee(authors);
-        assert_eq!(formated, "A. M. Lovelace Augusta et al.");
+        assert_eq!(
+            formated,
+            "A. M. Lovelace Augusta, A. E. Noether, S. Germain, et al."
+        );
 
         Ok(())
     }

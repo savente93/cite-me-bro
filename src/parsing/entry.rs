@@ -514,7 +514,7 @@ mod test {
                 "year".to_string() => "2016".to_string(),
                 "month".to_string() => "08".to_string(),
                 "issn".to_string() => "0168-6496".to_string(),
-                "doi".to_string() => "10.1093/femsec/fiw174".to_string(),
+                "doi".to_string() => "https://doi.org/10.1093/femsec/fiw174".to_string(),
                 "url".to_string() => "https://doi.org/10.1093/femsec/fiw174".to_string()
                           ),
             }
