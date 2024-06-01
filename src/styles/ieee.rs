@@ -12,11 +12,11 @@ pub fn fmt_reference_ieee(entry: BibEntry) -> String {
 
     match kind {
         crate::parsing::entry::EntryType::Article => fmt_article_ieee(authors, fields),
-        crate::parsing::entry::EntryType::Book => todo!(),
-        crate::parsing::entry::EntryType::Booklet => todo!(),
-        crate::parsing::entry::EntryType::Conference => todo!(),
-        crate::parsing::entry::EntryType::Inbook => todo!(),
-        crate::parsing::entry::EntryType::Incollection => todo!(),
+        crate::parsing::entry::EntryType::Book => fmt_book_ieee(authors, fields),
+        crate::parsing::entry::EntryType::Booklet => fmt_booklet_ieee(authors, fields),
+        crate::parsing::entry::EntryType::Conference => fmt_conference_ieee(authors, fields),
+        crate::parsing::entry::EntryType::Inbook => fmt_inbook_ieee(authors, fields),
+        crate::parsing::entry::EntryType::Incollection => fmt_incollection_ieee(authors, fields),
         crate::parsing::entry::EntryType::Inproceedings => fmt_inprocedings_ieee(authors, fields),
         crate::parsing::entry::EntryType::Manual => fmt_manual_ieee(authors, fields),
         crate::parsing::entry::EntryType::Mastersthesis => {
@@ -38,6 +38,146 @@ enum ThesisKind {
     Msc,
 }
 
+fn fmt_book_ieee(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
+    let mut out = String::new();
+    let title = fields.get("title").unwrap_or(&String::new()).clone();
+    let book_title = fields.get("booktitle").unwrap_or(&String::new()).clone();
+    let series = fields.get("series").unwrap_or(&String::new()).clone();
+    let publisher = fields.get("publisher").unwrap_or(&String::new()).clone();
+    let address = fields.get("address").unwrap_or(&String::new()).clone();
+    let pages = fields.get("pages").unwrap_or(&String::new()).clone();
+    let year = fields.get("year").unwrap_or(&String::new()).clone();
+    out.push_str(&fmt_authors_ieee(authors.clone()));
+    out.push_str(", ");
+    out.push_str(&fmt_title_ieee(title));
+    out.push_str(" in ");
+    out.push_str(&book_title);
+    out.push_str(", ser. ");
+    out.push_str(&series);
+    out.push_str(", ");
+    out.push_str(&address);
+    out.push_str(": ");
+    out.push_str(&publisher);
+    out.push_str(", ");
+    out.push_str(&year);
+    out.push_str(", pp. ");
+    out.push_str(&pages);
+    out.push('.');
+    out
+}
+fn fmt_booklet_ieee(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
+    let mut out = String::new();
+    let title = fields.get("title").unwrap_or(&String::new()).clone();
+    let book_title = fields.get("booktitle").unwrap_or(&String::new()).clone();
+    let series = fields.get("series").unwrap_or(&String::new()).clone();
+    let publisher = fields.get("publisher").unwrap_or(&String::new()).clone();
+    let address = fields.get("address").unwrap_or(&String::new()).clone();
+    let pages = fields.get("pages").unwrap_or(&String::new()).clone();
+    let year = fields.get("year").unwrap_or(&String::new()).clone();
+    out.push_str(&fmt_authors_ieee(authors.clone()));
+    out.push_str(", ");
+    out.push_str(&fmt_title_ieee(title));
+    out.push_str(" in ");
+    out.push_str(&book_title);
+    out.push_str(", ser. ");
+    out.push_str(&series);
+    out.push_str(", ");
+    out.push_str(&address);
+    out.push_str(": ");
+    out.push_str(&publisher);
+    out.push_str(", ");
+    out.push_str(&year);
+    out.push_str(", pp. ");
+    out.push_str(&pages);
+    out.push('.');
+    out
+}
+fn fmt_conference_ieee(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
+    let mut out = String::new();
+    let title = fields.get("title").unwrap_or(&String::new()).clone();
+    let book_title = fields.get("booktitle").unwrap_or(&String::new()).clone();
+    let series = fields.get("series").unwrap_or(&String::new()).clone();
+    let publisher = fields.get("publisher").unwrap_or(&String::new()).clone();
+    let address = fields.get("address").unwrap_or(&String::new()).clone();
+    let pages = fields.get("pages").unwrap_or(&String::new()).clone();
+    let year = fields.get("year").unwrap_or(&String::new()).clone();
+    out.push_str(&fmt_authors_ieee(authors.clone()));
+    out.push_str(", ");
+    out.push_str(&fmt_title_ieee(title));
+    out.push_str(" in ");
+    out.push_str(&book_title);
+    out.push_str(", ser. ");
+    out.push_str(&series);
+    out.push_str(", ");
+    out.push_str(&address);
+    out.push_str(": ");
+    out.push_str(&publisher);
+    out.push_str(", ");
+    out.push_str(&year);
+    out.push_str(", pp. ");
+    out.push_str(&pages);
+    out.push('.');
+    out
+}
+fn fmt_inbook_ieee(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
+    let mut out = String::new();
+    let title = fields.get("title").unwrap_or(&String::new()).clone();
+    let book_title = fields.get("booktitle").unwrap_or(&String::new()).clone();
+    let series = fields.get("series").unwrap_or(&String::new()).clone();
+    let publisher = fields.get("publisher").unwrap_or(&String::new()).clone();
+    let address = fields.get("address").unwrap_or(&String::new()).clone();
+    let pages = fields.get("pages").unwrap_or(&String::new()).clone();
+    let year = fields.get("year").unwrap_or(&String::new()).clone();
+    out.push_str(&fmt_authors_ieee(authors.clone()));
+    out.push_str(", ");
+    out.push_str(&fmt_title_ieee(title));
+    out.push_str(" in ");
+    out.push_str(&book_title);
+    out.push_str(", ser. ");
+    out.push_str(&series);
+    out.push_str(", ");
+    out.push_str(&address);
+    out.push_str(": ");
+    out.push_str(&publisher);
+    out.push_str(", ");
+    out.push_str(&year);
+    out.push_str(", pp. ");
+    out.push_str(&pages);
+    out.push('.');
+    out
+}
+fn fmt_incollection_ieee(
+    authors: Vec<OwnedFullName>,
+    mut fields: BTreeMap<String, String>,
+) -> String {
+    let mut out = String::new();
+    let title = fields.get("title").unwrap_or(&String::new()).clone();
+    let book_title = fields.get("booktitle").unwrap_or(&String::new()).clone();
+    let publisher = fields.get("publisher").unwrap_or(&String::new()).clone();
+    let address = fields.get("address").unwrap_or(&String::new()).clone();
+    let pages = fields.get("pages").unwrap_or(&String::new()).clone();
+    let year = fields.get("year").unwrap_or(&String::new()).clone();
+    out.push_str(&fmt_authors_ieee(authors.clone()));
+    out.push_str(", ");
+    out.push_str(&fmt_title_ieee(title));
+    out.push_str(" in ");
+    out.push_str(&book_title);
+    out.push_str(", ");
+    let editors_str = fields.entry("editor".to_string()).or_default();
+    let (_tail, edrs) = and_seperated_names(editors_str).unwrap();
+    let editor_names: Vec<OwnedFullName> = edrs.into_iter().map(|n| n.into()).collect();
+    out.push_str(&fmt_authors_ieee(editor_names.clone()));
+    out.push_str(", Eds., ");
+    out.push_str(&address);
+    out.push_str(": ");
+    out.push_str(&publisher);
+    out.push_str(", ");
+    out.push_str(&year);
+    out.push_str(", pp. ");
+    out.push_str(&pages);
+    out.push('.');
+    out
+}
 fn fmt_manual_ieee(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
     let mut out = String::new();
     let title = fields.get("title").unwrap_or(&String::new()).clone();
@@ -87,7 +227,6 @@ fn fmt_inprocedings_ieee(authors: Vec<OwnedFullName>, fields: BTreeMap<String, S
 fn fmt_procedings_ieee(mut fields: BTreeMap<String, String>) -> String {
     // J. K. Author, “Title of paper,” presented at the Abbreviated Name of Conf., City of Conf., Abbrev. State, Country, Month and day(s), year, Paper number
     let mut out = String::new();
-    // let editors: Vec<OwnedFullName> =
     let editors_str = fields.entry("editor".to_string()).or_default();
     let (_tail, edrs) = and_seperated_names(editors_str).unwrap();
     let editor_names: Vec<OwnedFullName> = edrs.into_iter().map(|n| n.into()).collect();
@@ -429,7 +568,6 @@ mod test {
         assert_eq!(citation, formatted_citation);
         Ok(())
     }
-    #[ignore]
     #[test]
     fn incollection_formatted_citation() -> Result<()> {
         let key = "incollection";
