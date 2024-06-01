@@ -99,8 +99,17 @@ fn fmt_thesis_apa(
 fn fmt_misc_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
     let mut out = String::new();
     let title = fields.get("title").unwrap();
+    let year = fields.get("year");
+    let month = fields.get("month");
     out.push_str(&fmt_authors_apa(authors));
+    out.push_str(". ");
+    out.push_str(&fmt_year_month_apa(year, month));
     out.push_str(title);
+    match fields.get("note") {
+        Some(n) => out.push_str(&format!(" [{}]", n)),
+        None => (),
+    };
+    out.push('.');
 
     out
 }
@@ -657,12 +666,11 @@ mod test {
         assert_eq!(citation, formatted_citation);
         Ok(())
     }
-    #[ignore]
     #[test]
     fn misc_formatted_citation() -> Result<()> {
         let key = "misc";
         let formatted_citation =
-            "NASA. (2015). Pluto: The ’other’ red planet [Accessed: 2018-12-06].";
+            "NASA. (2015). Pluto: The 'other' red planet [Accessed: 2018-12-06].";
         let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
         let entry = entries.into_iter().find(|e| e.key == key).unwrap();
         let citation = fmt_reference_apa(entry);
