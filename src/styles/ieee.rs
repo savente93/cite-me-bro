@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 
 use crate::parsing::{
     entry::BibEntry,
-    names::{self, and_seperated_names, OwnedFullName},
+    names::{and_seperated_names, OwnedFullName},
 };
 use chrono::prelude::*;
 use unicode_segmentation::UnicodeSegmentation;
@@ -22,13 +22,12 @@ pub fn fmt_reference_ieee(entry: BibEntry) -> String {
         crate::parsing::entry::EntryType::Mastersthesis => {
             fmt_thesis_ieee(ThesisKind::Msc, authors, fields)
         }
-
         crate::parsing::entry::EntryType::Misc => fmt_misc_ieee(authors, fields),
         crate::parsing::entry::EntryType::Phdthesis => {
             fmt_thesis_ieee(ThesisKind::Phd, authors, fields)
         }
-
-        crate::parsing::entry::EntryType::Proceedings => fmt_procedings_ieee(fields), // full proceedings don't have authors, only editors
+        // full proceedings don't have authors, only editors, hence only passing fields
+        crate::parsing::entry::EntryType::Proceedings => fmt_procedings_ieee(fields),
         crate::parsing::entry::EntryType::Techreport => fmt_tech_report_ieee(authors, fields),
         crate::parsing::entry::EntryType::Unpublished => fmt_unpublished_ieee(authors, fields),
     }
