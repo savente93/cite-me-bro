@@ -37,11 +37,6 @@ enum ThesisKind {
 }
 
 fn fmt_tech_report_ieee(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
-    // institution = "Salt Lake City Corporation",
-    // address     = "Salt Lake City, UT",
-    // number      = "DOE-SLC-6903-1",
-    // year        = 2018,
-    // month       = "sep"
     let title = fields.get("title").unwrap_or(&String::new()).clone();
     let institution = fields.get("institution").unwrap_or(&String::new()).clone();
     let address = fields.get("address").unwrap_or(&String::new()).clone();
@@ -62,7 +57,6 @@ fn fmt_tech_report_ieee(authors: Vec<OwnedFullName>, fields: BTreeMap<String, St
     out.push_str(",");
     out.push_str(&fmt_year_month(year, month));
     out.push_str(".");
-    // Abbrev. Name of Co., City of Co., Abbrev. State, Country, Rep. xxx, year
 
     out
 }
