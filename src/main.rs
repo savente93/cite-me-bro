@@ -17,7 +17,7 @@ struct Args {
     /// The path to the file to read
     #[arg(short, long, value_name = "FILE")]
     bib_file: PathBuf,
-    #[arg(short, long, value_enum)]
+    #[arg(short, long, value_enum, default_value_t = ReferenceStyle::IEEE)]
     style: ReferenceStyle,
 }
 
