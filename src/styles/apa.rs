@@ -28,8 +28,12 @@ pub fn fmt_reference_apa(entry: BibEntry) -> String {
 fn fmt_unpublished_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
     let mut out = String::new();
     let title = fields.get("title").unwrap();
+    let year = fields.get("year");
+    let month = fields.get("month");
     out.push_str(&fmt_authors_apa(authors));
+    out.push_str(&fmt_year_month_apa(year, month));
     out.push_str(title);
+    out.push_str(".");
 
     out
 }
@@ -154,16 +158,15 @@ fn fmt_book_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -
 
 fn fmt_year_month_apa(year: Option<&String>, month: Option<&String>) -> String {
     let mut out = String::new();
+    out.push_str(" (");
     match (year, month) {
-        (None, None) => (),
-        (None, Some(_)) => (),
+        (None, None) => out.push_str("n.d."),
+        (None, Some(_)) => out.push_str("n.d."),
 
         (Some(y), None) => {
-            out.push(' ');
             out.push_str(y);
         }
         (Some(y), Some(m)) => {
-            out.push(' ');
             // years generally don't get represented as anything other than number so unwrapping here is fine
             let y_parsed = y.parse::<i32>().unwrap();
             let m_parsed = m.parse::<u32>();
@@ -175,13 +178,12 @@ fn fmt_year_month_apa(year: Option<&String>, month: Option<&String>) -> String {
                 // if it's not a number just capitalise the first letter
                 Err(_) => m[0..1].to_uppercase() + &m[1..],
             };
-            out.push_str("(");
             out.push_str(y);
             out.push_str(", ");
             out.push_str(&date_formatted);
-            out.push_str("). ");
         }
     };
+    out.push_str("). ");
 
     out
 }
@@ -671,7 +673,6 @@ mod test {
         assert_eq!(citation, formatted_citation);
         Ok(())
     }
-    #[ignore]
     #[test]
     fn unpublished_formatted_citation() -> Result<()> {
         let key = "unpublished";
