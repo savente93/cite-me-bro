@@ -17,7 +17,7 @@ pub fn fmt_reference_ieee(entry: BibEntry) -> String {
         crate::parsing::entry::EntryType::Conference => todo!(),
         crate::parsing::entry::EntryType::Inbook => todo!(),
         crate::parsing::entry::EntryType::Incollection => todo!(),
-        crate::parsing::entry::EntryType::Inproceedings => todo!(),
+        crate::parsing::entry::EntryType::Inproceedings => fmt_inprocedings_ieee(authors, fields),
         crate::parsing::entry::EntryType::Manual => todo!(),
         crate::parsing::entry::EntryType::Mastersthesis => {
             fmt_thesis_ieee(ThesisKind::Msc, authors, fields)
@@ -38,6 +38,36 @@ enum ThesisKind {
     Msc,
 }
 
+fn fmt_inprocedings_ieee(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
+    let mut out = String::new();
+    let title = fields.get("title").unwrap_or(&String::new()).clone();
+    let book_title = fields.get("booktitle").unwrap_or(&String::new()).clone();
+    let series = fields.get("series").unwrap_or(&String::new()).clone();
+    let publisher = fields.get("publisher").unwrap_or(&String::new()).clone();
+    let address = fields.get("address").unwrap_or(&String::new()).clone();
+    let pages = fields.get("pages").unwrap_or(&String::new()).clone();
+    let year = fields.get("year").unwrap_or(&String::new()).clone();
+    //  left: "P. Holleis, M. Wagner, and J. Koolwaaij, \"Studying mobile context-aware social services in the wild,\""
+    // right: "P. Holleis, M. Wagner, and J. Koolwaaij, \"Studying mobile context-aware social services in the wild,\" in Proc. of the 6th Nordic Conf. on Human-Computer Interaction, ser. NordiCHI, New York, NY: ACM, 2010, pp. 207-216."
+    out.push_str(&fmt_authors_ieee(authors.clone()));
+    out.push_str(", ");
+    out.push_str(&fmt_title_ieee(title));
+    out.push_str(" in ");
+    out.push_str(&book_title);
+    out.push_str(", ser. ");
+    out.push_str(&series);
+    out.push_str(", ");
+    out.push_str(&address);
+    out.push_str(": ");
+    out.push_str(&publisher);
+    out.push_str(", ");
+    out.push_str(&year);
+    out.push_str(", pp. ");
+    out.push_str(&pages);
+    out.push('.');
+
+    out
+}
 fn fmt_procedings_ieee(mut fields: BTreeMap<String, String>) -> String {
     // J. K. Author, “Title of paper,” presented at the Abbreviated Name of Conf., City of Conf., Abbrev. State, Country, Month and day(s), year, Paper number
     let mut out = String::new();
@@ -394,7 +424,6 @@ mod test {
         assert_eq!(citation, formatted_citation);
         Ok(())
     }
-    #[ignore]
     #[test]
     fn inprocedings_formatted_citation() -> Result<()> {
         let key = "inproceedings";
