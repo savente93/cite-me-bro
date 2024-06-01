@@ -17,3 +17,9 @@ nom-supreme = "0.8.0"
 parse-hyperlinks = "0.27.2"
 serde = { version = "1.0.202", features = ["derive"] }
 unicode-segmentation = "1.11.0"
+
+[[bin]]
+name = "cmb"
+path = "src/main.rs"
+test = false
+bench = false
