@@ -1,6 +1,9 @@
 use std::collections::BTreeMap;
 
-use crate::parsing::{entry::BibEntry, names::OwnedFullName};
+use crate::parsing::{
+    entry::BibEntry,
+    names::{self, and_seperated_names, OwnedFullName},
+};
 use chrono::prelude::*;
 use unicode_segmentation::UnicodeSegmentation;
 
@@ -25,7 +28,7 @@ pub fn fmt_reference_ieee(entry: BibEntry) -> String {
             fmt_thesis_ieee(ThesisKind::Phd, authors, fields)
         }
 
-        crate::parsing::entry::EntryType::Proceedings => todo!(),
+        crate::parsing::entry::EntryType::Proceedings => fmt_procedings_ieee(fields), // full proceedings don't have authors, only editors
         crate::parsing::entry::EntryType::Techreport => fmt_tech_report_ieee(authors, fields),
         crate::parsing::entry::EntryType::Unpublished => fmt_unpublished_ieee(authors, fields),
     }
@@ -36,6 +39,33 @@ enum ThesisKind {
     Msc,
 }
 
+fn fmt_procedings_ieee(mut fields: BTreeMap<String, String>) -> String {
+    // J. K. Author, “Title of paper,” presented at the Abbreviated Name of Conf., City of Conf., Abbrev. State, Country, Month and day(s), year, Paper number
+    let mut out = String::new();
+    // let editors: Vec<OwnedFullName> =
+    let editors_str = fields.entry("editor".to_string()).or_insert(String::new());
+    let (_tail, edrs) = and_seperated_names(&editors_str).unwrap();
+    let editor_names: Vec<OwnedFullName> = edrs.into_iter().map(|n| n.into()).collect();
+    let title = fields.get("title").unwrap_or(&String::new()).clone();
+    let volume = fields.get("volume").unwrap_or(&String::new()).clone();
+    let series = fields.get("series").unwrap_or(&String::new()).clone();
+    let address = fields.get("address").unwrap_or(&String::new()).clone();
+    let publisher = fields.get("publisher").unwrap_or(&String::new()).clone();
+    let year = fields.get("year").unwrap_or(&String::new()).clone();
+    out.push_str(&fmt_authors_ieee(editor_names.clone()));
+    out.push_str(", Eds., ");
+    out.push_str(&title);
+    out.push_str(&format!(", vol. {}, ", volume));
+    out.push_str(&series);
+    out.push_str(", ");
+    out.push_str(&address);
+    out.push_str(": ");
+    out.push_str(&publisher);
+    out.push_str(", ");
+    out.push_str(&year);
+
+    out
+}
 fn fmt_unpublished_ieee(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
     let mut out = String::new();
     let title = fields.get("title").unwrap_or(&String::new()).clone();
@@ -417,7 +447,6 @@ mod test {
         assert_eq!(citation, formatted_citation);
         Ok(())
     }
-    #[ignore]
     #[test]
     fn proceedings_formatted_citation() -> Result<()> {
         let key = "proceedings";
