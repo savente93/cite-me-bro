@@ -37,6 +37,7 @@ fn fmt_unpublished_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, Str
     let year = fields.get("year");
     let month = fields.get("month");
     out.push_str(&fmt_authors_apa(authors));
+    out.push(' ');
     out.push_str(&fmt_year_month_apa(year, month));
     out.push_str(title);
     out.push_str(".");
@@ -53,6 +54,7 @@ fn fmt_techreport_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, Stri
     let institution = fields.get("institution").unwrap();
     let address = fields.get("address").unwrap();
     out.push_str(&fmt_authors_apa(authors));
+    out.push(' ');
     out.push_str(&fmt_year_month_apa(year, month));
     out.push_str(title);
     out.push(' ');
@@ -83,6 +85,7 @@ fn fmt_thesis_apa(
     let month = fields.get("month");
     let school = fields.get("school").unwrap();
     out.push_str(&fmt_authors_apa(authors));
+    out.push(' ');
     out.push_str(&fmt_year_month_apa(year, month));
     out.push_str(title);
     out.push(' ');
@@ -105,8 +108,17 @@ fn fmt_misc_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -
 fn fmt_manual_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
     let mut out = String::new();
     let title = fields.get("title").unwrap();
+    let year = fields.get("year");
+    let month = fields.get("month");
+    let organization = fields.get("organization").unwrap();
+    let address = fields.get("address").unwrap();
     out.push_str(&fmt_authors_apa(authors));
+    out.push_str(". ");
+    out.push_str(&fmt_year_month_apa(year, month));
     out.push_str(title);
+    out.push_str(". ");
+    out.push_str(&format!("{}. ", organization));
+    out.push_str(&format!("{}.", address));
 
     out
 }
@@ -167,7 +179,7 @@ fn fmt_book_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -
 
 fn fmt_year_month_apa(year: Option<&String>, month: Option<&String>) -> String {
     let mut out = String::new();
-    out.push_str(" (");
+    out.push_str("(");
     match (year, month) {
         (None, None) => out.push_str("n.d."),
         (None, Some(_)) => out.push_str("n.d."),
@@ -291,15 +303,24 @@ fn fmt_title_apa(title: String) -> String {
 }
 
 fn fmt_single_author_apa(name: OwnedFullName) -> String {
-    format!(
-        "{}, {}",
-        name.last.join(" "),
-        name.first
-            .iter()
-            .map(|n| format!("{}.", n.graphemes(true).next().unwrap()))
-            .collect::<Vec<String>>()
-            .join(" "),
-    )
+    let mut out = String::new();
+    if !name.last.is_empty() {
+        out.push_str(&name.last.join(" "));
+    }
+    if !name.first.is_empty() {
+        if !name.last.is_empty() {
+            out.push_str(", ");
+        }
+        out.push_str(
+            &name
+                .first
+                .iter()
+                .map(|n| format!("{}.", n.graphemes(true).next().unwrap()))
+                .collect::<Vec<String>>()
+                .join(" "),
+        )
+    };
+    out
 }
 #[cfg(test)]
 mod test {
@@ -616,7 +637,6 @@ mod test {
         assert_eq!(citation, formatted_citation);
         Ok(())
     }
-    #[ignore]
     #[test]
     fn manual_formatted_citation() -> Result<()> {
         let key = "manual";
