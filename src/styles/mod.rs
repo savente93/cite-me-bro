@@ -5,7 +5,7 @@ use crate::styles::ieee::fmt_reference_ieee;
 pub mod apa;
 pub mod ieee;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, clap::ValueEnum)]
 pub enum ReferenceStyle {
     IEEE,
     APA,

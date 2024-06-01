@@ -385,7 +385,6 @@ fn fmt_misc_ieee(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) 
     let howpublished = fields.get("howpublished");
     let note = fields.get("note");
     let mut out = String::new();
-    dbg!(&authors);
     out.push_str(&fmt_authors_ieee(authors.clone()));
     out.push_str(", ");
     out.push_str(&title);
