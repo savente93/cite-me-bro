@@ -54,9 +54,9 @@ fn fmt_tech_report_ieee(authors: Vec<OwnedFullName>, fields: BTreeMap<String, St
     out.push_str(&address);
     out.push_str(", Tech. Rep. ");
     out.push_str(&number);
-    out.push_str(",");
+    out.push(',');
     out.push_str(&fmt_year_month(year, month));
-    out.push_str(".");
+    out.push('.');
 
     out
 }
@@ -164,16 +164,16 @@ fn fmt_thesis_ieee(
         ThesisKind::Msc => "M.S. thesis, ",
     });
     if let Some(s) = school {
-        out.push_str(&s);
+        out.push_str(s);
         out.push(',');
     }
     if let Some(a) = address {
         out.push(' ');
-        out.push_str(&a);
+        out.push_str(a);
         out.push(',');
     }
     out.push_str(&fmt_year_month(year, month));
-    out.push_str(".");
+    out.push('.');
 
     out
 }
@@ -208,7 +208,7 @@ fn fmt_misc_ieee(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) 
 
 fn fmt_single_author_ieee(name: OwnedFullName) -> String {
     let mut out = String::new();
-    if name.first.len() > 0 {
+    if !name.first.is_empty() {
         out.push_str(
             &name
                 .first
@@ -218,8 +218,8 @@ fn fmt_single_author_ieee(name: OwnedFullName) -> String {
                 .join(" "),
         )
     };
-    if name.last.len() > 0 {
-        if name.first.len() > 0 {
+    if !name.last.is_empty() {
+        if !name.first.is_empty() {
             out.push(' ');
         }
         out.push_str(&name.last.join(" "));
