@@ -1,6 +1,7 @@
 use std::collections::BTreeMap;
 
 use crate::parsing::{entry::BibEntry, names::OwnedFullName};
+use chrono::NaiveDate;
 use unicode_segmentation::UnicodeSegmentation;
 
 pub fn fmt_reference_apa(entry: BibEntry) -> String {
@@ -8,20 +9,181 @@ pub fn fmt_reference_apa(entry: BibEntry) -> String {
 
     match kind {
         crate::parsing::entry::EntryType::Article => fmt_article_apa(authors, fields),
-        crate::parsing::entry::EntryType::Book => todo!(),
-        crate::parsing::entry::EntryType::Booklet => todo!(),
-        crate::parsing::entry::EntryType::Conference => todo!(),
-        crate::parsing::entry::EntryType::Inbook => todo!(),
-        crate::parsing::entry::EntryType::Incollection => todo!(),
-        crate::parsing::entry::EntryType::Inproceedings => todo!(),
-        crate::parsing::entry::EntryType::Manual => todo!(),
-        crate::parsing::entry::EntryType::Mastersthesis => todo!(),
-        crate::parsing::entry::EntryType::Misc => todo!(),
-        crate::parsing::entry::EntryType::Phdthesis => todo!(),
-        crate::parsing::entry::EntryType::Proceedings => todo!(),
-        crate::parsing::entry::EntryType::Techreport => todo!(),
-        crate::parsing::entry::EntryType::Unpublished => todo!(),
+        crate::parsing::entry::EntryType::Book => fmt_book_apa(authors, fields),
+        crate::parsing::entry::EntryType::Booklet => fmt_booklet_apa(authors, fields),
+        crate::parsing::entry::EntryType::Conference => fmt_conference_apa(authors, fields),
+        crate::parsing::entry::EntryType::Inbook => fmt_inbook_apa(authors, fields),
+        crate::parsing::entry::EntryType::Incollection => fmt_incollection_apa(authors, fields),
+        crate::parsing::entry::EntryType::Inproceedings => fmt_inproceedings_apa(authors, fields),
+        crate::parsing::entry::EntryType::Manual => fmt_manual_apa(authors, fields),
+        crate::parsing::entry::EntryType::Mastersthesis => fmt_mastersthesis_apa(authors, fields),
+        crate::parsing::entry::EntryType::Misc => fmt_misc_apa(authors, fields),
+        crate::parsing::entry::EntryType::Phdthesis => fmt_phdthesis_apa(authors, fields),
+        crate::parsing::entry::EntryType::Proceedings => fmt_proceedings_apa(authors, fields),
+        crate::parsing::entry::EntryType::Techreport => fmt_techreport_apa(authors, fields),
+        crate::parsing::entry::EntryType::Unpublished => fmt_unpublished_apa(authors, fields),
     }
+}
+
+fn fmt_unpublished_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
+    let mut out = String::new();
+    let title = fields.get("title").unwrap();
+    out.push_str(&fmt_authors_apa(authors));
+    out.push_str(title);
+
+    out
+}
+
+fn fmt_techreport_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
+    let mut out = String::new();
+    let title = fields.get("title").unwrap();
+    let year = fields.get("year");
+    let month = fields.get("month");
+    let number = fields.get("number").unwrap();
+    let institution = fields.get("institution").unwrap();
+    let address = fields.get("address").unwrap();
+    out.push_str(&fmt_authors_apa(authors));
+    out.push_str(&fmt_year_month_apa(year, month));
+    out.push_str(title);
+    out.push(' ');
+    out.push_str(&format!("(tech. rep. No. {}). ", number));
+    out.push_str(&format!("{}. ", institution));
+    out.push_str(&format!("{}.", address));
+
+    out
+}
+
+fn fmt_proceedings_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
+    let mut out = String::new();
+    let title = fields.get("title").unwrap();
+    out.push_str(&fmt_authors_apa(authors));
+    out.push_str(title);
+
+    out
+}
+
+fn fmt_phdthesis_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
+    let mut out = String::new();
+    let title = fields.get("title").unwrap();
+    out.push_str(&fmt_authors_apa(authors));
+    out.push_str(title);
+
+    out
+}
+
+fn fmt_misc_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
+    let mut out = String::new();
+    let title = fields.get("title").unwrap();
+    out.push_str(&fmt_authors_apa(authors));
+    out.push_str(title);
+
+    out
+}
+
+fn fmt_mastersthesis_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
+    let mut out = String::new();
+    let title = fields.get("title").unwrap();
+    out.push_str(&fmt_authors_apa(authors));
+    out.push_str(title);
+
+    out
+}
+
+fn fmt_manual_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
+    let mut out = String::new();
+    let title = fields.get("title").unwrap();
+    out.push_str(&fmt_authors_apa(authors));
+    out.push_str(title);
+
+    out
+}
+
+fn fmt_inproceedings_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
+    let mut out = String::new();
+    let title = fields.get("title").unwrap();
+    out.push_str(&fmt_authors_apa(authors));
+    out.push_str(title);
+
+    out
+}
+
+fn fmt_incollection_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
+    let mut out = String::new();
+    let title = fields.get("title").unwrap();
+    out.push_str(&fmt_authors_apa(authors));
+    out.push_str(title);
+
+    out
+}
+
+fn fmt_inbook_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
+    let mut out = String::new();
+    let title = fields.get("title").unwrap();
+    out.push_str(&fmt_authors_apa(authors));
+    out.push_str(title);
+
+    out
+}
+
+fn fmt_conference_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
+    let mut out = String::new();
+    let title = fields.get("title").unwrap();
+    out.push_str(&fmt_authors_apa(authors));
+    out.push_str(title);
+
+    out
+}
+
+fn fmt_booklet_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
+    let mut out = String::new();
+    let title = fields.get("title").unwrap();
+    out.push_str(&fmt_authors_apa(authors));
+    out.push_str(title);
+
+    out
+}
+
+fn fmt_book_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
+    let mut out = String::new();
+    let title = fields.get("title").unwrap();
+    out.push_str(&fmt_authors_apa(authors));
+    out.push_str(title);
+
+    out
+}
+
+fn fmt_year_month_apa(year: Option<&String>, month: Option<&String>) -> String {
+    let mut out = String::new();
+    match (year, month) {
+        (None, None) => (),
+        (None, Some(_)) => (),
+
+        (Some(y), None) => {
+            out.push(' ');
+            out.push_str(y);
+        }
+        (Some(y), Some(m)) => {
+            out.push(' ');
+            // years generally don't get represented as anything other than number so unwrapping here is fine
+            let y_parsed = y.parse::<i32>().unwrap();
+            let m_parsed = m.parse::<u32>();
+            let date_formatted = match m_parsed {
+                Ok(m) => {
+                    let date = NaiveDate::from_ymd_opt(y_parsed, m, 1).unwrap();
+                    date.format("%B").to_string()
+                }
+                // if it's not a number just capitalise the first letter
+                Err(_) => m[0..1].to_uppercase() + &m[1..],
+            };
+            out.push_str("(");
+            out.push_str(y);
+            out.push_str(", ");
+            out.push_str(&date_formatted);
+            out.push_str("). ");
+        }
+    };
+
+    out
 }
 
 fn fmt_article_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
@@ -499,7 +661,6 @@ mod test {
         assert_eq!(citation, formatted_citation);
         Ok(())
     }
-    #[ignore]
     #[test]
     fn techreport_formatted_citation() -> Result<()> {
         let key = "techreport";
