@@ -1,9 +1,9 @@
-use std::process::Command;
+use std::process::{Command, ExitStatus};
 use std::str;
 
 fn run_cmb() -> Command {
     let mut command = Command::new("cargo");
-    command.arg("run").arg("--");
+    command.arg("run").arg("-q").arg("--");
     command
 }
 #[test]
@@ -38,8 +38,37 @@ fn run_unknown_key_and_book_ieee() {
         .args(["-b", "cite.bib", "--style", "ieee", "asdf", "book"])
         .output()
         .expect("could not run binary");
-    let expected = "L. Susskind and G. Hrabovsky, Classical mechanics: the theoretical minimum. New York, NY: Penguin Random House, 2014.\n";
+    let expected_output = "L. Susskind and G. Hrabovsky, Classical mechanics: the theoretical minimum. New York, NY: Penguin Random House, 2014.\n";
+    let expected_warning = "[W] No entry for key asdf was found, skipping...\n";
 
     dbg!(&output);
-    assert_eq!(str::from_utf8(&output.stdout), Ok(expected));
+    assert!(&output.status.success());
+    assert_eq!(str::from_utf8(&output.stdout), Ok(expected_output));
+    assert_eq!(str::from_utf8(&output.stderr), Ok(expected_warning));
+}
+#[test]
+fn run_no_warning_on_quiet() {
+    let output = run_cmb()
+        .args(["-b", "cite.bib", "asdf", "-q"])
+        .output()
+        .expect("could not run binary");
+    let expected_output = "";
+    let expected_warning = "";
+
+    assert!(&output.status.success());
+    assert_eq!(str::from_utf8(&output.stdout), Ok(expected_output));
+    assert_eq!(str::from_utf8(&output.stderr), Ok(expected_warning));
+}
+#[test]
+fn run_panics_with_flag_set() {
+    let output = run_cmb()
+        .args(["-b", "cite.bib", "asdf", "-p"])
+        .output()
+        .expect("could not run binary");
+    let expected_output = "";
+    let expected_warning = "[E] key \"asdf\" found in bib file \"cite.bib\", exiting...\n";
+
+    assert!(&!output.status.success());
+    assert_eq!(str::from_utf8(&output.stdout), Ok(expected_output));
+    assert_eq!(str::from_utf8(&output.stderr), Ok(expected_warning));
 }

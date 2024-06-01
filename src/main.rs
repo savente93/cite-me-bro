@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Result};
 use clap::Parser;
 use colored::Colorize;
-use log::warn;
+use log::{error, warn};
 use parsing::entry::parse_bib_file;
 use parsing::entry::Bibliography;
 use std::path::PathBuf;
@@ -18,12 +18,19 @@ pub mod utils;
     about = "formats bibtex entries to stdout"
 )]
 struct Args {
-    /// The path to the file to read
-    #[arg(short, long, value_name = "FILE")]
+    #[arg(short, long, value_name = "BIB_FILE")]
     bib_file: PathBuf,
     #[arg(short, long, value_enum, default_value_t = ReferenceStyle::IEEE)]
     style: ReferenceStyle,
     keys: Vec<String>,
+    #[arg(short, long, value_name = "INPLACE_FILE", conflicts_with = "keys")]
+    inplace: Option<PathBuf>,
+
+    #[arg(short, long, default_value_t = false)]
+    quiet: bool,
+
+    #[arg(short, long, conflicts_with = "quiet", default_value_t = false)]
+    panic: bool,
 }
 
 fn main() -> Result<()> {
@@ -48,12 +55,23 @@ fn main() -> Result<()> {
                     println!("{}", &args.style.fmt_reference(entry));
                     seen_at_least_one = true;
                 }
-                None => warn!(
-                    "No entry for key {} was found, skipping...",
-                    b.bold().yellow()
-                ),
+                None => {
+                    if !args.quiet && !args.panic {
+                        warn!(
+                            "No entry for key {} was found, skipping...",
+                            b.bold().yellow()
+                        )
+                    };
+                    if args.panic {
+                        error!(
+                            "key {:?} found in bib file {:?}, exiting...",
+                            b, args.bib_file
+                        );
+                        std::process::exit(1);
+                    };
+                }
             });
-        if !seen_at_least_one {
+        if !seen_at_least_one && !args.quiet {
             Err(anyhow!(
                 "none of the keys {:?} found in bib file {:?}",
                 &args.keys,
