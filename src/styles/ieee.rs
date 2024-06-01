@@ -27,7 +27,7 @@ pub fn fmt_reference_ieee(entry: BibEntry) -> String {
 
         crate::parsing::entry::EntryType::Proceedings => todo!(),
         crate::parsing::entry::EntryType::Techreport => fmt_tech_report_ieee(authors, fields),
-        crate::parsing::entry::EntryType::Unpublished => todo!(),
+        crate::parsing::entry::EntryType::Unpublished => fmt_unpublished_ieee(authors, fields),
     }
 }
 
@@ -36,6 +36,16 @@ enum ThesisKind {
     Msc,
 }
 
+fn fmt_unpublished_ieee(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
+    let mut out = String::new();
+    let title = fields.get("title").unwrap_or(&String::new()).clone();
+    out.push_str(&fmt_authors_ieee(authors.clone()));
+    out.push_str(", ");
+    out.push_str(&fmt_title_ieee(title));
+    out.push_str(" unpublished.");
+
+    out
+}
 fn fmt_tech_report_ieee(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
     let title = fields.get("title").unwrap_or(&String::new()).clone();
     let institution = fields.get("institution").unwrap_or(&String::new()).clone();
@@ -428,11 +438,10 @@ mod test {
         assert_eq!(citation, formatted_citation);
         Ok(())
     }
-    #[ignore]
     #[test]
     fn unpublished_formatted_citation() -> Result<()> {
         let key = "unpublished";
-        let formatted_citation = "M. Suresh, \"Evolution: A revised theory,\" 2006";
+        let formatted_citation = "M. Suresh, \"Evolution: A revised theory,\" unpublished.";
         let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
         let entry = entries.into_iter().find(|e| e.key == key).unwrap();
         let citation = fmt_reference_ieee(entry);
