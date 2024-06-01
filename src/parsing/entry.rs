@@ -28,6 +28,7 @@ use nom::{
 use parse_hyperlinks::take_until_unbalanced;
 
 use super::names::{self, and_seperated_names, FullName, OwnedFullName};
+type EntrySubComponents<'a> = (EntryType, &'a str, Vec<(&'a str, &'a str)>);
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum EntryType {
@@ -115,7 +116,7 @@ impl BibEntry {
     }
 }
 
-impl<'a> Debug for BibEntry {
+impl Debug for BibEntry {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "{}({})", self.key, self.kind)?;
         writeln!(f, "  - Authors:")?;
@@ -266,7 +267,7 @@ fn entry_key(input: &str) -> IResult<&str, &str> {
     terminated(take_till1(|c| c == ','), char(','))(input)
 }
 
-fn entry(input: &str) -> IResult<&str, (EntryType, &str, Vec<(&str, &str)>)> {
+fn entry(input: &str) -> IResult<&str, EntrySubComponents> {
     let (tail, kind) = entry_kind(input)?;
     let (tail, content) = entry_content(tail)?;
     let (rest_of_content, key) = entry_key(content)?;
@@ -279,7 +280,7 @@ fn entry(input: &str) -> IResult<&str, (EntryType, &str, Vec<(&str, &str)>)> {
 pub fn parse_bib_file(path: PathBuf) -> Result<Vec<BibEntry>> {
     let contents = fs::read_to_string(path).expect("Should have been able to read the file");
 
-    let (_tail, entries): (&str, Vec<(EntryType, &str, Vec<(&str, &str)>)>) =
+    let (_tail, entries): (&str, Vec<EntrySubComponents>) =
         all_consuming(many1(entry))(&contents).unwrap();
     let entry_vec: Vec<BibEntry> = entries.into_iter().map(|t| t.into()).collect();
     Ok(entry_vec)

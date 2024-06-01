@@ -1,20 +1,13 @@
+use std::collections::BTreeMap;
+
 use crate::parsing::{entry::BibEntry, names::OwnedFullName};
 use unicode_segmentation::UnicodeSegmentation;
 
 pub fn fmt_reference_apa(entry: BibEntry) -> String {
     let (kind, _key, authors, fields) = entry.into_components();
 
-    let title = fields.get("title").unwrap().clone();
-    let volume = fields.get("volume").unwrap_or(&String::new()).clone();
-    let pages = fields.get("pages");
-    let number = fields.get("number").unwrap_or(&String::new()).clone();
-    let journal = fields.get("journal").unwrap_or(&String::new()).clone();
-    let year = fields.get("year").map(|s| s.to_string());
-    let doi = fields.get("doi");
     match kind {
-        crate::parsing::entry::EntryType::Article => {
-            fmt_article_apa(authors, title, journal, volume, pages, number, year, doi)
-        }
+        crate::parsing::entry::EntryType::Article => fmt_article_apa(authors, fields),
         crate::parsing::entry::EntryType::Book => todo!(),
         crate::parsing::entry::EntryType::Booklet => todo!(),
         crate::parsing::entry::EntryType::Conference => todo!(),
@@ -31,16 +24,14 @@ pub fn fmt_reference_apa(entry: BibEntry) -> String {
     }
 }
 
-fn fmt_article_apa(
-    authors: Vec<OwnedFullName>,
-    title: String,
-    journal: String,
-    volume: String,
-    pages: Option<&String>,
-    number: String,
-    year: Option<String>,
-    doi: Option<&String>,
-) -> String {
+fn fmt_article_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
+    let title = fields.get("title").unwrap().clone();
+    let volume = fields.get("volume").unwrap_or(&String::new()).clone();
+    let pages = fields.get("pages");
+    let number = fields.get("number").unwrap_or(&String::new()).clone();
+    let journal = fields.get("journal").unwrap_or(&String::new()).clone();
+    let year = fields.get("year").map(|s| s.to_string());
+    let doi = fields.get("doi");
     let mut out = String::new();
     out.push_str(&fmt_authors_apa(authors.clone()));
     out.push(' ');
