@@ -15,7 +15,9 @@ use nom::{
         tag, tag_no_case, take_till, take_till1, take_until, take_until1, take_while, take_while1,
     },
     character::{
-        complete::{char, line_ending, multispace0, not_line_ending, one_of, space0, space1},
+        complete::{
+            char, line_ending, multispace0, multispace1, not_line_ending, one_of, space0, space1,
+        },
         is_space,
     },
     combinator::{all_consuming, eof, map, opt, recognize, verify},
@@ -43,12 +45,6 @@ pub enum EntryType {
     Proceedings,
     Techreport,
     Unpublished,
-}
-
-macro_rules! nows {
-    ($parser:expr) => {
-        delimited(multispace0, $parser, multispace0)
-    };
 }
 
 impl fmt::Display for EntryType {
@@ -214,6 +210,13 @@ fn field_type(input: &str) -> IResult<&str, &str> {
     ))(input)
 }
 
+fn comma(input: &str) -> IResult<&str, &str> {
+    delimited(multispace0, tag(","), multispace0)(input)
+}
+fn endl(input: &str) -> IResult<&str, &str> {
+    delimited(multispace0, line_ending, multispace0)(input)
+}
+
 fn brace_quoted_field(input: &str) -> IResult<&str, &str> {
     delimited(tag("{"), take_until_unbalanced('{', '}'), tag("}"))(input)
 }
@@ -221,21 +224,11 @@ fn quote_quoted_field(input: &str) -> IResult<&str, &str> {
     delimited(tag("\""), take_till(|c| c == '"'), tag("\""))(input)
 }
 fn unquoted_field(input: &str) -> IResult<&str, &str> {
-    let (tail, val) = alt((
-        delimited(
-            multispace0,
-            terminated(take_until(",\n"), tag(",\n")),
-            multispace0,
-        ),
-        delimited(
-            multispace0,
-            terminated(take_until("\n"), tag("\n")),
-            multispace0,
-        ),
-    ))(input)?;
+    let (tail, val) = take_till(|c| ",}".contains(c))(input)?;
+    let (_, val_stripped) =
+        delimited(multispace0, take_till(|c| is_space(c as u8)), multispace0)(val)?;
 
-    let (_, striped_val) = terminated(take_until1(" "), multispace0)(val)?;
-    Ok((tail, striped_val))
+    Ok((tail, val_stripped))
 }
 
 fn field(input: &str) -> IResult<&str, (&str, &str)> {
@@ -550,7 +543,7 @@ mod test {
     fn unquoted_year_comma() -> Result<()> {
         let input = "year    = 1956   ,  \n";
         let (tail, (kind, content)) = field(input)?;
-        assert_eq!(tail, "");
+        assert_eq!(tail, ",  \n");
         assert_eq!(kind, "year");
         assert_eq!(content, "1956");
 
@@ -558,9 +551,9 @@ mod test {
     }
     #[test]
     fn unquoted_year_no_comma() -> Result<()> {
-        let input = "year    = 1956   \n";
+        let input = "year    = 1956   \n}";
         let (tail, (kind, content)) = field(input)?;
-        assert_eq!(tail, "");
+        assert_eq!(tail, "}");
         assert_eq!(kind, "year");
         assert_eq!(content, "1956");
 
@@ -568,9 +561,19 @@ mod test {
     }
     #[test]
     fn unquoted_field_last() -> Result<()> {
-        let input = "month   = jun \n";
+        let input = "month   = jun \n}";
         let (tail, (kind, content)) = field(input)?;
-        assert_eq!(tail, "");
+        assert_eq!(tail, "}");
+        assert_eq!(kind, "month");
+        assert_eq!(content, "jun");
+
+        Ok(())
+    }
+    #[test]
+    fn brace_quoted_field() -> Result<()> {
+        let input = "month   = {jun}, month   = {jun}";
+        let (tail, (kind, content)) = field(input)?;
+        assert_eq!(tail, ", month   = {jun}");
         assert_eq!(kind, "month");
         assert_eq!(content, "jun");
 
@@ -578,9 +581,9 @@ mod test {
     }
     #[test]
     fn unquoted_value_last() -> Result<()> {
-        let input = " jun \n";
+        let input = " jun \n}";
         let (tail, content) = unquoted_field(input)?;
-        assert_eq!(tail, "");
+        assert_eq!(tail, "}");
         assert_eq!(content, "jun");
 
         Ok(())

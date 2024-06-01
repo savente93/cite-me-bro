@@ -66,7 +66,7 @@ enum ThesisKind {
     Msc,
 }
 
-fn fmt_ym(year: Option<&String>, month: Option<&String>) -> String {
+fn fmt_year_month(year: Option<&String>, month: Option<&String>) -> String {
     let mut out = String::new();
     match (year, month) {
         (None, None) => (),
@@ -123,7 +123,7 @@ fn fmt_article_ieee(
         out.push_str(p);
         out.push(',');
     }
-    out.push_str(&fmt_ym(year, month));
+    out.push_str(&fmt_year_month(year, month));
 
     if let Some(i) = issn {
         out.push(',');
@@ -178,7 +178,7 @@ fn fmt_thesis_ieee(
         out.push_str(&a);
         out.push(',');
     }
-    out.push_str(&fmt_ym(year, month));
+    out.push_str(&fmt_year_month(year, month));
     out.push_str(".");
 
     out
@@ -406,7 +406,7 @@ mod test {
         Ok(())
     }
     #[test]
-    fn phthesis_formatted_citation() -> Result<()> {
+    fn phdthesis_formatted_citation() -> Result<()> {
         let key = "phdthesis";
         let formatted_citation= "R. C. Rempel, \"Relaxation effects for coupled nuclear spins,\" Ph.D. dissertation, Stanford University, Stanford, CA, Jun. 1956.";
         let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
