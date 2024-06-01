@@ -103,7 +103,6 @@ fn fmt_inbook_ieee(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>
     let mut out = String::new();
     let title = fields.get("title").unwrap_or(&String::new()).clone();
     let book_title = fields.get("booktitle").unwrap_or(&String::new()).clone();
-    let series = fields.get("series").unwrap_or(&String::new()).clone();
     let publisher = fields.get("publisher").unwrap_or(&String::new()).clone();
     let address = fields.get("address").unwrap_or(&String::new()).clone();
     let pages = fields.get("pages").unwrap_or(&String::new()).clone();
@@ -113,9 +112,7 @@ fn fmt_inbook_ieee(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>
     out.push_str(&fmt_title_ieee(title));
     out.push_str(" in ");
     out.push_str(&book_title);
-    out.push_str(", ser. ");
-    out.push_str(&series);
-    out.push_str(", ");
+    out.push_str(". ");
     out.push_str(&address);
     out.push_str(": ");
     out.push_str(&publisher);
