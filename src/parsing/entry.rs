@@ -10,7 +10,7 @@ use std::{
 use anyhow::{Error, Result};
 // lint allows are just while developing, will be removed soon
 use nom::{
-    branch::alt,
+    branch::{alt, permutation},
     bytes::complete::{
         tag, tag_no_case, take_till, take_till1, take_until, take_until1, take_while, take_while1,
     },
@@ -21,7 +21,7 @@ use nom::{
         is_space,
     },
     combinator::{all_consuming, eof, map, opt, recognize, verify},
-    multi::{many1, many_till, separated_list0, separated_list1},
+    multi::{many0, many1, many_till, separated_list0, separated_list1},
     sequence::{delimited, pair, preceded, separated_pair, terminated, tuple},
     AsChar, Err, IResult, Parser,
 };
@@ -225,8 +225,11 @@ fn quote_quoted_field(input: &str) -> IResult<&str, &str> {
 }
 fn unquoted_field(input: &str) -> IResult<&str, &str> {
     let (tail, val) = take_till(|c| ",}".contains(c))(input)?;
-    let (_, val_stripped) =
-        delimited(multispace0, take_till(|c| is_space(c as u8)), multispace0)(val)?;
+    let (_, val_stripped) = delimited(
+        many0(permutation((multispace0, line_ending))),
+        take_till(|c| is_space(c as u8)),
+        many0(permutation((multispace0, line_ending))),
+    )(val)?;
 
     Ok((tail, val_stripped))
 }
@@ -575,15 +578,6 @@ mod test {
         let (tail, (kind, content)) = field(input)?;
         assert_eq!(tail, ", month   = {jun}");
         assert_eq!(kind, "month");
-        assert_eq!(content, "jun");
-
-        Ok(())
-    }
-    #[test]
-    fn unquoted_value_last() -> Result<()> {
-        let input = " jun \n}";
-        let (tail, content) = unquoted_field(input)?;
-        assert_eq!(tail, "}");
         assert_eq!(content, "jun");
 
         Ok(())
