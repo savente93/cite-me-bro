@@ -26,10 +26,7 @@ fn main() {
 
     let bibtex = parse_bib_file(args.bib_file).unwrap();
 
-    println!(
-        "{:?}",
-        bibtex.into_iter().for_each(|b| {
-            println!("{}", &args.style.fmt_reference(b));
-        })
-    );
+    bibtex.into_iter().for_each(|b| {
+        println!("{}", &args.style.fmt_reference(b));
+    });
 }
