@@ -50,8 +50,8 @@ fn main() -> Result<()> {
         dbg!(&inplace_path);
         // make sure we don't keep the file open
         let contents = read_to_string(&inplace_path)?;
-        let (_tail, segments) = all_citations(&contents).unwrap();
-        let acc =
+        let (tail, segments) = all_citations(&contents).unwrap();
+        let mut acc =
             segments
                 .into_iter()
                 .fold(String::new(), |mut acc, (unmodified, citation_key)| {
@@ -63,6 +63,7 @@ fn main() -> Result<()> {
                     );
                     acc
                 });
+        acc.push_str(tail);
 
         let mut file = File::create(&inplace_path)?;
         file.write_all(acc.as_bytes()).unwrap();
