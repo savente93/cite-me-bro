@@ -42,8 +42,8 @@ fn fmt_procedings_ieee(mut fields: BTreeMap<String, String>) -> String {
     // J. K. Author, “Title of paper,” presented at the Abbreviated Name of Conf., City of Conf., Abbrev. State, Country, Month and day(s), year, Paper number
     let mut out = String::new();
     // let editors: Vec<OwnedFullName> =
-    let editors_str = fields.entry("editor".to_string()).or_insert(String::new());
-    let (_tail, edrs) = and_seperated_names(&editors_str).unwrap();
+    let editors_str = fields.entry("editor".to_string()).or_default();
+    let (_tail, edrs) = and_seperated_names(editors_str).unwrap();
     let editor_names: Vec<OwnedFullName> = edrs.into_iter().map(|n| n.into()).collect();
     let title = fields.get("title").unwrap_or(&String::new()).clone();
     let volume = fields.get("volume").unwrap_or(&String::new()).clone();
