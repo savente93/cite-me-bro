@@ -1,5 +1,7 @@
 use anyhow::{anyhow, Result};
 use clap::Parser;
+use colored::Colorize;
+use log::warn;
 use parsing::entry::parse_bib_file;
 use parsing::entry::Bibliography;
 use std::path::PathBuf;
@@ -25,6 +27,7 @@ struct Args {
 }
 
 fn main() -> Result<()> {
+    colog::init();
     let args = Args::parse();
 
     let bibtex: Bibliography = parse_bib_file(args.bib_file.clone())?.into();
@@ -45,7 +48,10 @@ fn main() -> Result<()> {
                     println!("{}", &args.style.fmt_reference(entry));
                     seen_at_least_one = true;
                 }
-                None => eprintln!("No entry for key {} was found, skipping...", b),
+                None => warn!(
+                    "No entry for key {} was found, skipping...",
+                    b.bold().yellow()
+                ),
             });
         if !seen_at_least_one {
             Err(anyhow!(

@@ -8,6 +8,8 @@ anyhow = "1.0.86"
 biblatex = "0.9.3"
 chrono = "0.4.38"
 clap = { version = "4.5.4", features = ["derive", "unicode"] }
+colog = "1.3.0"
+colored = "2.1.0"
 lazy_static = "1.4.0"
 log = "0.4.21"
 nom = { version = "7.1.3", features = ["alloc"] }
