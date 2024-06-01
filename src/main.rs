@@ -2,8 +2,12 @@ use anyhow::{anyhow, Result};
 use clap::Parser;
 use colored::Colorize;
 use log::{error, warn};
+use parsing::entry::all_citations;
 use parsing::entry::parse_bib_file;
 use parsing::entry::Bibliography;
+use std::fs::read_to_string;
+use std::fs::File;
+use std::io::Write;
 use std::path::PathBuf;
 use styles::ReferenceStyle;
 
@@ -20,11 +24,14 @@ pub mod utils;
 struct Args {
     #[arg(short, long, value_name = "BIB_FILE")]
     bib_file: PathBuf,
+
     #[arg(short, long, value_enum, default_value_t = ReferenceStyle::IEEE)]
     style: ReferenceStyle,
+
     keys: Vec<String>,
+
     #[arg(short, long, value_name = "INPLACE_FILE", conflicts_with = "keys")]
-    inplace: Option<PathBuf>,
+    inplace_file: Option<PathBuf>,
 
     #[arg(short, long, default_value_t = false)]
     quiet: bool,
@@ -39,46 +46,69 @@ fn main() -> Result<()> {
 
     let bibtex: Bibliography = parse_bib_file(args.bib_file.clone())?.into();
 
-    let mut seen_at_least_one = false;
-    if args.keys.is_empty() {
-        bibtex
-            .entries
-            .into_iter()
-            .for_each(|b| println!("{}", &args.style.fmt_reference(b)));
+    if let Some(inplace_path) = args.inplace_file {
+        dbg!(&inplace_path);
+        // make sure we don't keep the file open
+        let contents = read_to_string(&inplace_path)?;
+        let (_tail, segments) = all_citations(&contents).unwrap();
+        let acc =
+            segments
+                .into_iter()
+                .fold(String::new(), |mut acc, (unmodified, citation_key)| {
+                    acc.push_str(unmodified);
+                    acc.push_str(
+                        &args
+                            .style
+                            .fmt_reference(bibtex.get_entry(citation_key.to_string()).unwrap()),
+                    );
+                    acc
+                });
+
+        let mut file = File::create(&inplace_path)?;
+        file.write_all(acc.as_bytes()).unwrap();
         Ok(())
     } else {
-        args.keys
-            .clone()
-            .into_iter()
-            .for_each(|b| match bibtex.get_entry(b.clone()) {
-                Some(entry) => {
-                    println!("{}", &args.style.fmt_reference(entry));
-                    seen_at_least_one = true;
-                }
-                None => {
-                    if !args.quiet && !args.panic {
-                        warn!(
-                            "No entry for key {} was found, skipping...",
-                            b.bold().yellow()
-                        )
-                    };
-                    if args.panic {
-                        error!(
-                            "key {:?} found in bib file {:?}, exiting...",
-                            b, args.bib_file
-                        );
-                        std::process::exit(1);
-                    };
-                }
-            });
-        if !seen_at_least_one && !args.quiet {
-            Err(anyhow!(
-                "none of the keys {:?} found in bib file {:?}",
-                &args.keys,
-                &args.bib_file,
-            ))
-        } else {
+        let mut seen_at_least_one = false;
+        if args.keys.is_empty() {
+            bibtex
+                .entries
+                .into_iter()
+                .for_each(|b| println!("{}", &args.style.fmt_reference(b)));
             Ok(())
+        } else {
+            args.keys
+                .clone()
+                .into_iter()
+                .for_each(|b| match bibtex.get_entry(b.clone()) {
+                    Some(entry) => {
+                        println!("{}", &args.style.fmt_reference(entry));
+                        seen_at_least_one = true;
+                    }
+                    None => {
+                        if !args.quiet && !args.panic {
+                            warn!(
+                                "No entry for key {} was found, skipping...",
+                                b.bold().yellow()
+                            )
+                        };
+                        if args.panic {
+                            error!(
+                                "key {:?} found in bib file {:?}, exiting...",
+                                b, args.bib_file
+                            );
+                            std::process::exit(1);
+                        };
+                    }
+                });
+            if !seen_at_least_one && !args.quiet {
+                Err(anyhow!(
+                    "none of the keys {:?} found in bib file {:?}",
+                    &args.keys,
+                    &args.bib_file,
+                ))
+            } else {
+                Ok(())
+            }
         }
     }
 }

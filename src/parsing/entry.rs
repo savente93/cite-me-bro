@@ -113,6 +113,23 @@ impl TryFrom<&str> for EntryType {
     }
 }
 
+pub fn citation(input: &str) -> IResult<&str, &str> {
+    preceded(
+        tag("\\cite"),
+        delimited(char('{'), take_until("}"), char('}')),
+    )(input)
+}
+/// gives back tail, text consumed
+pub fn next_citation(input: &str) -> IResult<&str, (&str, &str)> {
+    let (tail, unmodified) = take_until("\\cite")(input)?;
+    let (tail, citation_key) = citation(tail)?;
+
+    Ok((tail, (unmodified, citation_key)))
+}
+pub fn all_citations(input: &str) -> IResult<&str, Vec<(&str, &str)>> {
+    many1(next_citation)(input)
+}
+
 #[derive(PartialEq, Eq, Clone)]
 pub struct BibEntry {
     pub kind: EntryType,
@@ -601,6 +618,17 @@ mod test {
         assert_eq!(kind, "month");
         assert_eq!(content, "jun");
 
+        Ok(())
+    }
+
+    #[test]
+    fn text_citation_simple() -> Result<()> {
+        let input = "         asd;lkfjwliefjxcajvnasledifm; sei help I'm stuck in a sub factory! asdoifmwae;va \\cite{book}.";
+        let (tail, (unmodified, citation_key)) = next_citation(input)?;
+
+        assert_eq!(tail, ".");
+        assert_eq!(unmodified,"         asd;lkfjwliefjxcajvnasledifm; sei help I'm stuck in a sub factory! asdoifmwae;va ");
+        assert_eq!(citation_key, "book");
         Ok(())
     }
 }

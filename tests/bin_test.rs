@@ -1,10 +1,34 @@
-use std::process::{Command, ExitStatus};
+use anyhow::Result;
+use std::env;
+use std::fs::{read_to_string, File};
+use std::io::Write;
+use std::process::Command;
 use std::str;
 
 fn run_cmb() -> Command {
     let mut command = Command::new("cargo");
     command.arg("run").arg("-q").arg("--");
     command
+}
+#[test]
+fn inplace_file() -> Result<()> {
+    let initial_contets = "there once was a citation: \\cite{book}";
+    let expected_contets = "there once was a citation: L. Susskind and G. Hrabovsky, Classical mechanics: the theoretical minimum. New York, NY: Penguin Random House, 2014.";
+    let path = {
+        let tmp_dir = env::temp_dir();
+        let path = tmp_dir.join("test_file.txt");
+        let mut write_file = File::create(&path)?;
+        write_file.write_all(initial_contets.as_bytes())?;
+        path
+    };
+    run_cmb()
+        .args(["-b", "cite.bib", "-i", path.to_str().unwrap()])
+        .output()
+        .expect("could not run binary");
+    let contents = read_to_string(path)?;
+
+    assert_eq!(expected_contets, contents);
+    Ok(())
 }
 #[test]
 fn run_full_file_ieee() {
