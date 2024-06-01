@@ -68,27 +68,16 @@ fn fmt_book_ieee(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) 
 fn fmt_booklet_ieee(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
     let mut out = String::new();
     let title = fields.get("title").unwrap_or(&String::new()).clone();
-    let book_title = fields.get("booktitle").unwrap_or(&String::new()).clone();
-    let series = fields.get("series").unwrap_or(&String::new()).clone();
-    let publisher = fields.get("publisher").unwrap_or(&String::new()).clone();
-    let address = fields.get("address").unwrap_or(&String::new()).clone();
-    let pages = fields.get("pages").unwrap_or(&String::new()).clone();
-    let year = fields.get("year").unwrap_or(&String::new()).clone();
+    let howpublished = fields.get("howpublished").unwrap_or(&String::new()).clone();
+    let year = fields.get("year");
+    let month = fields.get("month");
     out.push_str(&fmt_authors_ieee(authors.clone()));
     out.push_str(", ");
-    out.push_str(&fmt_title_ieee(title));
-    out.push_str(" in ");
-    out.push_str(&book_title);
-    out.push_str(", ser. ");
-    out.push_str(&series);
+    out.push_str(&title);
     out.push_str(", ");
-    out.push_str(&address);
-    out.push_str(": ");
-    out.push_str(&publisher);
-    out.push_str(", ");
-    out.push_str(&year);
-    out.push_str(", pp. ");
-    out.push_str(&pages);
+    out.push_str(&howpublished);
+    out.push(',');
+    out.push_str(&fmt_year_month(year, month));
     out.push('.');
     out
 }
@@ -546,7 +535,6 @@ mod test {
         assert_eq!(citation, formatted_citation);
         Ok(())
     }
-    #[ignore]
     #[test]
     fn booklet_formatted_citation() -> Result<()> {
         let key = "booklet";
