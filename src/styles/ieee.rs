@@ -18,7 +18,7 @@ pub fn fmt_reference_ieee(entry: BibEntry) -> String {
         crate::parsing::entry::EntryType::Inbook => todo!(),
         crate::parsing::entry::EntryType::Incollection => todo!(),
         crate::parsing::entry::EntryType::Inproceedings => fmt_inprocedings_ieee(authors, fields),
-        crate::parsing::entry::EntryType::Manual => todo!(),
+        crate::parsing::entry::EntryType::Manual => fmt_manual_ieee(authors, fields),
         crate::parsing::entry::EntryType::Mastersthesis => {
             fmt_thesis_ieee(ThesisKind::Msc, authors, fields)
         }
@@ -38,6 +38,24 @@ enum ThesisKind {
     Msc,
 }
 
+fn fmt_manual_ieee(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
+    let mut out = String::new();
+    let title = fields.get("title").unwrap_or(&String::new()).clone();
+    let organization = fields.get("organization").unwrap_or(&String::new()).clone();
+    let address = fields.get("address").unwrap_or(&String::new()).clone();
+    let year = fields.get("year").unwrap_or(&String::new()).clone();
+    out.push_str(&fmt_authors_ieee(authors.clone()));
+    out.push_str(", ");
+    out.push_str(&title);
+    out.push_str(", ");
+    out.push_str(&organization);
+    out.push_str(", ");
+    out.push_str(&address);
+    out.push_str(", ");
+    out.push_str(&year);
+    out.push('.');
+    out
+}
 fn fmt_inprocedings_ieee(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
     let mut out = String::new();
     let title = fields.get("title").unwrap_or(&String::new()).clone();
@@ -47,8 +65,6 @@ fn fmt_inprocedings_ieee(authors: Vec<OwnedFullName>, fields: BTreeMap<String, S
     let address = fields.get("address").unwrap_or(&String::new()).clone();
     let pages = fields.get("pages").unwrap_or(&String::new()).clone();
     let year = fields.get("year").unwrap_or(&String::new()).clone();
-    //  left: "P. Holleis, M. Wagner, and J. Koolwaaij, \"Studying mobile context-aware social services in the wild,\""
-    // right: "P. Holleis, M. Wagner, and J. Koolwaaij, \"Studying mobile context-aware social services in the wild,\" in Proc. of the 6th Nordic Conf. on Human-Computer Interaction, ser. NordiCHI, New York, NY: ACM, 2010, pp. 207-216."
     out.push_str(&fmt_authors_ieee(authors.clone()));
     out.push_str(", ");
     out.push_str(&fmt_title_ieee(title));
@@ -434,7 +450,6 @@ mod test {
         assert_eq!(citation, formatted_citation);
         Ok(())
     }
-    #[ignore]
     #[test]
     fn manual_formatted_citation() -> Result<()> {
         let key = "manual";
