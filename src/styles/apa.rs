@@ -69,8 +69,14 @@ fn fmt_proceedings_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, Str
 fn fmt_phdthesis_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
     let mut out = String::new();
     let title = fields.get("title").unwrap();
+    let year = fields.get("year");
+    let month = fields.get("month");
+    let school = fields.get("school").unwrap();
     out.push_str(&fmt_authors_apa(authors));
+    out.push_str(&fmt_year_month_apa(year, month));
     out.push_str(title);
+    out.push(' ');
+    out.push_str(&format!("[Doctoral dissertation, {}].", school));
 
     out
 }
@@ -641,9 +647,8 @@ mod test {
         assert_eq!(citation, formatted_citation);
         Ok(())
     }
-    #[ignore]
     #[test]
-    fn phthesis_formatted_citation() -> Result<()> {
+    fn phdthesis_formatted_citation() -> Result<()> {
         let key = "phdthesis";
         let formatted_citation= "Rempel, R. C. (1956, June). Relaxation effects for coupled nuclear spins [Doctoral dissertation, Stanford University].";
         let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
