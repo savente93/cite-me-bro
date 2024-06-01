@@ -1,30 +1,14 @@
+use std::collections::BTreeMap;
+
 use crate::parsing::{entry::BibEntry, names::OwnedFullName};
 use chrono::prelude::*;
 use unicode_segmentation::UnicodeSegmentation;
 
 pub fn fmt_reference_ieee(entry: BibEntry) -> String {
     let (kind, _key, authors, fields) = entry.into_components();
-    dbg!(&authors);
-    dbg!(&fields);
-    let title = fields.get("title").unwrap_or(&String::new()).clone();
-    let volume = fields.get("volume").unwrap_or(&String::new()).clone();
-    let pages = fields.get("pages");
-    let journal = fields.get("journal").unwrap_or(&String::new()).clone();
-    let number = fields.get("number").unwrap_or(&String::new()).clone();
-    let year = fields.get("year");
-    let month = fields.get("month");
-    let school = fields.get("school");
-    let address = fields.get("address");
-    let doi = fields.get("doi");
-    let issn = fields.get("issn");
-    let url = fields.get("url");
-    let howpublished = fields.get("howpublished");
-    let note = fields.get("note");
 
     match kind {
-        crate::parsing::entry::EntryType::Article => fmt_article_ieee(
-            authors, title, journal, volume, pages, number, issn, year, month, doi, url,
-        ),
+        crate::parsing::entry::EntryType::Article => fmt_article_ieee(authors, fields),
         crate::parsing::entry::EntryType::Book => todo!(),
         crate::parsing::entry::EntryType::Booklet => todo!(),
         crate::parsing::entry::EntryType::Conference => todo!(),
@@ -32,31 +16,17 @@ pub fn fmt_reference_ieee(entry: BibEntry) -> String {
         crate::parsing::entry::EntryType::Incollection => todo!(),
         crate::parsing::entry::EntryType::Inproceedings => todo!(),
         crate::parsing::entry::EntryType::Manual => todo!(),
-        crate::parsing::entry::EntryType::Mastersthesis => fmt_thesis_ieee(
-            ThesisKind::Msc,
-            authors,
-            title,
-            school,
-            address,
-            year,
-            month,
-        ),
-
-        crate::parsing::entry::EntryType::Misc => {
-            fmt_misc_ieee(authors, title, howpublished, note, year)
+        crate::parsing::entry::EntryType::Mastersthesis => {
+            fmt_thesis_ieee(ThesisKind::Msc, authors, fields)
         }
-        crate::parsing::entry::EntryType::Phdthesis => fmt_thesis_ieee(
-            ThesisKind::Phd,
-            authors,
-            title,
-            school,
-            address,
-            year,
-            month,
-        ),
+
+        crate::parsing::entry::EntryType::Misc => fmt_misc_ieee(authors, fields),
+        crate::parsing::entry::EntryType::Phdthesis => {
+            fmt_thesis_ieee(ThesisKind::Phd, authors, fields)
+        }
 
         crate::parsing::entry::EntryType::Proceedings => todo!(),
-        crate::parsing::entry::EntryType::Techreport => todo!(),
+        crate::parsing::entry::EntryType::Techreport => fmt_tech_report_ieee(authors, fields),
         crate::parsing::entry::EntryType::Unpublished => todo!(),
     }
 }
@@ -64,6 +34,37 @@ pub fn fmt_reference_ieee(entry: BibEntry) -> String {
 enum ThesisKind {
     Phd,
     Msc,
+}
+
+fn fmt_tech_report_ieee(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
+    // institution = "Salt Lake City Corporation",
+    // address     = "Salt Lake City, UT",
+    // number      = "DOE-SLC-6903-1",
+    // year        = 2018,
+    // month       = "sep"
+    let title = fields.get("title").unwrap_or(&String::new()).clone();
+    let institution = fields.get("institution").unwrap_or(&String::new()).clone();
+    let address = fields.get("address").unwrap_or(&String::new()).clone();
+
+    let number = fields.get("number").unwrap_or(&String::new()).clone();
+    let year = fields.get("year");
+    let month = fields.get("month");
+    let mut out = String::new();
+    out.push_str(&fmt_authors_ieee(authors.clone()));
+    out.push_str(", ");
+    out.push_str(&fmt_title_ieee(title));
+    out.push(' ');
+    out.push_str(&institution);
+    out.push_str(", ");
+    out.push_str(&address);
+    out.push_str(", Tech. Rep. ");
+    out.push_str(&number);
+    out.push_str(",");
+    out.push_str(&fmt_year_month(year, month));
+    out.push_str(".");
+    // Abbrev. Name of Co., City of Co., Abbrev. State, Country, Rep. xxx, year
+
+    out
 }
 
 fn fmt_year_month(year: Option<&String>, month: Option<&String>) -> String {
@@ -98,19 +99,17 @@ fn fmt_year_month(year: Option<&String>, month: Option<&String>) -> String {
     out
 }
 
-fn fmt_article_ieee(
-    authors: Vec<OwnedFullName>,
-    title: String,
-    journal: String,
-    volume: String,
-    pages: Option<&String>,
-    number: String,
-    issn: Option<&String>,
-    year: Option<&String>,
-    month: Option<&String>,
-    doi: Option<&String>,
-    url: Option<&String>,
-) -> String {
+fn fmt_article_ieee(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
+    let title = fields.get("title").unwrap_or(&String::new()).clone();
+    let volume = fields.get("volume").unwrap_or(&String::new()).clone();
+    let pages = fields.get("pages");
+    let journal = fields.get("journal").unwrap_or(&String::new()).clone();
+    let number = fields.get("number").unwrap_or(&String::new()).clone();
+    let year = fields.get("year");
+    let month = fields.get("month");
+    let doi = fields.get("doi");
+    let issn = fields.get("issn");
+    let url = fields.get("url");
     let mut out = String::new();
     out.push_str(&fmt_authors_ieee(authors.clone()));
     out.push_str(", ");
@@ -154,12 +153,13 @@ fn fmt_article_ieee(
 fn fmt_thesis_ieee(
     theis_kind: ThesisKind,
     authors: Vec<OwnedFullName>,
-    title: String,
-    school: Option<&String>,
-    address: Option<&String>,
-    year: Option<&String>,
-    month: Option<&String>,
+    fields: BTreeMap<String, String>,
 ) -> String {
+    let title = fields.get("title").unwrap_or(&String::new()).clone();
+    let year = fields.get("year");
+    let month = fields.get("month");
+    let school = fields.get("school");
+    let address = fields.get("address");
     let mut out = String::new();
     out.push_str(&fmt_authors_ieee(authors.clone()));
     out.push_str(", ");
@@ -184,13 +184,11 @@ fn fmt_thesis_ieee(
     out
 }
 
-fn fmt_misc_ieee(
-    authors: Vec<OwnedFullName>,
-    title: String,
-    howpublished: Option<&String>,
-    note: Option<&String>,
-    year: Option<&String>,
-) -> String {
+fn fmt_misc_ieee(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
+    let title = fields.get("title").unwrap_or(&String::new()).clone();
+    let year = fields.get("year");
+    let howpublished = fields.get("howpublished");
+    let note = fields.get("note");
     let mut out = String::new();
     dbg!(&authors);
     out.push_str(&fmt_authors_ieee(authors.clone()));
@@ -426,7 +424,6 @@ mod test {
         assert_eq!(citation, formatted_citation);
         Ok(())
     }
-    #[ignore]
     #[test]
     fn techreport_formatted_citation() -> Result<()> {
         let key = "techreport";
