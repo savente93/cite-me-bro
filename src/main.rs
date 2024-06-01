@@ -1,5 +1,7 @@
+use anyhow::{anyhow, Result};
 use clap::Parser;
 use parsing::entry::parse_bib_file;
+use parsing::entry::Bibliography;
 use std::path::PathBuf;
 use styles::ReferenceStyle;
 
@@ -19,14 +21,40 @@ struct Args {
     bib_file: PathBuf,
     #[arg(short, long, value_enum, default_value_t = ReferenceStyle::IEEE)]
     style: ReferenceStyle,
+    keys: Vec<String>,
 }
 
-fn main() {
+fn main() -> Result<()> {
     let args = Args::parse();
 
-    let bibtex = parse_bib_file(args.bib_file).unwrap();
+    let bibtex: Bibliography = parse_bib_file(args.bib_file.clone())?.into();
 
-    bibtex.into_iter().for_each(|b| {
-        println!("{}", &args.style.fmt_reference(b));
-    });
+    let mut seen_at_least_one = false;
+    if args.keys.is_empty() {
+        bibtex
+            .entries
+            .into_iter()
+            .for_each(|b| println!("{}", &args.style.fmt_reference(b)));
+        Ok(())
+    } else {
+        args.keys
+            .clone()
+            .into_iter()
+            .for_each(|b| match bibtex.get_entry(b.clone()) {
+                Some(entry) => {
+                    println!("{}", &args.style.fmt_reference(entry));
+                    seen_at_least_one = true;
+                }
+                None => eprintln!("No entry for key {} was found, skipping...", b),
+            });
+        if !seen_at_least_one {
+            Err(anyhow!(
+                "none of the keys {:?} found in bib file {:?}",
+                &args.keys,
+                &args.bib_file,
+            ))
+        } else {
+            Ok(())
+        }
+    }
 }

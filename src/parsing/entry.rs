@@ -30,7 +30,7 @@ use parse_hyperlinks::take_until_unbalanced;
 use super::names::{self, and_seperated_names, FullName, OwnedFullName};
 type EntrySubComponents<'a> = (EntryType, &'a str, Vec<(&'a str, &'a str)>);
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub enum EntryType {
     Article,
     Book,
@@ -69,6 +69,26 @@ impl fmt::Display for EntryType {
     }
 }
 
+pub struct Bibliography {
+    pub entries: Vec<BibEntry>,
+}
+
+impl Bibliography {
+    pub fn get_keys(&self) -> Vec<String> {
+        self.entries.iter().map(|e| e.key.clone()).collect()
+    }
+
+    pub fn get_entry(&self, key: String) -> Option<BibEntry> {
+        self.entries.iter().find(|&e| e.key == key).cloned()
+    }
+}
+
+impl From<Vec<BibEntry>> for Bibliography {
+    fn from(value: Vec<BibEntry>) -> Self {
+        Self { entries: value }
+    }
+}
+
 impl TryFrom<&str> for EntryType {
     type Error = &'static str;
 
@@ -93,7 +113,7 @@ impl TryFrom<&str> for EntryType {
     }
 }
 
-#[derive(PartialEq, Eq)]
+#[derive(PartialEq, Eq, Clone)]
 pub struct BibEntry {
     pub kind: EntryType,
     pub key: String,

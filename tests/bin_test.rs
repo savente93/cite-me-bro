@@ -31,3 +31,15 @@ M. Suresh, \"Evolution: A revised theory,\" unpublished.\n";
     dbg!(&output);
     assert_eq!(str::from_utf8(&output.stdout), Ok(expected));
 }
+
+#[test]
+fn run_unknown_key_and_book_ieee() {
+    let output = run_cmb()
+        .args(["-b", "cite.bib", "--style", "ieee", "asdf", "book"])
+        .output()
+        .expect("could not run binary");
+    let expected = "L. Susskind and G. Hrabovsky, Classical mechanics: the theoretical minimum. New York, NY: Penguin Random House, 2014.\n";
+
+    dbg!(&output);
+    assert_eq!(str::from_utf8(&output.stdout), Ok(expected));
+}

@@ -147,6 +147,7 @@ dependencies = [
  "chrono",
  "clap",
  "lazy_static",
+ "log",
  "nom",
  "nom-supreme",
  "parse-hyperlinks",
