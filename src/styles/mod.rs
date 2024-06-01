@@ -12,6 +12,11 @@ pub enum ReferenceStyle {
     APA,
 }
 
+enum ThesisKind {
+    Phd,
+    Msc,
+}
+
 impl ReferenceStyle {
     pub fn fmt_reference(&self, entry: BibEntry) -> String {
         match self {

@@ -4,6 +4,8 @@ use crate::parsing::{entry::BibEntry, names::OwnedFullName};
 use chrono::NaiveDate;
 use unicode_segmentation::UnicodeSegmentation;
 
+use super::ThesisKind;
+
 pub fn fmt_reference_apa(entry: BibEntry) -> String {
     let (kind, _key, authors, fields) = entry.into_components();
 
@@ -16,9 +18,13 @@ pub fn fmt_reference_apa(entry: BibEntry) -> String {
         crate::parsing::entry::EntryType::Incollection => fmt_incollection_apa(authors, fields),
         crate::parsing::entry::EntryType::Inproceedings => fmt_inproceedings_apa(authors, fields),
         crate::parsing::entry::EntryType::Manual => fmt_manual_apa(authors, fields),
-        crate::parsing::entry::EntryType::Mastersthesis => fmt_mastersthesis_apa(authors, fields),
+        crate::parsing::entry::EntryType::Mastersthesis => {
+            fmt_thesis_apa(ThesisKind::Msc, authors, fields)
+        }
         crate::parsing::entry::EntryType::Misc => fmt_misc_apa(authors, fields),
-        crate::parsing::entry::EntryType::Phdthesis => fmt_phdthesis_apa(authors, fields),
+        crate::parsing::entry::EntryType::Phdthesis => {
+            fmt_thesis_apa(ThesisKind::Phd, authors, fields)
+        }
         crate::parsing::entry::EntryType::Proceedings => fmt_proceedings_apa(authors, fields),
         crate::parsing::entry::EntryType::Techreport => fmt_techreport_apa(authors, fields),
         crate::parsing::entry::EntryType::Unpublished => fmt_unpublished_apa(authors, fields),
@@ -66,7 +72,11 @@ fn fmt_proceedings_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, Str
     out
 }
 
-fn fmt_phdthesis_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
+fn fmt_thesis_apa(
+    kind: ThesisKind,
+    authors: Vec<OwnedFullName>,
+    fields: BTreeMap<String, String>,
+) -> String {
     let mut out = String::new();
     let title = fields.get("title").unwrap();
     let year = fields.get("year");
@@ -76,21 +86,14 @@ fn fmt_phdthesis_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, Strin
     out.push_str(&fmt_year_month_apa(year, month));
     out.push_str(title);
     out.push(' ');
-    out.push_str(&format!("[Doctoral dissertation, {}].", school));
-
+    match kind {
+        ThesisKind::Phd => out.push_str(&format!("[Doctoral dissertation, {}].", school)),
+        ThesisKind::Msc => out.push_str(&format!("[Master's thesis, {}].", school)),
+    };
     out
 }
 
 fn fmt_misc_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
-    let mut out = String::new();
-    let title = fields.get("title").unwrap();
-    out.push_str(&fmt_authors_apa(authors));
-    out.push_str(title);
-
-    out
-}
-
-fn fmt_mastersthesis_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
     let mut out = String::new();
     let title = fields.get("title").unwrap();
     out.push_str(&fmt_authors_apa(authors));
@@ -624,11 +627,10 @@ mod test {
         assert_eq!(citation, formatted_citation);
         Ok(())
     }
-    #[ignore]
     #[test]
     fn mastersthesis_formatted_citation() -> Result<()> {
         let key = "mastersthesis";
-        let formatted_citation= "Tang, J. (1996, September). Spin structure of the nucleon in the asymptotic limit [Master’s thesis, Massachusetts Institute of Technology].";
+        let formatted_citation= "Tang, J. (1996, September). Spin structure of the nucleon in the asymptotic limit [Master's thesis, Massachusetts Institute of Technology].";
         let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
         let entry = entries.into_iter().find(|e| e.key == key).unwrap();
         let citation = fmt_reference_apa(entry);

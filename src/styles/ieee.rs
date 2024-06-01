@@ -7,6 +7,8 @@ use crate::parsing::{
 use chrono::prelude::*;
 use unicode_segmentation::UnicodeSegmentation;
 
+use super::ThesisKind;
+
 pub fn fmt_reference_ieee(entry: BibEntry) -> String {
     let (kind, _key, authors, fields) = entry.into_components();
 
@@ -19,10 +21,10 @@ pub fn fmt_reference_ieee(entry: BibEntry) -> String {
         crate::parsing::entry::EntryType::Incollection => fmt_incollection_ieee(authors, fields),
         crate::parsing::entry::EntryType::Inproceedings => fmt_inprocedings_ieee(authors, fields),
         crate::parsing::entry::EntryType::Manual => fmt_manual_ieee(authors, fields),
+        crate::parsing::entry::EntryType::Misc => fmt_misc_ieee(authors, fields),
         crate::parsing::entry::EntryType::Mastersthesis => {
             fmt_thesis_ieee(ThesisKind::Msc, authors, fields)
         }
-        crate::parsing::entry::EntryType::Misc => fmt_misc_ieee(authors, fields),
         crate::parsing::entry::EntryType::Phdthesis => {
             fmt_thesis_ieee(ThesisKind::Phd, authors, fields)
         }
@@ -31,11 +33,6 @@ pub fn fmt_reference_ieee(entry: BibEntry) -> String {
         crate::parsing::entry::EntryType::Techreport => fmt_tech_report_ieee(authors, fields),
         crate::parsing::entry::EntryType::Unpublished => fmt_unpublished_ieee(authors, fields),
     }
-}
-
-enum ThesisKind {
-    Phd,
-    Msc,
 }
 
 fn fmt_book_ieee(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
