@@ -1,3 +1,7 @@
+[![Crates.io](https://img.shields.io/crates/v/cite-me-bro.svg)](https://crates.io/crates/cite-me-bro)
+[![Documentation](https://docs.rs/cite-me-bro/badge.svg)](https://docs.rs/cite-me-bro/)
+[![codecov](https://codecov.io/gh/savente93/cite-me-bro/branch/master/graph/badge.svg?token=NteBJ0F7Ok)](https://codecov.io/gh/savente93/cite-me-bro)
+
 # Cite-Me-Bro: A Comprehensive CLI Tool for BibTeX Reference Formatting
 
 ## Abstract
