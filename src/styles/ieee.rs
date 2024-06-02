@@ -531,7 +531,7 @@ mod test {
     #[test]
     fn inbook_formatted_citation() -> Result<()> {
         let key = "inbook";
-        let formatted_citation= "L. A. Urry, M. L. Cain, S. A. Wasserman, P. V. Minorsky, and J. B. Reece, \"Photosynthesis,\" in Campbell Biology. New York, NY: Pearson, 2016, pp. 187-221.";
+        let formatted_citation= "L. A. Urry, M. L. Cain, S. A. Wasserman, P. V. Minorsky, and J. B. Reece, \"Photosynthesis,\" in Campbell biology. New York, NY: Pearson, 2016, pp. 187-221.";
         let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
         let entry = entries.into_iter().find(|e| e.key == key).unwrap();
         let citation = fmt_reference_ieee(entry);
@@ -541,7 +541,7 @@ mod test {
     #[test]
     fn incollection_formatted_citation() -> Result<()> {
         let key = "incollection";
-        let formatted_citation= "H. M. Shapiro, \"Flow cytometry: The glass is half full,\" in Flow Cytometry Protocols, T. S. Hawley and R. G. Hawley, Eds., New York, NY: Springer, 2018, pp. 1-10.";
+        let formatted_citation= "H. M. Shapiro, \"Flow cytometry: The glass is half full,\" in Flow cytometry protocols, T. S. Hawley and R. G. Hawley, Eds., New York, NY: Springer, 2018, pp. 1-10.";
         let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
         let entry = entries.into_iter().find(|e| e.key == key).unwrap();
         let citation = fmt_reference_ieee(entry);
@@ -601,7 +601,7 @@ mod test {
     #[test]
     fn proceedings_formatted_citation() -> Result<()> {
         let key = "proceedings";
-        let formatted_citation= "S. Stepney and S. Verlan, Eds., Proceedings of the 17th International Conference on Computation and Natural Computation, Fontainebleau, France, vol. 10867, Lecture Notes in Computer Science, Cham, Switzerland: Springer, 2018";
+        let formatted_citation= "S. Stepney and S. Verlan, Eds., Proceedings of the 17th international conference on computation and natural computation, fontainebleau, france, vol. 10867, Lecture Notes in Computer Science, Cham, Switzerland: Springer, 2018";
         let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
         let entry = entries.into_iter().find(|e| e.key == key).unwrap();
         let citation = fmt_reference_ieee(entry);

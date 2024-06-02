@@ -1,6 +1,9 @@
 use std::collections::BTreeMap;
 
-use crate::parsing::{entry::BibEntry, names::OwnedFullName};
+use crate::parsing::{
+    entry::BibEntry,
+    names::{and_seperated_names, OwnedFullName},
+};
 use chrono::NaiveDate;
 use unicode_segmentation::UnicodeSegmentation;
 
@@ -25,7 +28,7 @@ pub fn fmt_reference_apa(entry: BibEntry) -> String {
         crate::parsing::entry::EntryType::Phdthesis => {
             fmt_thesis_apa(ThesisKind::Phd, authors, fields)
         }
-        crate::parsing::entry::EntryType::Proceedings => fmt_proceedings_apa(authors, fields),
+        crate::parsing::entry::EntryType::Proceedings => fmt_proceedings_apa(fields),
         crate::parsing::entry::EntryType::Techreport => fmt_techreport_apa(authors, fields),
         crate::parsing::entry::EntryType::Unpublished => fmt_unpublished_apa(authors, fields),
     }
@@ -38,7 +41,7 @@ fn fmt_unpublished_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, Str
     let month = fields.get("month");
     out.push_str(&fmt_authors_apa(authors));
     out.push(' ');
-    out.push_str(&fmt_year_month_apa(year, month));
+    out.push_str(&fmt_year_month_apa(year, month, true));
     out.push_str(title);
     out.push_str(".");
 
@@ -55,7 +58,7 @@ fn fmt_techreport_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, Stri
     let address = fields.get("address").unwrap();
     out.push_str(&fmt_authors_apa(authors));
     out.push(' ');
-    out.push_str(&fmt_year_month_apa(year, month));
+    out.push_str(&fmt_year_month_apa(year, month, true));
     out.push_str(title);
     out.push(' ');
     out.push_str(&format!("(tech. rep. No. {}). ", number));
@@ -65,12 +68,23 @@ fn fmt_techreport_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, Stri
     out
 }
 
-fn fmt_proceedings_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
+fn fmt_proceedings_apa(fields: BTreeMap<String, String>) -> String {
     let mut out = String::new();
     let title = fields.get("title").unwrap();
-    out.push_str(&fmt_authors_apa(authors));
+    let year = fields.get("year");
+    let month = fields.get("month");
+    let editors_str = fields.get("editor").unwrap();
+    let (_tail, edrs) = and_seperated_names(editors_str).unwrap();
+    let editor_names: Vec<OwnedFullName> = edrs.into_iter().map(|n| n.into()).collect();
+    let volume = fields.get("volume").unwrap();
+    let publisher = fields.get("publisher").unwrap();
+    out.push_str(&fmt_authors_apa(editor_names));
+    out.push_str(" (Eds.). ");
+    out.push_str(&fmt_year_month_apa(year, month, true));
     out.push_str(title);
-
+    out.push_str(&format!(" (Vol. {}). ", volume));
+    out.push_str(publisher);
+    out.push('.');
     out
 }
 
@@ -86,7 +100,7 @@ fn fmt_thesis_apa(
     let school = fields.get("school").unwrap();
     out.push_str(&fmt_authors_apa(authors));
     out.push(' ');
-    out.push_str(&fmt_year_month_apa(year, month));
+    out.push_str(&fmt_year_month_apa(year, month, true));
     out.push_str(title);
     out.push(' ');
     match kind {
@@ -103,7 +117,7 @@ fn fmt_misc_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -
     let month = fields.get("month");
     out.push_str(&fmt_authors_apa(authors));
     out.push_str(". ");
-    out.push_str(&fmt_year_month_apa(year, month));
+    out.push_str(&fmt_year_month_apa(year, month, true));
     out.push_str(title);
     match fields.get("note") {
         Some(n) => out.push_str(&format!(" [{}]", n)),
@@ -123,7 +137,7 @@ fn fmt_manual_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>)
     let address = fields.get("address").unwrap();
     out.push_str(&fmt_authors_apa(authors));
     out.push_str(". ");
-    out.push_str(&fmt_year_month_apa(year, month));
+    out.push_str(&fmt_year_month_apa(year, month, true));
     out.push_str(title);
     out.push_str(". ");
     out.push_str(&format!("{}. ", organization));
@@ -137,11 +151,17 @@ fn fmt_inproceedings_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, S
     let title = fields.get("title").unwrap();
     let year = fields.get("year");
     let month = fields.get("month");
+    let booktitle = fields.get("booktitle").unwrap();
+    let pages = fields.get("pages").unwrap();
     out.push_str(&fmt_authors_apa(authors));
-    out.push_str(". ");
-    out.push_str(&fmt_year_month_apa(year, month));
+    out.push_str(" ");
+    out.push_str(&fmt_year_month_apa(year, month, true));
     out.push_str(title);
     out.push_str(". ");
+    out.push_str(booktitle);
+    out.push_str(", ");
+    out.push_str(pages);
+    out.push_str(".");
 
     out
 }
@@ -151,11 +171,23 @@ fn fmt_incollection_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, St
     let title = fields.get("title").unwrap();
     let year = fields.get("year");
     let month = fields.get("month");
+    let booktitle = fields.get("booktitle").unwrap();
+    let pages = fields.get("pages").unwrap();
+    let editors_str = fields.get("editor").unwrap();
+    let (_tail, edrs) = and_seperated_names(editors_str).unwrap();
+    let editor_names: Vec<OwnedFullName> = edrs.into_iter().map(|n| n.into()).collect();
+    let publisher = fields.get("publisher").unwrap();
     out.push_str(&fmt_authors_apa(authors));
-    out.push_str(". ");
-    out.push_str(&fmt_year_month_apa(year, month));
+    out.push_str(" ");
+    out.push_str(&fmt_year_month_apa(year, month, true));
     out.push_str(title);
-    out.push_str(". ");
+    out.push_str(". In ");
+    out.push_str(&fmt_editors_apa(editor_names));
+    out.push_str(" (Eds.), ");
+    out.push_str(booktitle);
+    out.push_str(&format!(" (pp. {}). ", pages));
+    out.push_str(publisher);
+    out.push_str(".");
 
     out
 }
@@ -165,11 +197,18 @@ fn fmt_inbook_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>)
     let title = fields.get("title").unwrap();
     let year = fields.get("year");
     let month = fields.get("month");
+    let booktitle = fields.get("booktitle").unwrap();
+    let publisher = fields.get("publisher").unwrap();
+    let pages = fields.get("pages").unwrap();
     out.push_str(&fmt_authors_apa(authors));
-    out.push_str(". ");
-    out.push_str(&fmt_year_month_apa(year, month));
+    out.push_str(" ");
+    out.push_str(&fmt_year_month_apa(year, month, true));
     out.push_str(title);
-    out.push_str(". ");
+    out.push_str(". In ");
+    out.push_str(booktitle);
+    out.push_str(&format!(" (pp. {}). ", pages));
+    out.push_str(&publisher);
+    out.push_str(".");
 
     out
 }
@@ -180,8 +219,8 @@ fn fmt_conference_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, Stri
     let year = fields.get("year");
     let month = fields.get("month");
     out.push_str(&fmt_authors_apa(authors));
-    out.push_str(". ");
-    out.push_str(&fmt_year_month_apa(year, month));
+    out.push_str(" ");
+    out.push_str(&fmt_year_month_apa(year, month, true));
     out.push_str(title);
     out.push_str(". ");
 
@@ -193,11 +232,15 @@ fn fmt_booklet_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>
     let title = fields.get("title").unwrap();
     let year = fields.get("year");
     let month = fields.get("month");
+    let howpublished = fields.get("howpublished").unwrap();
+
     out.push_str(&fmt_authors_apa(authors));
-    out.push_str(". ");
-    out.push_str(&fmt_year_month_apa(year, month));
+    out.push_str(" ");
     out.push_str(title);
     out.push_str(". ");
+    out.push_str(howpublished);
+    out.push_str(". ");
+    out.push_str(&fmt_year_month_apa(year, month, false));
 
     out
 }
@@ -210,7 +253,7 @@ fn fmt_book_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -
     let publisher = fields.get("publisher").unwrap();
     out.push_str(&fmt_authors_apa(authors));
     out.push_str(" ");
-    out.push_str(&fmt_year_month_apa(year, month));
+    out.push_str(&fmt_year_month_apa(year, month, true));
     out.push_str(title);
     out.push_str(". ");
     out.push_str(&publisher);
@@ -219,9 +262,11 @@ fn fmt_book_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -
     out
 }
 
-fn fmt_year_month_apa(year: Option<&String>, month: Option<&String>) -> String {
+fn fmt_year_month_apa(year: Option<&String>, month: Option<&String>, braces: bool) -> String {
     let mut out = String::new();
-    out.push_str("(");
+    if braces {
+        out.push_str("(");
+    };
     match (year, month) {
         (None, None) => out.push_str("n.d."),
         (None, Some(_)) => out.push_str("n.d."),
@@ -246,7 +291,11 @@ fn fmt_year_month_apa(year: Option<&String>, month: Option<&String>) -> String {
             out.push_str(&date_formatted);
         }
     };
-    out.push_str("). ");
+    if braces {
+        out.push_str("). ");
+    } else {
+        out.push_str(".");
+    };
 
     out
 }
@@ -336,6 +385,49 @@ fn fmt_authors_apa(mut authors: Vec<OwnedFullName>) -> String {
         }
     }
 }
+fn fmt_editors_apa(mut authors: Vec<OwnedFullName>) -> String {
+    match &authors.len() {
+        0 => String::new(),
+        1 => {
+            let author = authors.remove(0);
+            fmt_single_editor_apa(author)
+        }
+        2 => {
+            let author1 = authors.remove(0);
+            let author2 = authors.remove(0);
+            format!(
+                "{} & {}",
+                fmt_single_editor_apa(author1),
+                fmt_single_editor_apa(author2)
+            )
+        }
+        3..=21 => {
+            let last_author = authors.remove(authors.len() - 1);
+            format!(
+                "{} & {}",
+                authors
+                    .into_iter()
+                    .map(fmt_single_author_apa)
+                    .collect::<Vec<String>>()
+                    .join(" "),
+                fmt_single_editor_apa(last_author)
+            )
+        }
+        22.. => {
+            let last_author = authors.remove(authors.len() - 1);
+            let listed_authors = authors.drain(0..19);
+            format!(
+                "{},...{}",
+                listed_authors
+                    .into_iter()
+                    .map(fmt_single_author_apa)
+                    .collect::<Vec<String>>()
+                    .join(" "),
+                fmt_single_editor_apa(last_author)
+            )
+        }
+    }
+}
 
 fn fmt_pub_date_apa(year: Option<String>) -> String {
     format!("({}).", year.unwrap_or_else(|| "n.d.".to_string()))
@@ -362,6 +454,26 @@ fn fmt_single_author_apa(name: OwnedFullName) -> String {
                 .join(" "),
         )
     };
+    out
+}
+fn fmt_single_editor_apa(name: OwnedFullName) -> String {
+    let mut out = String::new();
+    if !name.first.is_empty() {
+        out.push_str(
+            &name
+                .first
+                .iter()
+                .map(|n| format!("{}.", n.graphemes(true).next().unwrap()))
+                .collect::<Vec<String>>()
+                .join(" "),
+        )
+    };
+    if !name.last.is_empty() {
+        if !name.first.is_empty() {
+            out.push_str(" ");
+        }
+        out.push_str(&name.last.join(" "));
+    }
     out
 }
 #[cfg(test)]
@@ -633,7 +745,6 @@ mod test {
         assert_eq!(citation, formatted_citation);
         Ok(())
     }
-    #[ignore]
     #[test]
     fn booklet_formatted_citation() -> Result<()> {
         let key = "booklet";
@@ -644,7 +755,6 @@ mod test {
         assert_eq!(citation, formatted_citation);
         Ok(())
     }
-    #[ignore]
     #[test]
     fn inbook_formatted_citation() -> Result<()> {
         let key = "inbook";
@@ -655,7 +765,6 @@ mod test {
         assert_eq!(citation, formatted_citation);
         Ok(())
     }
-    #[ignore]
     #[test]
     fn incollection_formatted_citation() -> Result<()> {
         let key = "incollection";
@@ -666,11 +775,10 @@ mod test {
         assert_eq!(citation, formatted_citation);
         Ok(())
     }
-    #[ignore]
     #[test]
     fn inprocedings_formatted_citation() -> Result<()> {
         let key = "inproceedings";
-        let formatted_citation= "Holleis, P., Wagner, M., & Koolwaaij, J. (2010). Studying mobile context-aware social services in the wild. Proc. of the 6th Nordic Conf. on Human- Computer Interaction, 207-216.";
+        let formatted_citation= "Holleis, P., Wagner, M., & Koolwaaij, J. (2010). Studying mobile context-aware social services in the wild. Proc. of the 6th Nordic Conf. on Human-Computer Interaction, 207-216.";
         let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
         let entry = entries.into_iter().find(|e| e.key == key).unwrap();
         let citation = fmt_reference_apa(entry);
@@ -718,7 +826,6 @@ mod test {
         assert_eq!(citation, formatted_citation);
         Ok(())
     }
-    #[ignore]
     #[test]
     fn proceedings_formatted_citation() -> Result<()> {
         let key = "proceedings";
