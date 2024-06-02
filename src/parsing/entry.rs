@@ -13,7 +13,7 @@ use nom::{
     combinator::all_consuming,
     multi::{many0, many1, separated_list1},
     sequence::{delimited, preceded, separated_pair, terminated},
-    IResult, Parser,
+    IResult,
 };
 use parse_hyperlinks::take_until_unbalanced;
 
@@ -64,10 +64,6 @@ pub struct Bibliography {
 }
 
 impl Bibliography {
-    pub fn get_keys(&self) -> Vec<String> {
-        self.entries.iter().map(|e| e.key.clone()).collect()
-    }
-
     pub fn get_entry(&self, key: String) -> Option<BibEntry> {
         self.entries.iter().find(|&e| e.key == key).cloned()
     }
@@ -240,13 +236,6 @@ fn field_type(input: &str) -> IResult<&str, &str> {
     ))(input)
 }
 
-fn comma(input: &str) -> IResult<&str, &str> {
-    delimited(multispace0, tag(","), multispace0)(input)
-}
-fn endl(input: &str) -> IResult<&str, &str> {
-    delimited(multispace0, line_ending, multispace0)(input)
-}
-
 fn brace_quoted_field(input: &str) -> IResult<&str, &str> {
     delimited(tag("{"), take_until_unbalanced('{', '}'), tag("}"))(input)
 }
@@ -400,36 +389,6 @@ mod test {
         }"
         );
 
-        Ok(())
-    }
-
-    fn parse_dummy_fields() -> Result<()> {
-        let dummy_content = "
-        foo = {bar}
-        baz = {
-            multi
-            line
-            content
-        }
-        asdf = \"whatever\"";
-        let (tail, fields) = fields(dummy_content)?;
-        assert_eq!(tail, "");
-        // weird spacing needs to be maintained to get the pased content to line up
-        assert_eq!(
-            fields,
-            vec![
-                ("foo", "bar"),
-                (
-                    "bas",
-                    "            multi
-            line
-            content
-"
-                ),
-                ("asdf", "whatever"),
-                ("foo", "bar"),
-            ]
-        );
         Ok(())
     }
 

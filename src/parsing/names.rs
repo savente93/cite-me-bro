@@ -1,17 +1,13 @@
 use std::fmt::Debug;
 
-// lint allows are just while developing, will be removed soon
 use nom::{
     branch::alt,
-    bytes::complete::{tag, tag_no_case, take_until, take_while, take_while1},
-    character::{
-        complete::{char, multispace0, space0, space1},
-        is_space,
-    },
+    bytes::complete::{tag, tag_no_case, take_until, take_while1},
+    character::complete::{char, multispace0, space0, space1},
     combinator::{recognize, verify},
     multi::separated_list1,
     sequence::{delimited, separated_pair, terminated},
-    AsChar, IResult, Parser,
+    IResult,
 };
 
 use lazy_static::*;
@@ -126,18 +122,6 @@ impl<'a> Debug for FullName<'a> {
     }
 }
 
-fn whitespace(input: &str) -> IResult<&str, &str> {
-    let (tail, whitespace) = take_while(|c| is_space(c as u8))(input)?;
-    Ok((tail, whitespace))
-}
-
-fn trim0(input: &str) -> IResult<&str, ()> {
-    match whitespace(input) {
-        Ok((t, _)) => Ok((t, ())),
-        Result::Err(_) => Ok((input, ())),
-    }
-}
-
 fn hyphenated_word(input: &str) -> IResult<&str, &str> {
     recognize(separated_list1(tag("-"), inner_word))(input)
 }
@@ -159,98 +143,6 @@ fn word(input: &str) -> IResult<&str, &str> {
 
 fn initial(input: &str) -> IResult<&str, &str> {
     let (tail, word) = terminated(word, tag("."))(input)?;
-    Ok((tail, word))
-}
-
-fn von_english(input: &str) -> IResult<&str, &str> {
-    let (tail, word) = tag_no_case("Of")(input)?;
-    Ok((tail, word))
-}
-fn von_dutch(input: &str) -> IResult<&str, &str> {
-    let (tail, word) = alt((
-        tag_no_case("Van der"),
-        tag_no_case("Van de"),
-        tag_no_case("Van"),
-    ))(input)?;
-    Ok((tail, word))
-}
-fn von_german(input: &str) -> IResult<&str, &str> {
-    let (tail, word) = alt((
-        tag_no_case("von der"),
-        tag_no_case("von"),
-        tag_no_case("zum"),
-        tag_no_case("zur"),
-        tag_no_case("zu"),
-    ))(input)?;
-    Ok((tail, word))
-}
-fn von_french(input: &str) -> IResult<&str, &str> {
-    let (tail, word) = alt((
-        tag_no_case("Des"),
-        // De case is commented because it interferes with cases like della in italian
-        // other languages have this case longer down the list, so it's still caught
-        // tag_no_case("De"),
-        tag_no_case("Du"),
-        tag_no_case("D'"),
-    ))(input)?;
-    Ok((tail, word))
-}
-fn von_italian(input: &str) -> IResult<&str, &str> {
-    let (tail, word) = alt((
-        tag_no_case("della"),
-        tag_no_case("delle"),
-        tag_no_case("del"),
-        tag_no_case("dei"),
-        tag_no_case("di"),
-        tag_no_case("d'"),
-    ))(input)?;
-    Ok((tail, word))
-}
-fn von_spanish(input: &str) -> IResult<&str, &str> {
-    let (tail, word) = alt((
-        tag_no_case("Del"),
-        tag_no_case("De los"),
-        tag_no_case("De las"),
-        tag_no_case("De la"),
-        tag_no_case("De"),
-    ))(input)?;
-    Ok((tail, word))
-}
-fn von_portuguese(input: &str) -> IResult<&str, &str> {
-    let (tail, word) = alt((
-        tag_no_case("Dos"),
-        tag_no_case("Das"),
-        tag_no_case("De"),
-        tag_no_case("Do"),
-        tag_no_case("Da"),
-    ))(input)?;
-    Ok((tail, word))
-}
-fn von_scandinavian(input: &str) -> IResult<&str, &str> {
-    let (tail, word) = tag_no_case("Af")(input)?;
-    Ok((tail, word))
-}
-fn von_russian(input: &str) -> IResult<&str, &str> {
-    let (tail, word) = alt((tag_no_case("Из"), tag_no_case("Iz")))(input)?;
-    Ok((tail, word))
-}
-fn von_polish(input: &str) -> IResult<&str, &str> {
-    let (tail, word) = alt((tag_no_case("Ze"), tag_no_case("Z")))(input)?;
-    Ok((tail, word))
-}
-fn von(input: &str) -> IResult<&str, &str> {
-    let (tail, word) = alt((
-        von_dutch,
-        von_english,
-        von_german,
-        von_french,
-        von_italian,
-        von_spanish,
-        von_portuguese,
-        von_scandinavian,
-        von_russian,
-        von_polish,
-    ))(input)?;
     Ok((tail, word))
 }
 
@@ -340,17 +232,6 @@ fn first_last(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
             title,
         },
     ))
-}
-
-pub fn name(input: &str) -> IResult<&str, FullName, nom::error::Error<&str>> {
-    alt((last_first, first_last))(input)
-}
-
-fn and_seperated_words(input: &str) -> IResult<&str, Vec<&str>> {
-    separated_list1(
-        terminated(tag_no_case("and"), space0),
-        terminated(space0, space0),
-    )(input)
 }
 
 pub fn and_seperated_names(input: &str) -> IResult<&str, Vec<FullName>, nom::error::Error<&str>> {
@@ -517,61 +398,6 @@ mod test {
 
         Ok(())
     }
-    #[test]
-    fn test_von() -> Result<()> {
-        for (test, answer) in vec![
-            //english
-            ("of", "of"),
-            // dutch
-            ("van", "van"),
-            ("van de", "van de"),
-            ("van der", "van der"),
-            // german
-            ("von", "von"),
-            ("von der", "von der"),
-            ("zu", "zu"),
-            ("zum", "zum"),
-            ("zur", "zur"),
-            //french
-            ("de", "de"),
-            ("du", "du"),
-            ("des", "des"),
-            ("d'", "d'"),
-            //italian
-            ("di", "di"),
-            ("d'", "d'"),
-            ("del", "del"),
-            ("della", "della"),
-            ("dei", "dei"),
-            ("delle", "delle"),
-            // //spanish
-            ("de", "de"),
-            ("del", "del"),
-            ("de la", "de la"),
-            ("de los", "de los"),
-            ("de las", "de las"),
-            //portugese
-            ("de", "de"),
-            ("do", "do"),
-            ("da", "da"),
-            ("dos", "dos"),
-            ("das", "das"),
-            //scandanavvian
-            ("af", "af"),
-            //russian
-            ("из", "из"),
-            ("iz", "iz"),
-            // polish
-            ("z", "z"),
-            ("ze", "ze"),
-        ] {
-            let (tail, name) = von(test)?;
-            assert_eq!(tail, "");
-            assert_eq!(name, answer);
-        }
-
-        Ok(())
-    }
 
     parse_test!(
         test_first_init_last,
@@ -719,7 +545,7 @@ mod test {
     fn stress_test() -> Result<()> {
         for (test, expected) in vec![
             (
-                "Albert Einstein",
+                "Einstein, Albert",
                 FullName {
                     first: vec!["Albert"],
                     last: vec!["Einstein"],
@@ -728,7 +554,7 @@ mod test {
                 },
             ),
             (
-                "Dr. Emmet Brown",
+                "Brown, Dr. Emmet",
                 FullName {
                     first: vec!["Emmet"],
                     last: vec!["Brown"],
@@ -737,7 +563,7 @@ mod test {
                 },
             ),
             (
-                "Leonardo da Vinci",
+                "da Vinci, Leonardo",
                 FullName {
                     first: vec!["Leonardo"],
                     last: vec!["Vinci"],
@@ -755,7 +581,7 @@ mod test {
                 },
             ),
             (
-                "Madame Marie Curie",
+                "Curie, Madame Marie",
                 FullName {
                     first: vec!["Marie"],
                     last: vec!["Curie"],
@@ -764,7 +590,7 @@ mod test {
                 },
             ),
             (
-                "Jean-Jacques Rousseau",
+                "Rousseau, Jean-Jacques",
                 FullName {
                     first: vec!["Jean-Jacques"],
                     last: vec!["Rousseau"],
@@ -773,7 +599,7 @@ mod test {
                 },
             ),
             (
-                "Friedrich Nietzsche",
+                "Nietzsche, Friedrich",
                 FullName {
                     first: vec!["Friedrich"],
                     last: vec!["Nietzsche"],
@@ -782,7 +608,7 @@ mod test {
                 },
             ),
             (
-                "Ada Lovelace",
+                "Lovelace, Ada",
                 FullName {
                     first: vec!["Ada"],
                     last: vec!["Lovelace"],
@@ -791,7 +617,7 @@ mod test {
                 },
             ),
             (
-                "Vincent van Gogh",
+                "van Gogh, Vincent",
                 FullName {
                     first: vec!["Vincent"],
                     last: vec!["Gogh"],
@@ -800,7 +626,7 @@ mod test {
                 },
             ),
             (
-                "Amelia Earhart",
+                "Earhart, Amelia",
                 FullName {
                     first: vec!["Amelia"],
                     last: vec!["Earhart"],
@@ -809,7 +635,7 @@ mod test {
                 },
             ),
             (
-                "Hermann Hesse",
+                "Hesse, Hermann",
                 FullName {
                     first: vec!["Hermann"],
                     last: vec!["Hesse"],
@@ -818,25 +644,7 @@ mod test {
                 },
             ),
             (
-                "Alexandre Dumas",
-                FullName {
-                    first: vec!["Alexandre"],
-                    last: vec!["Dumas"],
-                    von: vec![],
-                    title: vec![],
-                },
-            ),
-            (
-                "Lise Meitner",
-                FullName {
-                    first: vec!["Lise"],
-                    last: vec!["Meitner"],
-                    von: vec![],
-                    title: vec![],
-                },
-            ),
-            (
-                "Karl Marx",
+                "Marx, Karl",
                 FullName {
                     first: vec!["Karl"],
                     last: vec!["Marx"],
@@ -845,7 +653,7 @@ mod test {
                 },
             ),
             (
-                "Che Guevara",
+                "Guevara, Che",
                 FullName {
                     first: vec!["Che"],
                     last: vec!["Guevara"],
@@ -854,7 +662,7 @@ mod test {
                 },
             ),
             (
-                "Sigmund Freud",
+                "Freud,Sigmund",
                 FullName {
                     first: vec!["Sigmund"],
                     last: vec!["Freud"],
@@ -863,16 +671,7 @@ mod test {
                 },
             ),
             (
-                "Dr. Seuss",
-                FullName {
-                    first: vec![],
-                    last: vec!["Seuss"],
-                    von: vec![],
-                    title: vec!["Dr"],
-                },
-            ),
-            (
-                "Virginia Woolf",
+                "Woolf, Virginia",
                 FullName {
                     first: vec!["Virginia"],
                     last: vec!["Woolf"],
@@ -881,7 +680,7 @@ mod test {
                 },
             ),
             (
-                "Vasco da Gama",
+                "da Gama, Vasco",
                 FullName {
                     first: vec!["Vasco"],
                     last: vec!["Gama"],
@@ -890,7 +689,7 @@ mod test {
                 },
             ),
             (
-                "Catherine de Medici",
+                "de Medici, Catherine",
                 FullName {
                     first: vec!["Catherine"],
                     last: vec!["Medici"],
@@ -899,7 +698,7 @@ mod test {
                 },
             ),
             (
-                "Francisco de Goya",
+                "de Goya, Francisco",
                 FullName {
                     first: vec!["Francisco"],
                     last: vec!["Goya"],
@@ -908,7 +707,7 @@ mod test {
                 },
             ),
             (
-                "William Shakespeare",
+                "Shakespeare, William",
                 FullName {
                     first: vec!["William"],
                     last: vec!["Shakespeare"],
@@ -917,7 +716,7 @@ mod test {
                 },
             ),
             (
-                "Niccolo Machiavelli",
+                "Machiavelli, Niccolo",
                 FullName {
                     first: vec!["Niccolo"],
                     last: vec!["Machiavelli"],
@@ -926,7 +725,7 @@ mod test {
                 },
             ),
             (
-                "Dante Alighieri",
+                "Alighieri, Dante",
                 FullName {
                     first: vec!["Dante"],
                     last: vec!["Alighieri"],
@@ -935,7 +734,7 @@ mod test {
                 },
             ),
             (
-                "Gregor Mendel",
+                "Mendel, Gregor",
                 FullName {
                     first: vec!["Gregor"],
                     last: vec!["Mendel"],
@@ -944,7 +743,7 @@ mod test {
                 },
             ),
             (
-                "Emily Dickinson",
+                "Dickinson, Emily",
                 FullName {
                     first: vec!["Emily"],
                     last: vec!["Dickinson"],
@@ -953,7 +752,7 @@ mod test {
                 },
             ),
             (
-                "Jules Verne",
+                "Verne, Jules",
                 FullName {
                     first: vec!["Jules"],
                     last: vec!["Verne"],
@@ -962,7 +761,7 @@ mod test {
                 },
             ),
             (
-                "Edgar Allan Poe",
+                "Poe, Edgar Allan",
                 FullName {
                     first: vec!["Edgar", "Allan"],
                     last: vec!["Poe"],
@@ -971,7 +770,7 @@ mod test {
                 },
             ),
             (
-                "Simón Bolívar",
+                "Bolívar, Simón",
                 FullName {
                     first: vec!["Simón"],
                     last: vec!["Bolívar"],
@@ -980,7 +779,7 @@ mod test {
                 },
             ),
             (
-                "Søren Kierkegaard",
+                "Kierkegaard, Søren",
                 FullName {
                     first: vec!["Søren"],
                     last: vec!["Kierkegaard"],
@@ -989,7 +788,7 @@ mod test {
                 },
             ),
             (
-                "Fyodor Dostoevsky",
+                "Dostoevsky, Fyodor",
                 FullName {
                     first: vec!["Fyodor"],
                     last: vec!["Dostoevsky"],
@@ -998,7 +797,7 @@ mod test {
                 },
             ),
             (
-                "Mikhail Lomonosov",
+                "Lomonosov, Mikhail",
                 FullName {
                     first: vec!["Mikhail"],
                     last: vec!["Lomonosov"],
@@ -1016,7 +815,7 @@ mod test {
                 },
             ),
             (
-                "Nguyễn Du",
+                "Du, Nguyễn",
                 FullName {
                     first: vec!["Nguyễn"],
                     last: vec!["Du"],
@@ -1025,7 +824,7 @@ mod test {
                 },
             ),
             (
-                "Sun Yat-sen",
+                "Yat-sen, Sun",
                 FullName {
                     first: vec!["Sun"],
                     last: vec!["Yat-sen"],
@@ -1034,7 +833,7 @@ mod test {
                 },
             ),
             (
-                "Hugo Chávez",
+                "Chávez, Hugo",
                 FullName {
                     first: vec!["Hugo"],
                     last: vec!["Chávez"],
@@ -1043,7 +842,7 @@ mod test {
                 },
             ),
             (
-                "Frida Kahlo",
+                "Kahlo, Frida",
                 FullName {
                     first: vec!["Frida"],
                     last: vec!["Kahlo"],
@@ -1052,7 +851,7 @@ mod test {
                 },
             ),
             (
-                "Salvador Allende",
+                "Allende, Salvador",
                 FullName {
                     first: vec!["Salvador"],
                     last: vec!["Allende"],
@@ -1070,7 +869,7 @@ mod test {
                 },
             ),
             (
-                "Antoni Gaudí",
+                "Gaudí, Antoni",
                 FullName {
                     first: vec!["Antoni"],
                     last: vec!["Gaudí"],
@@ -1079,7 +878,7 @@ mod test {
                 },
             ),
             (
-                "Johan Sebastian Bach",
+                "Bach, Johan Sebastian",
                 FullName {
                     first: vec!["Johan", "Sebastian"],
                     last: vec!["Bach"],
@@ -1088,7 +887,7 @@ mod test {
                 },
             ),
             (
-                "Blaise Pascal",
+                "Pascal, Blaise",
                 FullName {
                     first: vec!["Blaise"],
                     last: vec!["Pascal"],
@@ -1097,7 +896,7 @@ mod test {
                 },
             ),
             (
-                "René Descartes",
+                "Descartes, René",
                 FullName {
                     first: vec!["René"],
                     last: vec!["Descartes"],
@@ -1106,7 +905,7 @@ mod test {
                 },
             ),
             (
-                "Mahatma Gandhi",
+                "Gandhi, Mahatma",
                 FullName {
                     first: vec!["Mahatma"],
                     last: vec!["Gandhi"],
@@ -1115,7 +914,7 @@ mod test {
                 },
             ),
             (
-                "Niels Bohr",
+                "Bohr, Niels",
                 FullName {
                     first: vec!["Niels"],
                     last: vec!["Bohr"],
@@ -1124,7 +923,7 @@ mod test {
                 },
             ),
             (
-                "Léon Blum",
+                "Blum, Léon",
                 FullName {
                     first: vec!["Léon"],
                     last: vec!["Blum"],
@@ -1133,7 +932,7 @@ mod test {
                 },
             ),
             (
-                "Jacques Chirac",
+                "Chirac, Jacques",
                 FullName {
                     first: vec!["Jacques"],
                     last: vec!["Chirac"],
@@ -1142,7 +941,7 @@ mod test {
                 },
             ),
             (
-                "Václav Havel",
+                "Havel, Václav",
                 FullName {
                     first: vec!["Václav"],
                     last: vec!["Havel"],
@@ -1151,7 +950,7 @@ mod test {
                 },
             ),
             (
-                "Jorge Luis Borges",
+                "Borges, Jorge Luis",
                 FullName {
                     first: vec!["Jorge", "Luis"],
                     last: vec!["Borges"],
@@ -1160,7 +959,7 @@ mod test {
                 },
             ),
             (
-                "Paulo Coelho",
+                "Coelho, Paulo",
                 FullName {
                     first: vec!["Paulo"],
                     last: vec!["Coelho"],
@@ -1169,7 +968,7 @@ mod test {
                 },
             ),
             (
-                "José Saramago",
+                "Saramago, José",
                 FullName {
                     first: vec!["José"],
                     last: vec!["Saramago"],
@@ -1178,7 +977,7 @@ mod test {
                 },
             ),
             (
-                "Arundhati Roy",
+                "Roy, Arundhati",
                 FullName {
                     first: vec!["Arundhati"],
                     last: vec!["Roy"],
@@ -1187,7 +986,7 @@ mod test {
                 },
             ),
             (
-                "Haruki Murakami",
+                "Murakami, Haruki",
                 FullName {
                     first: vec!["Haruki"],
                     last: vec!["Murakami"],
@@ -1196,7 +995,7 @@ mod test {
                 },
             ),
             (
-                "Kenzaburō Ōe",
+                "Ōe, Kenzaburō",
                 FullName {
                     first: vec!["Kenzaburō"],
                     last: vec!["Ōe"],
@@ -1214,7 +1013,7 @@ mod test {
                 },
             ),
         ] {
-            let (tail, name) = name(test)?;
+            let (tail, name) = last_first(test)?;
             assert_eq!(tail, "", "{}", &test);
             assert_eq!(name, expected, "{}", &test);
         }
@@ -1267,7 +1066,7 @@ mod test {
                 },
             ),
             (
-                "علي , محمد", // Arabic
+                "محمد علي", // Arabic
                 FullName {
                     first: vec!["محمد"],
                     last: vec!["علي"],
@@ -1276,7 +1075,7 @@ mod test {
                 },
             ),
             (
-                "三島, 由紀夫", // Japanese
+                "由紀夫 三島", // Japanese
                 FullName {
                     first: vec!["由紀夫"],
                     last: vec!["三島"],
@@ -1348,7 +1147,7 @@ mod test {
                 },
             ),
         ] {
-            let (tail, name) = name(test)?;
+            let (tail, name) = first_last(test)?;
             assert_eq!(tail, "", "{}", test);
             assert_eq!(name, expected, "{}", test);
         }
