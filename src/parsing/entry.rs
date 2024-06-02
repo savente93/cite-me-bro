@@ -497,7 +497,7 @@ mod test {
             entries[0],
             BibEntry {
                 kind: EntryType::Article,
-                key: String::from("breiman2001random"),
+                key: String::from("breiman2001"),
                 authors: vec![OwnedFullName {
                     first: vec!["Leo".to_string()],
                     last: vec!["Breiman".to_string()],

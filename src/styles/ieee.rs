@@ -480,7 +480,7 @@ mod test {
 
     #[test]
     fn random_forests_formatted_citation() -> Result<()> {
-        let key = "breiman2001random";
+        let key = "breiman2001";
         let formatted_citation = "L. Breiman, \"Random forests,\" Machine learning, vol. 45, no. 1, pp. 5-32, 2001. doi: https://doi.org/10.1023/a:1010933404324.";
         let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
         let entry = entries.into_iter().find(|e| e.key == key).unwrap();
