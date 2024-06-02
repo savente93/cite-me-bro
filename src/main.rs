@@ -47,7 +47,6 @@ fn main() -> Result<()> {
     let bibtex: Bibliography = parse_bib_file(args.bib_file.clone())?.into();
 
     if let Some(inplace_path) = args.inplace_file {
-        dbg!(&inplace_path);
         // make sure we don't keep the file open
         let contents = read_to_string(&inplace_path)?;
         let (tail, segments) = all_citations(&contents).unwrap();
