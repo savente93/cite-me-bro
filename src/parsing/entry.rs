@@ -1,33 +1,23 @@
 use core::fmt;
-use std::{
-    collections::{hash_map, BTreeMap},
-    fmt::Debug,
-    fs,
-    iter::Take,
-    path::{Path, PathBuf},
-};
+use std::{collections::BTreeMap, fmt::Debug, fs, path::PathBuf};
 
-use anyhow::{Error, Result};
+use anyhow::Result;
 // lint allows are just while developing, will be removed soon
 use nom::{
     branch::{alt, permutation},
-    bytes::complete::{
-        tag, tag_no_case, take_till, take_till1, take_until, take_until1, take_while, take_while1,
-    },
+    bytes::complete::{tag, tag_no_case, take_till, take_till1, take_until},
     character::{
-        complete::{
-            char, line_ending, multispace0, multispace1, not_line_ending, one_of, space0, space1,
-        },
+        complete::{char, line_ending, multispace0},
         is_space,
     },
-    combinator::{all_consuming, eof, map, opt, recognize, verify},
-    multi::{many0, many1, many_till, separated_list0, separated_list1},
-    sequence::{delimited, pair, preceded, separated_pair, terminated, tuple},
-    AsChar, Err, IResult, Parser,
+    combinator::all_consuming,
+    multi::{many0, many1, separated_list1},
+    sequence::{delimited, preceded, separated_pair, terminated},
+    IResult, Parser,
 };
 use parse_hyperlinks::take_until_unbalanced;
 
-use super::names::{self, and_seperated_names, FullName, OwnedFullName};
+use super::names::{and_seperated_names, OwnedFullName};
 type EntrySubComponents<'a> = (EntryType, &'a str, Vec<(&'a str, &'a str)>);
 
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -113,6 +103,8 @@ impl TryFrom<&str> for EntryType {
     }
 }
 
+/// Searches the input for a \cite tag
+///
 pub fn citation(input: &str) -> IResult<&str, &str> {
     preceded(
         tag("\\cite"),
@@ -329,7 +321,6 @@ mod test {
 
     use crate::dict;
 
-    use super::entry_type;
     use super::*;
     use anyhow::Result;
 

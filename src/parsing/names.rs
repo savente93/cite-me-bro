@@ -1,18 +1,17 @@
 use std::fmt::Debug;
 
-use anyhow::Error;
 // lint allows are just while developing, will be removed soon
 use nom::{
     branch::alt,
     bytes::complete::{tag, tag_no_case, take_until, take_while, take_while1},
     character::{
-        complete::{char, line_ending, multispace0, not_line_ending, one_of, space0, space1},
+        complete::{char, multispace0, space0, space1},
         is_space,
     },
-    combinator::{eof, map, recognize, verify},
-    multi::{many1, many_till, separated_list0, separated_list1},
-    sequence::{delimited, pair, preceded, separated_pair, terminated, tuple},
-    AsChar, Err, IResult, Parser,
+    combinator::{recognize, verify},
+    multi::separated_list1,
+    sequence::{delimited, separated_pair, terminated},
+    AsChar, IResult, Parser,
 };
 
 use lazy_static::*;
@@ -368,7 +367,6 @@ mod test {
 
     use super::*;
     use anyhow::Result;
-    use nom::character::is_alphabetic;
 
     macro_rules! parse_assert {
         ($func:ident, $test:expr, $expected:expr) => {
