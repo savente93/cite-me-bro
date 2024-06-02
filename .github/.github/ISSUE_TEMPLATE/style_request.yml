@@ -1,0 +1,23 @@
+name: New Citation Style Request
+description: Request a new citation style
+title: "[Feature Request] New Citation Style: "
+labels:
+  - enhancement
+  - citation style
+body:
+  - type: input
+    attributes:
+      label: Name of the Style
+      description: "Provide the name of the citation style you are requesting."
+  - type: textarea
+    attributes:
+      label: Common Usage
+      description: "Describe where this citation style is commonly used (e.g., specific journals, disciplines, etc.)."
+  - type: input
+    attributes:
+      label: Reference Guide
+      description: "Provide a link to a reference guide for the citation style."
+  - type: textarea
+    attributes:
+      label: Examples
+      description: "Provide some examples of citations in this style."

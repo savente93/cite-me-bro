@@ -1,0 +1,27 @@
+name: Parsing Bug Report
+description: Report a bug related to parsing .bib files
+title: "[Parsing Bug] "
+labels:
+  - bug
+  - parsing
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Description
+
+        <!-- Please describe the issue in detail. -->
+  - type: textarea
+    attributes:
+      label: Minimum Working Example (MWE)
+      description: "Provide a minimum working example of the .bib file that causes the issue."
+      value: |
+        ```bibtex
+        <!-- .bib file content -->
+        ```
+  - type: markdown
+    attributes:
+      value: |
+        ## Desired Behavior
+
+        <!-- Describe the behavior you expected. -->

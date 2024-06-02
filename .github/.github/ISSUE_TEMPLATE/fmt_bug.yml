@@ -1,0 +1,29 @@
+name: Formatting Bug Report
+description: Report a bug related to formatting citations
+title: "[Formatting Bug] "
+labels:
+  - bug
+  - formatting
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Description
+
+        <!-- Please describe the issue in detail. -->
+  - type: textarea
+    attributes:
+      label: Minimum Working Example (MWE)
+      description: "Provide a minimum working example of the .bib file entry that causes the issue."
+      value: |
+        ```bibtex
+        <!-- .bib file content -->
+        ```
+  - type: textarea
+    attributes:
+      label: Correctly Formatted Citation
+      description: "Provide an example of how the citation should be correctly formatted."
+  - type: textarea
+    attributes:
+      label: Additional Documentation
+      description: "Include any additional documentation, links, or references related to the formatting issue."
