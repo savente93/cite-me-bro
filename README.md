@@ -24,13 +24,13 @@ cargo install cite-me-bro
 
 ### Usage
 
-The core functionality of `cite-me-bro` is encapsulated in its command-line interface, which accepts a BibTeX file as input and outputs a formatted reference. Users can specify the desired citation style through command-line arguments. If no citation keys are provided all references will be formatted to stdout. Users have the option to provide space seperated list of citation keys to be found in the bib file. If the user does this only the references corresponding to the citations will be printed. 
+The core functionality of `cite-me-bro` is encapsulated in its command-line interface, which accepts a BibTeX file as input and outputs a formatted reference. Users can specify the desired citation style through command-line arguments. If no citation keys are provided all references will be formatted to stdout. Users have the option to provide space seperated list of citation keys to be found in the bib file. If the user does this only the references corresponding to the citations will be printed.
 
-Currently supported citations styles are: 
+Currently supported citations styles are:
 - IEEE (default)
 - APA
 
-While this list is limited at the time of writing, due to the somewhat cumbersome work of adding styles, should the reader have a need for different styles to be included, they are encouraged to open an issue or Pull Request (PR) detailing their request. 
+While this list is limited at the time of writing, due to the somewhat cumbersome work of adding styles, should the reader have a need for different styles to be included, they are encouraged to open an issue or Pull Request (PR) detailing their request.
 
 ### Example
 
@@ -55,13 +55,13 @@ The development of `cite-me-bro` is driven by the necessity for a reliable and e
 1. **Automation compatible CLI**: Provides a streamlined, text-based interaction model that can work both in an interactive and automated environoment.
 2. **Multi-Style Support**: Accommodates various citation styles including IEEE and APA, with more styles available upon request.
 3. **Unicode Support**: While references are almost always (to the author's knowledge) written in a superset of the latin script, `cite-me-bro` does know how to handle unicode characters and will apply accents and other unicode charachters without problem.
-4. **Speed**: Because `cite-me-bro` is not a full Tex engine, but rather a simple focused CLI tool written in Rust, it is very fast and suitable for quick workflows. 
+4. **Speed**: Because `cite-me-bro` is not a full Tex engine, but rather a simple focused CLI tool written in Rust, it is very fast and suitable for quick workflows.
 
 ## Limitations
 
 1. **LaTex**: As stated `cite-me-bro` does not have an embeded Tex Engine of any kind. Tools like BibLaTex, allow users to supply arbirtrary tex commands, which `cite-me-bro` does not support. It is just for formatting references, though given the Unicode support mentioned above, a lot of Tex commands used for things such as adding accents should not be necessary.
-2. **Customisation**: The development of `cite-me-bro` was focused on simplicity and ease of use. Unfortunately this means that there is no option to customise the output of `cite-me-bro` outside of changing the citation style or modifying the code. Customisation is considered a non-goal for this piece of software. 
-3. **Guarantees**: While great care has been taken to make sure that the styles provided by `cite-me-bro` are correct, comparing both with reference style guides and the output of citation generation tools such as BibLaTex itself, it should be noted that `cite-me-bro` was developed as a hobby project and therefore may not correctly cover every use case, and no guarantees are to be extended as to it's correctness. While the author strives to be as correct as possible and encourages any user noticing incorrect behavioiur to open either an issue or PR to fix this, no liability can be attributed to the author as a result of using this software. 
+2. **Customisation**: The development of `cite-me-bro` was focused on simplicity and ease of use. Unfortunately this means that there is no option to customise the output of `cite-me-bro` outside of changing the citation style or modifying the code. Customisation is considered a non-goal for this piece of software.
+3. **Guarantees**: While great care has been taken to make sure that the styles provided by `cite-me-bro` are correct, comparing both with reference style guides and the output of citation generation tools such as BibLaTex itself, it should be noted that `cite-me-bro` was developed as a hobby project and therefore may not correctly cover every use case, and no guarantees are to be extended as to it's correctness. While the author strives to be as correct as possible and encourages any user noticing incorrect behavioiur to open either an issue or PR to fix this, no liability can be attributed to the author as a result of using this software.
 
 ## Conclusion
 
