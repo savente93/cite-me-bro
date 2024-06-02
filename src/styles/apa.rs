@@ -135,8 +135,13 @@ fn fmt_manual_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>)
 fn fmt_inproceedings_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
     let mut out = String::new();
     let title = fields.get("title").unwrap();
+    let year = fields.get("year");
+    let month = fields.get("month");
     out.push_str(&fmt_authors_apa(authors));
+    out.push_str(". ");
+    out.push_str(&fmt_year_month_apa(year, month));
     out.push_str(title);
+    out.push_str(". ");
 
     out
 }
@@ -144,8 +149,13 @@ fn fmt_inproceedings_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, S
 fn fmt_incollection_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
     let mut out = String::new();
     let title = fields.get("title").unwrap();
+    let year = fields.get("year");
+    let month = fields.get("month");
     out.push_str(&fmt_authors_apa(authors));
+    out.push_str(". ");
+    out.push_str(&fmt_year_month_apa(year, month));
     out.push_str(title);
+    out.push_str(". ");
 
     out
 }
@@ -153,8 +163,13 @@ fn fmt_incollection_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, St
 fn fmt_inbook_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
     let mut out = String::new();
     let title = fields.get("title").unwrap();
+    let year = fields.get("year");
+    let month = fields.get("month");
     out.push_str(&fmt_authors_apa(authors));
+    out.push_str(". ");
+    out.push_str(&fmt_year_month_apa(year, month));
     out.push_str(title);
+    out.push_str(". ");
 
     out
 }
@@ -162,8 +177,13 @@ fn fmt_inbook_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>)
 fn fmt_conference_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
     let mut out = String::new();
     let title = fields.get("title").unwrap();
+    let year = fields.get("year");
+    let month = fields.get("month");
     out.push_str(&fmt_authors_apa(authors));
+    out.push_str(". ");
+    out.push_str(&fmt_year_month_apa(year, month));
     out.push_str(title);
+    out.push_str(". ");
 
     out
 }
@@ -171,8 +191,13 @@ fn fmt_conference_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, Stri
 fn fmt_booklet_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
     let mut out = String::new();
     let title = fields.get("title").unwrap();
+    let year = fields.get("year");
+    let month = fields.get("month");
     out.push_str(&fmt_authors_apa(authors));
+    out.push_str(". ");
+    out.push_str(&fmt_year_month_apa(year, month));
     out.push_str(title);
+    out.push_str(". ");
 
     out
 }
@@ -180,8 +205,16 @@ fn fmt_booklet_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>
 fn fmt_book_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
     let mut out = String::new();
     let title = fields.get("title").unwrap();
+    let year = fields.get("year");
+    let month = fields.get("month");
+    let publisher = fields.get("publisher").unwrap();
     out.push_str(&fmt_authors_apa(authors));
+    out.push_str(" ");
+    out.push_str(&fmt_year_month_apa(year, month));
     out.push_str(title);
+    out.push_str(". ");
+    out.push_str(&publisher);
+    out.push_str(".");
 
     out
 }
@@ -580,7 +613,6 @@ mod test {
         assert_eq!(citation, formatted_citation);
         Ok(())
     }
-    #[ignore]
     #[test]
     fn article_formatted_citation() -> Result<()> {
         let key = "article";
@@ -591,11 +623,10 @@ mod test {
         assert_eq!(citation, formatted_citation);
         Ok(())
     }
-    #[ignore]
     #[test]
     fn book_formatted_citation() -> Result<()> {
         let key = "book";
-        let formatted_citation= "Susskind, L., & Hrabovsky, G. (2014). Classical mechanics: The theoretical minimum. Penguin Random House.";
+        let formatted_citation= "Susskind, L., & Hrabovsky, G. (2014). Classical mechanics: the theoretical minimum. Penguin Random House.";
         let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
         let entry = entries.into_iter().find(|e| e.key == key).unwrap();
         let citation = fmt_reference_apa(entry);
