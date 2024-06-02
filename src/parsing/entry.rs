@@ -17,6 +17,8 @@ use nom::{
 };
 use parse_hyperlinks::take_until_unbalanced;
 
+use crate::styles::ReferenceStyle;
+
 use super::names::{and_seperated_names, OwnedFullName};
 type EntrySubComponents<'a> = (EntryType, &'a str, Vec<(&'a str, &'a str)>);
 
@@ -66,6 +68,29 @@ pub struct Bibliography {
 impl Bibliography {
     pub fn get_entry(&self, key: String) -> Option<BibEntry> {
         self.entries.iter().find(|&e| e.key == key).cloned()
+    }
+
+    pub fn fmt_entries(self, style: ReferenceStyle) {
+        self.entries
+            .into_iter()
+            .for_each(|b| println!("{}", style.fmt_reference(b)));
+    }
+
+    pub fn expand_citations(self, contents: String, style: ReferenceStyle) -> String {
+        let (tail, segments) = all_citations(&contents).unwrap();
+        let mut acc =
+            segments
+                .into_iter()
+                .fold(String::new(), |mut acc, (unmodified, citation_key)| {
+                    acc.push_str(unmodified);
+                    acc.push_str(
+                        &style.fmt_reference(self.get_entry(citation_key.to_string()).unwrap()),
+                    );
+                    acc
+                });
+        acc.push_str(tail);
+
+        acc
     }
 }
 

@@ -2,7 +2,6 @@ use anyhow::{anyhow, Result};
 use clap::Parser;
 use colored::Colorize;
 use log::{error, warn};
-use parsing::entry::all_citations;
 use parsing::entry::parse_bib_file;
 use parsing::entry::Bibliography;
 use std::fs::read_to_string;
@@ -47,33 +46,15 @@ fn main() -> Result<()> {
     let bibtex: Bibliography = parse_bib_file(args.bib_file.clone())?.into();
 
     if let Some(inplace_path) = args.inplace_file {
-        // make sure we don't keep the file open
-        let contents = read_to_string(&inplace_path)?;
-        let (tail, segments) = all_citations(&contents).unwrap();
-        let mut acc =
-            segments
-                .into_iter()
-                .fold(String::new(), |mut acc, (unmodified, citation_key)| {
-                    acc.push_str(unmodified);
-                    acc.push_str(
-                        &args
-                            .style
-                            .fmt_reference(bibtex.get_entry(citation_key.to_string()).unwrap()),
-                    );
-                    acc
-                });
-        acc.push_str(tail);
-
+        let mut contents = read_to_string(&inplace_path)?;
+        contents = bibtex.expand_citations(contents, args.style);
         let mut file = File::create(&inplace_path)?;
-        file.write_all(acc.as_bytes()).unwrap();
+        file.write_all(contents.as_bytes()).unwrap();
         Ok(())
     } else {
         let mut seen_at_least_one = false;
         if args.keys.is_empty() {
-            bibtex
-                .entries
-                .into_iter()
-                .for_each(|b| println!("{}", &args.style.fmt_reference(b)));
+            bibtex.fmt_entries(args.style);
             Ok(())
         } else {
             args.keys
