@@ -5,8 +5,9 @@ labels:
   - bug
   - formatting
 body:
-  - type: markdown
+  - type: textarea
     attributes:
+      label: description
       value: |
         ## Description
 

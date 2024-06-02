@@ -5,8 +5,9 @@ labels:
   - bug
   - parsing
 body:
-  - type: markdown
+  - type: textarea
     attributes:
+      label: description
       value: |
         ## Description
 
@@ -19,8 +20,9 @@ body:
         ```bibtex
         <!-- .bib file content -->
         ```
-  - type: markdown
+  - type: textarea
     attributes:
+      label: desired-behaviour
       value: |
         ## Desired Behavior
 
