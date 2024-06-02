@@ -43,7 +43,7 @@ fn fmt_unpublished_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, Str
     out.push(' ');
     out.push_str(&fmt_year_month_apa(year, month, true));
     out.push_str(title);
-    out.push_str(".");
+    out.push('.');
 
     out
 }
@@ -119,10 +119,9 @@ fn fmt_misc_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -
     out.push_str(". ");
     out.push_str(&fmt_year_month_apa(year, month, true));
     out.push_str(title);
-    match fields.get("note") {
-        Some(n) => out.push_str(&format!(" [{}]", n)),
-        None => (),
-    };
+    if let Some(n) = fields.get("note") {
+        out.push_str(&format!(" [{}]", n))
+    }
     out.push('.');
 
     out
@@ -154,14 +153,14 @@ fn fmt_inproceedings_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, S
     let booktitle = fields.get("booktitle").unwrap();
     let pages = fields.get("pages").unwrap();
     out.push_str(&fmt_authors_apa(authors));
-    out.push_str(" ");
+    out.push(' ');
     out.push_str(&fmt_year_month_apa(year, month, true));
     out.push_str(title);
     out.push_str(". ");
     out.push_str(booktitle);
     out.push_str(", ");
     out.push_str(pages);
-    out.push_str(".");
+    out.push('.');
 
     out
 }
@@ -178,7 +177,7 @@ fn fmt_incollection_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, St
     let editor_names: Vec<OwnedFullName> = edrs.into_iter().map(|n| n.into()).collect();
     let publisher = fields.get("publisher").unwrap();
     out.push_str(&fmt_authors_apa(authors));
-    out.push_str(" ");
+    out.push(' ');
     out.push_str(&fmt_year_month_apa(year, month, true));
     out.push_str(title);
     out.push_str(". In ");
@@ -187,7 +186,7 @@ fn fmt_incollection_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, St
     out.push_str(booktitle);
     out.push_str(&format!(" (pp. {}). ", pages));
     out.push_str(publisher);
-    out.push_str(".");
+    out.push('.');
 
     out
 }
@@ -201,14 +200,14 @@ fn fmt_inbook_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>)
     let publisher = fields.get("publisher").unwrap();
     let pages = fields.get("pages").unwrap();
     out.push_str(&fmt_authors_apa(authors));
-    out.push_str(" ");
+    out.push(' ');
     out.push_str(&fmt_year_month_apa(year, month, true));
     out.push_str(title);
     out.push_str(". In ");
     out.push_str(booktitle);
     out.push_str(&format!(" (pp. {}). ", pages));
-    out.push_str(&publisher);
-    out.push_str(".");
+    out.push_str(publisher);
+    out.push('.');
 
     out
 }
@@ -219,7 +218,7 @@ fn fmt_conference_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, Stri
     let year = fields.get("year");
     let month = fields.get("month");
     out.push_str(&fmt_authors_apa(authors));
-    out.push_str(" ");
+    out.push(' ');
     out.push_str(&fmt_year_month_apa(year, month, true));
     out.push_str(title);
     out.push_str(". ");
@@ -235,7 +234,7 @@ fn fmt_booklet_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>
     let howpublished = fields.get("howpublished").unwrap();
 
     out.push_str(&fmt_authors_apa(authors));
-    out.push_str(" ");
+    out.push(' ');
     out.push_str(title);
     out.push_str(". ");
     out.push_str(howpublished);
@@ -252,12 +251,12 @@ fn fmt_book_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -
     let month = fields.get("month");
     let publisher = fields.get("publisher").unwrap();
     out.push_str(&fmt_authors_apa(authors));
-    out.push_str(" ");
+    out.push(' ');
     out.push_str(&fmt_year_month_apa(year, month, true));
     out.push_str(title);
     out.push_str(". ");
-    out.push_str(&publisher);
-    out.push_str(".");
+    out.push_str(publisher);
+    out.push('.');
 
     out
 }
@@ -265,7 +264,7 @@ fn fmt_book_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -
 fn fmt_year_month_apa(year: Option<&String>, month: Option<&String>, braces: bool) -> String {
     let mut out = String::new();
     if braces {
-        out.push_str("(");
+        out.push('(');
     };
     match (year, month) {
         (None, None) => out.push_str("n.d."),
@@ -294,7 +293,7 @@ fn fmt_year_month_apa(year: Option<&String>, month: Option<&String>, braces: boo
     if braces {
         out.push_str("). ");
     } else {
-        out.push_str(".");
+        out.push('.');
     };
 
     out
@@ -470,7 +469,7 @@ fn fmt_single_editor_apa(name: OwnedFullName) -> String {
     };
     if !name.last.is_empty() {
         if !name.first.is_empty() {
-            out.push_str(" ");
+            out.push(' ');
         }
         out.push_str(&name.last.join(" "));
     }
