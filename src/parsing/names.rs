@@ -1,7 +1,6 @@
 use std::fmt::Debug;
 
 use anyhow::Error;
-use biblatex::Pagination;
 // lint allows are just while developing, will be removed soon
 use nom::{
     branch::alt,
