@@ -33,7 +33,7 @@ While this list is limited at the time of writing, due to the somewhat cumbersom
 Consider a scenario where a user wishes to format a reference in IEEE style. As an example we will use [1] which has the citaiton key `breiman2001`, as can be seen in Apendix A (`cite.bib`). The following command illustrates the procedure:
 
 ```sh
-cite-me-bro -b cite.bib --style ieee breiman2001
+cmb -b cite.bib --style ieee breiman2001
 ```
 
 Upon execution, the tool produces a formatted reference such as:
