@@ -21,20 +21,29 @@ pub mod utils;
     about = "formats bibtex entries to stdout"
 )]
 struct Args {
+    /// the bib file containing the reference information
     #[arg(short, long, value_name = "BIB_FILE")]
     bib_file: PathBuf,
 
+    /// the reference style in which to print the references
     #[arg(short, long, value_enum, default_value_t = ReferenceStyle::IEEE)]
     style: ReferenceStyle,
 
+    /// the keys of the references to print. If none are provided all references will be printed
     keys: Vec<String>,
 
+    /// Instead of printing citations to stdout, replace instances of \cite{key}
+    /// in INPLACE_FILE with the corresponding reference
     #[arg(short, long, value_name = "INPLACE_FILE", conflicts_with = "keys")]
     inplace_file: Option<PathBuf>,
 
+    /// Do not pring warnings when citation keys are not found
+    /// does nothing if no keys are provided
     #[arg(short, long, default_value_t = false)]
     quiet: bool,
 
+    /// instead of warning, panic when citation keys can't be found
+    /// does nothing if no keys are provided
     #[arg(short, long, conflicts_with = "quiet", default_value_t = false)]
     panic: bool,
 }
