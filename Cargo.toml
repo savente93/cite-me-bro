@@ -3,6 +3,12 @@ name = "cite-me-bro"
 version = "0.1.0"
 edition = "2021"
 
+license = "MIT"
+repository = "https://github.com/savente93/cite-me-bro"
+description = "Simple formatted citations over stdout right from your bib file."
+keywords = ["academic", "citation", "references", "bibtex"]
+categories = ["command-line-utilities", "parsing", "value-formatting"]
+
 [dependencies]
 anyhow = "1.0.86"
 chrono = "0.4.38"
