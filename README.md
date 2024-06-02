@@ -67,4 +67,4 @@ The development of `cite-me-bro` is driven by the necessity for a reliable and e
 
 This project is licensed under the MIT License, promoting open-source collaboration and innovation.
 
-[## Apendix A](cite.bib)
+## [Apendix A](cite.bib)
