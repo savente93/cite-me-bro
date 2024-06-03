@@ -37,8 +37,8 @@ pub enum EntryType {
     Unpublished,
 }
 
-#[cfg(not(tarpaulin_include))]
 impl fmt::Display for EntryType {
+    #[cfg_attr(coverage_nightly, coverage(off))]
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             EntryType::Article => write!(f, "Article"),
