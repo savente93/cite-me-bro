@@ -37,6 +37,7 @@ pub enum EntryType {
     Unpublished,
 }
 
+#[cfg(not(tarpaulin_include))]
 impl fmt::Display for EntryType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
