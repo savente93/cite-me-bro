@@ -479,8 +479,9 @@ fn fmt_single_editor_apa(name: OwnedFullName) -> String {
 mod test {
     use std::path::PathBuf;
 
+    use crate::parsing::bibligraphy::Bibliography;
+
     use super::*;
-    use crate::parsing::entry::parse_bib_file;
     use anyhow::Result;
 
     #[test]
@@ -708,8 +709,8 @@ mod test {
     fn random_forests_formatted_citation() -> Result<()> {
         let key = "breiman2001";
         let formatted_citation = "Breiman, L. (2001). Random forests. Machine learning, 45 (1), 5-32. https://doi.org/10.1023/a:1010933404324";
-        let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
-        let entry = entries.into_iter().find(|e| e.key == key).unwrap();
+        let entries = Bibliography::from_file(PathBuf::from("cite.bib"))?;
+        let entry = entries.get_entry(key.to_string()).unwrap();
         let citation = fmt_reference_apa(entry);
         assert_eq!(citation, formatted_citation);
         Ok(())
@@ -718,8 +719,8 @@ mod test {
     fn bacterial_formatted_citation() -> Result<()> {
         let key = "10.1093/femsec/fiw174";
         let formatted_citation= "Liao, J., Cao, X., Zhao, L., Wang, J., Gao, Z., Wang, M. C., & Huang, Y. (2016). The importance of neutral and niche processes for bacterial community assembly differs between habitat generalists and specialists. FEMS Microbiology Ecology, 92 (11), https://doi.org/10.1093/femsec/fiw174";
-        let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
-        let entry = entries.into_iter().find(|e| e.key == key).unwrap();
+        let entries = Bibliography::from_file(PathBuf::from("cite.bib"))?;
+        let entry = entries.get_entry(key.to_string()).unwrap();
         let citation = fmt_reference_apa(entry);
         assert_eq!(citation, formatted_citation);
         Ok(())
@@ -728,8 +729,8 @@ mod test {
     fn article_formatted_citation() -> Result<()> {
         let key = "article";
         let formatted_citation= "Cohen, P. J. (1963). The independence of the continuum hypothesis. Proceedings of the National Academy of Sciences, 50 (6), 1143-1148.";
-        let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
-        let entry = entries.into_iter().find(|e| e.key == key).unwrap();
+        let entries = Bibliography::from_file(PathBuf::from("cite.bib"))?;
+        let entry = entries.get_entry(key.to_string()).unwrap();
         let citation = fmt_reference_apa(entry);
         assert_eq!(citation, formatted_citation);
         Ok(())
@@ -738,8 +739,8 @@ mod test {
     fn book_formatted_citation() -> Result<()> {
         let key = "book";
         let formatted_citation= "Susskind, L., & Hrabovsky, G. (2014). Classical mechanics: the theoretical minimum. Penguin Random House.";
-        let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
-        let entry = entries.into_iter().find(|e| e.key == key).unwrap();
+        let entries = Bibliography::from_file(PathBuf::from("cite.bib"))?;
+        let entry = entries.get_entry(key.to_string()).unwrap();
         let citation = fmt_reference_apa(entry);
         assert_eq!(citation, formatted_citation);
         Ok(())
@@ -748,8 +749,8 @@ mod test {
     fn booklet_formatted_citation() -> Result<()> {
         let key = "booklet";
         let formatted_citation= "Swetla, M. Canoe tours in Sweden. Distributed at the Stockholm Tourist Office. 2015, July.";
-        let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
-        let entry = entries.into_iter().find(|e| e.key == key).unwrap();
+        let entries = Bibliography::from_file(PathBuf::from("cite.bib"))?;
+        let entry = entries.get_entry(key.to_string()).unwrap();
         let citation = fmt_reference_apa(entry);
         assert_eq!(citation, formatted_citation);
         Ok(())
@@ -758,8 +759,8 @@ mod test {
     fn inbook_formatted_citation() -> Result<()> {
         let key = "inbook";
         let formatted_citation= "Urry, L. A., Cain, M. L., Wasserman, S. A., Minorsky, P. V., & Reece, J. B. (2016). Photosynthesis. In Campbell biology (pp. 187-221). Pearson.";
-        let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
-        let entry = entries.into_iter().find(|e| e.key == key).unwrap();
+        let entries = Bibliography::from_file(PathBuf::from("cite.bib"))?;
+        let entry = entries.get_entry(key.to_string()).unwrap();
         let citation = fmt_reference_apa(entry);
         assert_eq!(citation, formatted_citation);
         Ok(())
@@ -768,8 +769,8 @@ mod test {
     fn incollection_formatted_citation() -> Result<()> {
         let key = "incollection";
         let formatted_citation= "Shapiro, H. M. (2018). Flow cytometry: The glass is half full. In T. S. Hawley & R. G. Hawley (Eds.), Flow cytometry protocols (pp. 1-10). Springer.";
-        let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
-        let entry = entries.into_iter().find(|e| e.key == key).unwrap();
+        let entries = Bibliography::from_file(PathBuf::from("cite.bib"))?;
+        let entry = entries.get_entry(key.to_string()).unwrap();
         let citation = fmt_reference_apa(entry);
         assert_eq!(citation, formatted_citation);
         Ok(())
@@ -778,8 +779,8 @@ mod test {
     fn inprocedings_formatted_citation() -> Result<()> {
         let key = "inproceedings";
         let formatted_citation= "Holleis, P., Wagner, M., & Koolwaaij, J. (2010). Studying mobile context-aware social services in the wild. Proc. of the 6th Nordic Conf. on Human-Computer Interaction, 207-216.";
-        let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
-        let entry = entries.into_iter().find(|e| e.key == key).unwrap();
+        let entries = Bibliography::from_file(PathBuf::from("cite.bib"))?;
+        let entry = entries.get_entry(key.to_string()).unwrap();
         let citation = fmt_reference_apa(entry);
         assert_eq!(citation, formatted_citation);
         Ok(())
@@ -788,8 +789,8 @@ mod test {
     fn manual_formatted_citation() -> Result<()> {
         let key = "manual";
         let formatted_citation= "R Core Team. (2018). R: A language and environment for statistical computing. R Foundation for Statistical Computing. Vienna, Austria.";
-        let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
-        let entry = entries.into_iter().find(|e| e.key == key).unwrap();
+        let entries = Bibliography::from_file(PathBuf::from("cite.bib"))?;
+        let entry = entries.get_entry(key.to_string()).unwrap();
         let citation = fmt_reference_apa(entry);
         assert_eq!(citation, formatted_citation);
         Ok(())
@@ -798,8 +799,8 @@ mod test {
     fn mastersthesis_formatted_citation() -> Result<()> {
         let key = "mastersthesis";
         let formatted_citation= "Tang, J. (1996, September). Spin structure of the nucleon in the asymptotic limit [Master's thesis, Massachusetts Institute of Technology].";
-        let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
-        let entry = entries.into_iter().find(|e| e.key == key).unwrap();
+        let entries = Bibliography::from_file(PathBuf::from("cite.bib"))?;
+        let entry = entries.get_entry(key.to_string()).unwrap();
         let citation = fmt_reference_apa(entry);
         assert_eq!(citation, formatted_citation);
         Ok(())
@@ -809,8 +810,8 @@ mod test {
         let key = "misc";
         let formatted_citation =
             "NASA. (2015). Pluto: The 'other' red planet [Accessed: 2018-12-06].";
-        let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
-        let entry = entries.into_iter().find(|e| e.key == key).unwrap();
+        let entries = Bibliography::from_file(PathBuf::from("cite.bib"))?;
+        let entry = entries.get_entry(key.to_string()).unwrap();
         let citation = fmt_reference_apa(entry);
         assert_eq!(citation, formatted_citation);
         Ok(())
@@ -819,8 +820,8 @@ mod test {
     fn phdthesis_formatted_citation() -> Result<()> {
         let key = "phdthesis";
         let formatted_citation= "Rempel, R. C. (1956, June). Relaxation effects for coupled nuclear spins [Doctoral dissertation, Stanford University].";
-        let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
-        let entry = entries.into_iter().find(|e| e.key == key).unwrap();
+        let entries = Bibliography::from_file(PathBuf::from("cite.bib"))?;
+        let entry = entries.get_entry(key.to_string()).unwrap();
         let citation = fmt_reference_apa(entry);
         assert_eq!(citation, formatted_citation);
         Ok(())
@@ -829,8 +830,8 @@ mod test {
     fn proceedings_formatted_citation() -> Result<()> {
         let key = "proceedings";
         let formatted_citation= "Stepney, S., & Verlan, S. (Eds.). (2018). Proceedings of the 17th international conference on computation and natural computation, fontainebleau, france (Vol. 10867). Springer.";
-        let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
-        let entry = entries.into_iter().find(|e| e.key == key).unwrap();
+        let entries = Bibliography::from_file(PathBuf::from("cite.bib"))?;
+        let entry = entries.get_entry(key.to_string()).unwrap();
         let citation = fmt_reference_apa(entry);
         assert_eq!(citation, formatted_citation);
         Ok(())
@@ -839,8 +840,8 @@ mod test {
     fn techreport_formatted_citation() -> Result<()> {
         let key = "techreport";
         let formatted_citation= "Bennett, V., Bowman, K., & Wright, S. (2018, September). Wasatch Solar Project final report (tech. rep. No. DOE-SLC-6903-1). Salt Lake City Corporation. Salt Lake City, UT.";
-        let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
-        let entry = entries.into_iter().find(|e| e.key == key).unwrap();
+        let entries = Bibliography::from_file(PathBuf::from("cite.bib"))?;
+        let entry = entries.get_entry(key.to_string()).unwrap();
         let citation = fmt_reference_apa(entry);
         assert_eq!(citation, formatted_citation);
         Ok(())
@@ -849,8 +850,8 @@ mod test {
     fn unpublished_formatted_citation() -> Result<()> {
         let key = "unpublished";
         let formatted_citation = "Suresh, M. (2006). Evolution: A revised theory.";
-        let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
-        let entry = entries.into_iter().find(|e| e.key == key).unwrap();
+        let entries = Bibliography::from_file(PathBuf::from("cite.bib"))?;
+        let entry = entries.get_entry(key.to_string()).unwrap();
         let citation = fmt_reference_apa(entry);
         assert_eq!(citation, formatted_citation);
         Ok(())

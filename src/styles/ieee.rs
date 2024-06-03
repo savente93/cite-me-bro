@@ -474,16 +474,17 @@ fn fmt_title_ieee(title: String) -> String {
 mod test {
     use std::path::PathBuf;
 
+    use crate::parsing::bibligraphy::Bibliography;
+
     use super::*;
-    use crate::parsing::entry::parse_bib_file;
     use anyhow::Result;
 
     #[test]
     fn random_forests_formatted_citation() -> Result<()> {
         let key = "breiman2001";
         let formatted_citation = "L. Breiman, \"Random forests,\" Machine learning, vol. 45, no. 1, pp. 5-32, 2001. doi: https://doi.org/10.1023/a:1010933404324.";
-        let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
-        let entry = entries.into_iter().find(|e| e.key == key).unwrap();
+        let entries = Bibliography::from_file(PathBuf::from("cite.bib"))?;
+        let entry = entries.get_entry(key.to_string()).unwrap();
         let citation = fmt_reference_ieee(entry);
         assert_eq!(citation, formatted_citation);
         Ok(())
@@ -492,8 +493,8 @@ mod test {
     fn bacterial_formatted_citation() -> Result<()> {
         let key = "10.1093/femsec/fiw174";
         let formatted_citation= "J. Liao, X. Cao, L. Zhao, et al., \"The importance of neutral and niche processes for bacterial community assembly differs between habitat generalists and specialists,\" FEMS Microbiology Ecology, vol. 92, no. 11, Aug. 2016, issn: 0168-6496. doi: https://doi.org/10.1093/femsec/fiw174. [Online]. Available: https://doi.org/10.1093/femsec/fiw174.";
-        let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
-        let entry = entries.into_iter().find(|e| e.key == key).unwrap();
+        let entries = Bibliography::from_file(PathBuf::from("cite.bib"))?;
+        let entry = entries.get_entry(key.to_string()).unwrap();
         let citation = fmt_reference_ieee(entry);
         assert_eq!(citation, formatted_citation);
         Ok(())
@@ -502,8 +503,8 @@ mod test {
     fn article_formatted_citation() -> Result<()> {
         let key = "article";
         let formatted_citation= "P. J. Cohen, \"The independence of the continuum hypothesis,\" Proceedings of the National Academy of Sciences, vol. 50, no. 6, pp. 1143-1148, 1963.";
-        let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
-        let entry = entries.into_iter().find(|e| e.key == key).unwrap();
+        let entries = Bibliography::from_file(PathBuf::from("cite.bib"))?;
+        let entry = entries.get_entry(key.to_string()).unwrap();
         let citation = fmt_reference_ieee(entry);
         assert_eq!(citation, formatted_citation);
         Ok(())
@@ -512,8 +513,8 @@ mod test {
     fn book_formatted_citation() -> Result<()> {
         let key = "book";
         let formatted_citation= "L. Susskind and G. Hrabovsky, Classical mechanics: the theoretical minimum. New York, NY: Penguin Random House, 2014.";
-        let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
-        let entry = entries.into_iter().find(|e| e.key == key).unwrap();
+        let entries = Bibliography::from_file(PathBuf::from("cite.bib"))?;
+        let entry = entries.get_entry(key.to_string()).unwrap();
         let citation = fmt_reference_ieee(entry);
         assert_eq!(citation, formatted_citation);
         Ok(())
@@ -522,8 +523,8 @@ mod test {
     fn booklet_formatted_citation() -> Result<()> {
         let key = "booklet";
         let formatted_citation= "M. Swetla, Canoe tours in Sweden, Distributed at the Stockholm Tourist Office, Jul. 2015.";
-        let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
-        let entry = entries.into_iter().find(|e| e.key == key).unwrap();
+        let entries = Bibliography::from_file(PathBuf::from("cite.bib"))?;
+        let entry = entries.get_entry(key.to_string()).unwrap();
         let citation = fmt_reference_ieee(entry);
         assert_eq!(citation, formatted_citation);
         Ok(())
@@ -532,8 +533,8 @@ mod test {
     fn inbook_formatted_citation() -> Result<()> {
         let key = "inbook";
         let formatted_citation= "L. A. Urry, M. L. Cain, S. A. Wasserman, P. V. Minorsky, and J. B. Reece, \"Photosynthesis,\" in Campbell biology. New York, NY: Pearson, 2016, pp. 187-221.";
-        let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
-        let entry = entries.into_iter().find(|e| e.key == key).unwrap();
+        let entries = Bibliography::from_file(PathBuf::from("cite.bib"))?;
+        let entry = entries.get_entry(key.to_string()).unwrap();
         let citation = fmt_reference_ieee(entry);
         assert_eq!(citation, formatted_citation);
         Ok(())
@@ -542,8 +543,8 @@ mod test {
     fn incollection_formatted_citation() -> Result<()> {
         let key = "incollection";
         let formatted_citation= "H. M. Shapiro, \"Flow cytometry: The glass is half full,\" in Flow cytometry protocols, T. S. Hawley and R. G. Hawley, Eds., New York, NY: Springer, 2018, pp. 1-10.";
-        let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
-        let entry = entries.into_iter().find(|e| e.key == key).unwrap();
+        let entries = Bibliography::from_file(PathBuf::from("cite.bib"))?;
+        let entry = entries.get_entry(key.to_string()).unwrap();
         let citation = fmt_reference_ieee(entry);
         assert_eq!(citation, formatted_citation);
         Ok(())
@@ -552,8 +553,8 @@ mod test {
     fn inprocedings_formatted_citation() -> Result<()> {
         let key = "inproceedings";
         let formatted_citation= "P. Holleis, M. Wagner, and J. Koolwaaij, \"Studying mobile context-aware social services in the wild,\" in Proc. of the 6th Nordic Conf. on Human-Computer Interaction, ser. NordiCHI, New York, NY: ACM, 2010, pp. 207-216.";
-        let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
-        let entry = entries.into_iter().find(|e| e.key == key).unwrap();
+        let entries = Bibliography::from_file(PathBuf::from("cite.bib"))?;
+        let entry = entries.get_entry(key.to_string()).unwrap();
         let citation = fmt_reference_ieee(entry);
         assert_eq!(citation, formatted_citation);
         Ok(())
@@ -562,8 +563,8 @@ mod test {
     fn manual_formatted_citation() -> Result<()> {
         let key = "manual";
         let formatted_citation= "R Core Team, R: A language and environment for statistical computing, R Foundation for Statistical Computing, Vienna, Austria, 2018.";
-        let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
-        let entry = entries.into_iter().find(|e| e.key == key).unwrap();
+        let entries = Bibliography::from_file(PathBuf::from("cite.bib"))?;
+        let entry = entries.get_entry(key.to_string()).unwrap();
         let citation = fmt_reference_ieee(entry);
         assert_eq!(citation, formatted_citation);
         Ok(())
@@ -572,8 +573,8 @@ mod test {
     fn mastersthesis_formatted_citation() -> Result<()> {
         let key = "mastersthesis";
         let formatted_citation= "J. Tang, \"Spin structure of the nucleon in the asymptotic limit,\" M.S. thesis, Massachusetts Institute of Technology, Cambridge, MA, Sep. 1996.";
-        let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
-        let entry = entries.into_iter().find(|e| e.key == key).unwrap();
+        let entries = Bibliography::from_file(PathBuf::from("cite.bib"))?;
+        let entry = entries.get_entry(key.to_string()).unwrap();
         let citation = fmt_reference_ieee(entry);
         assert_eq!(citation, formatted_citation);
         Ok(())
@@ -582,8 +583,8 @@ mod test {
     fn misc_formatted_citation() -> Result<()> {
         let key = "misc";
         let formatted_citation= "NASA, Pluto: The 'other' red planet, https://www.nasa.gov/nh/pluto-the-other-red-planet, Accessed: 2018-12-06, 2015.";
-        let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
-        let entry = entries.into_iter().find(|e| e.key == key).unwrap();
+        let entries = Bibliography::from_file(PathBuf::from("cite.bib"))?;
+        let entry = entries.get_entry(key.to_string()).unwrap();
         let citation = fmt_reference_ieee(entry);
         assert_eq!(citation, formatted_citation);
         Ok(())
@@ -592,8 +593,8 @@ mod test {
     fn phdthesis_formatted_citation() -> Result<()> {
         let key = "phdthesis";
         let formatted_citation= "R. C. Rempel, \"Relaxation effects for coupled nuclear spins,\" Ph.D. dissertation, Stanford University, Stanford, CA, Jun. 1956.";
-        let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
-        let entry = entries.into_iter().find(|e| e.key == key).unwrap();
+        let entries = Bibliography::from_file(PathBuf::from("cite.bib"))?;
+        let entry = entries.get_entry(key.to_string()).unwrap();
         let citation = fmt_reference_ieee(entry);
         assert_eq!(citation, formatted_citation);
         Ok(())
@@ -602,8 +603,8 @@ mod test {
     fn proceedings_formatted_citation() -> Result<()> {
         let key = "proceedings";
         let formatted_citation= "S. Stepney and S. Verlan, Eds., Proceedings of the 17th international conference on computation and natural computation, fontainebleau, france, vol. 10867, Lecture Notes in Computer Science, Cham, Switzerland: Springer, 2018";
-        let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
-        let entry = entries.into_iter().find(|e| e.key == key).unwrap();
+        let entries = Bibliography::from_file(PathBuf::from("cite.bib"))?;
+        let entry = entries.get_entry(key.to_string()).unwrap();
         let citation = fmt_reference_ieee(entry);
         assert_eq!(citation, formatted_citation);
         Ok(())
@@ -612,8 +613,8 @@ mod test {
     fn techreport_formatted_citation() -> Result<()> {
         let key = "techreport";
         let formatted_citation= "V. Bennett, K. Bowman, and S. Wright, \"Wasatch Solar Project final report,\" Salt Lake City Corporation, Salt Lake City, UT, Tech. Rep. DOE-SLC-6903-1, Sep. 2018.";
-        let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
-        let entry = entries.into_iter().find(|e| e.key == key).unwrap();
+        let entries = Bibliography::from_file(PathBuf::from("cite.bib"))?;
+        let entry = entries.get_entry(key.to_string()).unwrap();
         let citation = fmt_reference_ieee(entry);
         assert_eq!(citation, formatted_citation);
         Ok(())
@@ -622,8 +623,8 @@ mod test {
     fn unpublished_formatted_citation() -> Result<()> {
         let key = "unpublished";
         let formatted_citation = "M. Suresh, \"Evolution: A revised theory,\" unpublished.";
-        let entries = parse_bib_file(PathBuf::from("cite.bib"))?;
-        let entry = entries.into_iter().find(|e| e.key == key).unwrap();
+        let entries = Bibliography::from_file(PathBuf::from("cite.bib"))?;
+        let entry = entries.get_entry(key.to_string()).unwrap();
         let citation = fmt_reference_ieee(entry);
         assert_eq!(citation, formatted_citation);
         Ok(())

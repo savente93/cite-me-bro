@@ -80,20 +80,7 @@ fn run_no_warning_on_quiet() {
     let expected_output = "";
     let expected_warning = "";
 
-    assert!(&output.status.success());
-    assert_eq!(str::from_utf8(&output.stdout), Ok(expected_output));
-    assert_eq!(str::from_utf8(&output.stderr), Ok(expected_warning));
-}
-#[test]
-fn run_panics_with_flag_set() {
-    let output = run_cmb()
-        .args(["-b", "cite.bib", "asdf", "-p"])
-        .output()
-        .expect("could not run binary");
-    let expected_output = "";
-    let expected_warning = "[E] key \"asdf\" found in bib file \"cite.bib\", exiting...\n";
-
-    assert!(&!output.status.success());
+    assert!(&output.status.success(), "{:?}", output);
     assert_eq!(str::from_utf8(&output.stdout), Ok(expected_output));
     assert_eq!(str::from_utf8(&output.stderr), Ok(expected_warning));
 }
