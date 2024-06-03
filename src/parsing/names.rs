@@ -553,6 +553,27 @@ mod test {
 
         Ok(())
     }
+    #[test]
+    fn test_owned_debug_fmt() -> Result<()> {
+        let name = OwnedFullName {
+            first: vec![
+                "Charles".to_string(),
+                "Louis".to_string(),
+                "Xavier".to_string(),
+                "Joseph".to_string(),
+            ],
+            title: vec!["III".to_string()],
+            von: vec!["de".to_string(), "la".to_string()],
+            last: vec!["Vallee".to_string(), "Poussin".to_string()],
+        };
+
+        assert_eq!(
+            format!("{:?}", name),
+            "First(Charles Louis Xavier Joseph) Von(de la) Last(Vallee Poussin) Title(III)"
+        );
+
+        Ok(())
+    }
 
     // this one is more about being able to parse different naming conventions
     // rather than any particular format

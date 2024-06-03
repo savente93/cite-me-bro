@@ -281,6 +281,8 @@ pub fn entry(input: &str) -> IResult<&str, EntrySubComponents> {
 #[cfg(test)]
 mod test {
 
+    use crate::dict;
+
     use super::*;
     use anyhow::Result;
 
@@ -293,6 +295,39 @@ mod test {
         Ok(())
     }
 
+    #[test]
+    fn entry_debug_fmt() -> Result<()> {
+        let test_entry = BibEntry {
+            kind: EntryType::Article,
+            key: "foo".to_string(),
+            authors: vec![
+                OwnedFullName {
+                    first: vec!["Ada".to_string(), "Maria".to_string()],
+                    last: vec!["Lovelace".to_string(), "Augusta".to_string()],
+                    von: vec![],
+                    title: vec![],
+                },
+                OwnedFullName {
+                    first: vec!["Amalie".to_string(), "Emmy".to_string()],
+                    last: vec!["Noether".to_string()],
+                    von: vec![],
+                    title: vec![],
+                },
+            ],
+            fields: {
+                dict!("title".to_string() => "The little mathematician that could.".to_string() , "volume".to_string()  => "one".to_string() , "year".to_string()  => "1984".to_string() )
+            },
+        };
+        assert_eq!(format!("{:?}", test_entry), "foo(Article)\n  - Authors:\n    - First(Ada Maria) Von() Last(Lovelace Augusta) Title()\n    - First(Amalie Emmy) Von() Last(Noether) Title()\n  - title = The little mathematician that could.\n  - volume = one\n  - year = 1984\n".to_string());
+        Ok(())
+    }
+
+    #[test]
+    fn error_on_unknown_entry_type() -> Result<()> {
+        let res = EntryType::try_from("asdflkj;as");
+        assert!(res.is_err());
+        Ok(())
+    }
     #[test]
     fn parse_entry_types() -> Result<()> {
         for (test, expected) in vec![
