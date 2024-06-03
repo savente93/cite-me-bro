@@ -52,7 +52,6 @@ lazy_static! {
         m.insert("iz");
         m
     };
-    static ref COUNT: usize = VON.len();
     static ref TITLE: BTreeSet<&'static str> = {
         let mut m = BTreeSet::new();
         m.insert("sir");
@@ -538,6 +537,22 @@ mod test {
             last: vec!["Vallee", "Poussin"]
         }
     );
+    #[test]
+    fn test_debug_fmt() -> Result<()> {
+        let name = FullName {
+            first: vec!["Charles", "Louis", "Xavier", "Joseph"],
+            title: vec!["III"],
+            von: vec!["de", "la"],
+            last: vec!["Vallee", "Poussin"],
+        };
+
+        assert_eq!(
+            format!("{:?}", name),
+            "First(Charles Louis Xavier Joseph) Von(de la) Last(Vallee Poussin) Title(III)"
+        );
+
+        Ok(())
+    }
 
     // this one is more about being able to parse different naming conventions
     // rather than any particular format
