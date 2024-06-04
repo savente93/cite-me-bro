@@ -11,6 +11,20 @@ fn run_cmb() -> Command {
     command
 }
 #[test]
+fn no_known_keys_errors() -> Result<()> {
+    let output = run_cmb()
+        .args(["-b", "cite.bib", "asdf"])
+        .output()
+        .expect("could not run binary");
+    let expected_output = "";
+    let expected_warning = "Error: none of the keys [\"asdf\"] found in bib file(s) \"cite.bib\"\n";
+
+    assert!(!&output.status.success(), "{:?}", output);
+    assert_eq!(str::from_utf8(&output.stdout), Ok(expected_output));
+    assert_eq!(str::from_utf8(&output.stderr), Ok(expected_warning));
+    Ok(())
+}
+#[test]
 fn inplace_file() -> Result<()> {
     let initial_contets =
         "there once was a citation: \\cite{book}. adsflkjwoiejflkdslslsldlkfki nrgiwf";
@@ -65,6 +79,20 @@ fn run_unknown_key_and_book_ieee() {
         .expect("could not run binary");
     let expected_output = "L. Susskind and G. Hrabovsky, Classical mechanics: the theoretical minimum. New York, NY: Penguin Random House, 2014.\n";
     let expected_warning = "[W] No entry for key asdf was found, skipping...\n";
+
+    dbg!(&output);
+    assert!(&output.status.success());
+    assert_eq!(str::from_utf8(&output.stdout), Ok(expected_output));
+    assert_eq!(str::from_utf8(&output.stderr), Ok(expected_warning));
+}
+#[test]
+fn run_book_apa() {
+    let output = run_cmb()
+        .args(["-b", "cite.bib", "--style", "apa", "book"])
+        .output()
+        .expect("could not run binary");
+    let expected_output = "Susskind, L., & Hrabovsky, G. (2014). Classical mechanics: the theoretical minimum. Penguin Random House.\n";
+    let expected_warning = "";
 
     dbg!(&output);
     assert!(&output.status.success());
