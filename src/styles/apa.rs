@@ -214,14 +214,23 @@ fn fmt_inbook_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>)
 
 fn fmt_conference_apa(authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
     let mut out = String::new();
+    let publisher = fields.get("publisher").unwrap();
+    let year = fields.get("year").unwrap();
+    let booktitle = fields.get("booktitle").unwrap();
+    let pages = fields.get("pages").unwrap();
     let title = fields.get("title").unwrap();
-    let year = fields.get("year");
-    let month = fields.get("month");
+    let editors_str = fields.get("editor").unwrap();
+    let (_tail, edrs) = and_seperated_names(editors_str).unwrap();
+    let editor_names: Vec<OwnedFullName> = edrs.into_iter().map(|n| n.into()).collect();
     out.push_str(&fmt_authors_apa(authors));
     out.push(' ');
-    out.push_str(&fmt_year_month_apa(year, month, true));
-    out.push_str(title);
-    out.push_str(". ");
+    out.push_str(&format!("({}). ", &year));
+    out.push_str(&format!("{} ", &title));
+    out.push_str(&format!("[Review of {}]. ", &title));
+    out.push_str(&format!("In {} (Ed.), ", &fmt_editors_apa(editor_names)));
+    out.push_str(&(&booktitle).to_string());
+    out.push_str(&format!(" (pp. {}).", &pages));
+    out.push_str(&format!(" {}.", &publisher));
 
     out
 }
@@ -850,6 +859,16 @@ mod test {
     fn unpublished_formatted_citation() -> Result<()> {
         let key = "unpublished";
         let formatted_citation = "Suresh, M. (2006). Evolution: A revised theory.";
+        let entries = Bibliography::from_file(PathBuf::from("cite.bib"))?;
+        let entry = entries.get_entry(key.to_string()).unwrap();
+        let citation = fmt_reference_apa(entry);
+        assert_eq!(citation, formatted_citation);
+        Ok(())
+    }
+    #[test]
+    fn conference_formatted_citation() -> Result<()> {
+        let key = "conference";
+        let formatted_citation= "Smith, J., & Doe, J. (2022). The Effects of Climate Change [Review of The Effects of Climate Change]. In B. Johnson (Ed.), Proceedings of the Annual Conference on Climate Change (pp. 55-62). Springer.";
         let entries = Bibliography::from_file(PathBuf::from("cite.bib"))?;
         let entry = entries.get_entry(key.to_string()).unwrap();
         let citation = fmt_reference_apa(entry);

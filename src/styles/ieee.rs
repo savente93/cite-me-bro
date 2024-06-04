@@ -73,24 +73,30 @@ fn fmt_conference_ieee(authors: Vec<OwnedFullName>, fields: BTreeMap<String, Str
     let mut out = String::new();
     let title = fields.get("title").unwrap_or(&String::new()).clone();
     let book_title = fields.get("booktitle").unwrap_or(&String::new()).clone();
-    let series = fields.get("series").unwrap_or(&String::new()).clone();
     let publisher = fields.get("publisher").unwrap_or(&String::new()).clone();
     let address = fields.get("address").unwrap_or(&String::new()).clone();
+    let organization = fields.get("organization").unwrap_or(&String::new()).clone();
     let pages = fields.get("pages").unwrap_or(&String::new()).clone();
-    let year = fields.get("year").unwrap_or(&String::new()).clone();
+    let year = fields.get("year");
+    let month = fields.get("month");
+    let editors_str = fields.get("editor").unwrap_or(&String::new()).clone();
+    let (_tail, edrs) = and_seperated_names(&editors_str).unwrap();
+    let editor_names: Vec<OwnedFullName> = edrs.into_iter().map(|n| n.into()).collect();
     out.push_str(&fmt_authors_ieee(authors.clone()));
     out.push_str(", ");
     out.push_str(&fmt_title_ieee(title));
     out.push_str(" in ");
     out.push_str(&book_title);
-    out.push_str(", ser. ");
-    out.push_str(&series);
+    out.push_str(", ");
+    out.push_str(&fmt_authors_ieee(editor_names.clone()));
+    out.push_str(", Ed., ");
+    out.push_str(&organization);
     out.push_str(", ");
     out.push_str(&address);
     out.push_str(": ");
     out.push_str(&publisher);
-    out.push_str(", ");
-    out.push_str(&year);
+    out.push(',');
+    out.push_str(&fmt_year_month(year, month));
     out.push_str(", pp. ");
     out.push_str(&pages);
     out.push('.');
@@ -613,6 +619,16 @@ mod test {
     fn techreport_formatted_citation() -> Result<()> {
         let key = "techreport";
         let formatted_citation= "V. Bennett, K. Bowman, and S. Wright, \"Wasatch Solar Project final report,\" Salt Lake City Corporation, Salt Lake City, UT, Tech. Rep. DOE-SLC-6903-1, Sep. 2018.";
+        let entries = Bibliography::from_file(PathBuf::from("cite.bib"))?;
+        let entry = entries.get_entry(key.to_string()).unwrap();
+        let citation = fmt_reference_ieee(entry);
+        assert_eq!(citation, formatted_citation);
+        Ok(())
+    }
+    #[test]
+    fn conference_formatted_citation() -> Result<()> {
+        let key = "conference";
+        let formatted_citation= "J. Smith and J. Doe, \"The Effects of Climate Change,\" in Proceedings of the Annual Conference on Climate Change, B. Johnson, Ed., Climate Change Association, Los Angeles, CA: Springer, Jun. 2022, pp. 55-62.";
         let entries = Bibliography::from_file(PathBuf::from("cite.bib"))?;
         let entry = entries.get_entry(key.to_string()).unwrap();
         let citation = fmt_reference_ieee(entry);
