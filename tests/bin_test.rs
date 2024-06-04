@@ -65,7 +65,8 @@ NASA, Pluto: The 'other' red planet, https://www.nasa.gov/nh/pluto-the-other-red
 R. C. Rempel, \"Relaxation effects for coupled nuclear spins,\" Ph.D. dissertation, Stanford University, Stanford, CA, Jun. 1956.
 S. Stepney and S. Verlan, Eds., Proceedings of the 17th international conference on computation and natural computation, fontainebleau, france, vol. 10867, Lecture Notes in Computer Science, Cham, Switzerland: Springer, 2018
 V. Bennett, K. Bowman, and S. Wright, \"Wasatch Solar Project final report,\" Salt Lake City Corporation, Salt Lake City, UT, Tech. Rep. DOE-SLC-6903-1, Sep. 2018.
-M. Suresh, \"Evolution: A revised theory,\" unpublished.\n";
+M. Suresh, \"Evolution: A revised theory,\" unpublished.
+J. Smith and J. Doe, \"The Effects of Climate Change,\" in Proceedings of the Annual Conference on Climate Change, B. Johnson, Ed., Climate Change Association, Los Angeles, CA: Springer, Jun. 2022, pp. 55-62.\n";
 
     dbg!(&output);
     assert_eq!(str::from_utf8(&output.stdout), Ok(expected));
