@@ -2,7 +2,6 @@
 use anyhow::{anyhow, Result};
 use cite_me_bro::{ops::bibligraphy::Bibliography, styles::ReferenceStyle, VERSION};
 use clap::Parser;
-use log::warn;
 use std::path::PathBuf;
 
 #[derive(Parser)]
@@ -35,7 +34,6 @@ struct Args {
 }
 
 fn main() -> Result<()> {
-    colog::init();
     let args = Args::parse();
 
     let mut bibliography = Bibliography::default();
@@ -74,7 +72,7 @@ fn main() -> Result<()> {
             if !args.quiet {
                 unknown_keys
                     .into_iter()
-                    .for_each(|k| warn!("No entry for key {} was found, skipping...", k));
+                    .for_each(|k| eprintln!("No entry for key {} was found, skipping...", k));
             }
 
             Ok(())

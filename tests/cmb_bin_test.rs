@@ -5,7 +5,7 @@ use std::io::Write;
 use std::process::Command;
 use std::str;
 
-fn run_bin() -> Command {
+fn run_cmb() -> Command {
     let mut command = Command::new("cargo");
     command
         .arg("run")
@@ -17,7 +17,7 @@ fn run_bin() -> Command {
 }
 #[test]
 fn no_known_keys_errors() -> Result<()> {
-    let output = run_bin()
+    let output = run_cmb()
         .args(["-b", "cite.bib", "asdf"])
         .output()
         .expect("could not run binary");
@@ -41,7 +41,7 @@ fn inplace_file() -> Result<()> {
         write_file.write_all(initial_contets.as_bytes())?;
         path
     };
-    run_bin()
+    run_cmb()
         .args(["-b", "cite.bib", "-i", path.to_str().unwrap()])
         .output()
         .expect("could not run binary");
@@ -52,7 +52,7 @@ fn inplace_file() -> Result<()> {
 }
 #[test]
 fn run_full_file_ieee() {
-    let output = run_bin()
+    let output = run_cmb()
         .args(["-b", "cite.bib", "--style", "ieee"])
         .output()
         .expect("could not run binary");
@@ -79,7 +79,7 @@ J. Smith and J. Doe, \"The Effects of Climate Change,\" in Proceedings of the An
 
 #[test]
 fn run_unknown_key_and_book_ieee() {
-    let output = run_bin()
+    let output = run_cmb()
         .args(["-b", "cite.bib", "--style", "ieee", "asdf", "book"])
         .output()
         .expect("could not run binary");
@@ -93,7 +93,7 @@ fn run_unknown_key_and_book_ieee() {
 }
 #[test]
 fn run_book_apa() {
-    let output = run_bin()
+    let output = run_cmb()
         .args(["-b", "cite.bib", "--style", "apa", "book"])
         .output()
         .expect("could not run binary");
@@ -107,7 +107,7 @@ fn run_book_apa() {
 }
 #[test]
 fn run_no_warning_on_quiet() {
-    let output = run_bin()
+    let output = run_cmb()
         .args(["-b", "cite.bib", "asdf", "-q"])
         .output()
         .expect("could not run binary");
