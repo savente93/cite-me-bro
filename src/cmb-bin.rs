@@ -1,10 +1,9 @@
-use crate::parsing::bibligraphy::Bibliography;
+#![allow(dead_code)]
 use anyhow::{anyhow, Result};
+use citemebro::{Bibliography, ReferenceStyle, VERSION};
 use clap::Parser;
-use colored::Colorize;
 use log::warn;
 use std::path::PathBuf;
-use styles::ReferenceStyle;
 
 mod parsing;
 pub mod styles;
@@ -12,8 +11,8 @@ pub mod utils;
 
 #[derive(Parser)]
 #[command(
-    name = "file_reader",
-    version = "1.0",
+    name = "cite-me-bro",
+    version = VERSION,
     about = "formats bibtex entries to stdout"
 )]
 struct Args {
@@ -43,7 +42,7 @@ fn main() -> Result<()> {
     colog::init();
     let args = Args::parse();
 
-    let mut bibliography = Bibliography::new();
+    let mut bibliography = Bibliography::default();
 
     for p in args.bib_files.clone() {
         let tmp_bib = Bibliography::from_file(p)?;
@@ -77,12 +76,9 @@ fn main() -> Result<()> {
         } else {
             formatted.into_iter().for_each(|f| println!("{}", f));
             if !args.quiet {
-                unknown_keys.into_iter().for_each(|k| {
-                    warn!(
-                        "No entry for key {} was found, skipping...",
-                        k.bold().yellow()
-                    )
-                });
+                unknown_keys
+                    .into_iter()
+                    .for_each(|k| warn!("No entry for key {} was found, skipping...", k));
             }
 
             Ok(())

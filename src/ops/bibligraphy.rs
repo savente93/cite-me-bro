@@ -9,8 +9,9 @@ use nom::{combinator::all_consuming, multi::many1};
 
 use crate::styles::ReferenceStyle;
 
-use super::entry::{all_citations, entry, BibEntry, EntrySubComponents};
+use crate::parsing::entry::{all_citations, entry, BibEntry, EntrySubComponents};
 
+#[derive(Default)]
 pub struct Bibliography {
     entries: Vec<BibEntry>,
 }
@@ -41,10 +42,6 @@ impl Bibliography {
             .map(|b| style.fmt_reference(self.get_entry(b).unwrap()))
             .collect();
         (formatted, unknown_keys)
-    }
-
-    pub fn new() -> Self {
-        Self { entries: vec![] }
     }
 
     pub fn expand_file_citations_inplace(self, path: PathBuf, style: ReferenceStyle) -> Result<()> {
