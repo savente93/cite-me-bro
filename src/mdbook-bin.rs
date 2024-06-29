@@ -1,4 +1,3 @@
-#![allow(dead_code)]
 use cite_me_bro::ops::preprocessor::CitationPreprocessor;
 use clap::{Arg, ArgMatches, Command};
 use mdbook::errors::Error;
@@ -33,8 +32,9 @@ fn main() {
 fn handle_preprocessing(pre: CitationPreprocessor) -> Result<(), Error> {
     let (ctx, book) = CmdPreprocessor::parse_input(io::stdin())?;
 
-    let book_version = Version::parse(&ctx.mdbook_version)?;
-    let version_req = VersionReq::parse(mdbook::MDBOOK_VERSION)?;
+    let book_version = Version::parse(&ctx.mdbook_version).expect("Could not parse mdbook version");
+    let version_req =
+        VersionReq::parse(mdbook::MDBOOK_VERSION).expect("could not parse expected version");
 
     if !version_req.matches(&book_version) {
         eprintln!(

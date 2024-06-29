@@ -32,4 +32,4 @@ path = "src/cmb-bin.rs"
 [[bin]]
 name = "mdbook-citations"
 path = "src/mdbook-bin.rs"
-required-features = ["book"]
+required-features = ["mdbook"]
