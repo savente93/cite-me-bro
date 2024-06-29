@@ -12,17 +12,27 @@ categories = ["command-line-utilities", "parsing", "value-formatting"]
 [dependencies]
 anyhow = "1.0.86"
 chrono = "0.4.38"
-clap = { version = "4.5.4", features = ["derive", "unicode"] }
-colog = "1.3.0"
-colored = "2.1.0"
+clap = { version = "4.5.4", features = ["derive", "unicode", "cargo"] }
 html-escape = "0.2.13"
 lazy_static = "1.4.0"
-log = "0.4.21"
+# mdbook = { version = "0.4.40", optional = true, default-features = false }
+mdbook = { version = "0.4.40" }
 nom = { version = "7.1.3", features = ["alloc"] }
 parse-hyperlinks = "0.27.2"
+semver = { version = "1.0.23" }
 serde = { version = "1.0.202", features = ["derive"] }
+serde_json = { version = "1.0.118" }
 unicode-segmentation = "1.11.0"
+
+[lib]
+name = "cite_me_bro"
+path = "src/lib.rs"
+
 
 [[bin]]
 name = "cmb"
 path = "src/bin/cmb.rs"
+
+[[bin]]
+name = "mdbook-citations"
+path = "src/mdbook-bin.rs"

@@ -519,7 +519,7 @@ fn fmt_single_editor(name: OwnedFullName) -> String {
 mod test {
     use std::path::PathBuf;
 
-    use crate::{formaters::plain::PlainTextFormatter, parsing::bibligraphy::Bibliography};
+    use crate::{formaters::plain::PlainTextFormatter, ops::bibligraphy::Bibliography};
 
     use super::*;
     use anyhow::Result;

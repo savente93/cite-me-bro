@@ -7,7 +7,12 @@ use std::str;
 
 fn run_cmb() -> Command {
     let mut command = Command::new("cargo");
-    command.arg("run").arg("-q").arg("--");
+    command
+        .arg("run")
+        .arg("-q")
+        .arg("--bin")
+        .arg("cmb")
+        .arg("--");
     command
 }
 #[test]
@@ -79,7 +84,7 @@ fn run_unknown_key_and_book_ieee() {
         .output()
         .expect("could not run binary");
     let expected_output = "L. Susskind and G. Hrabovsky, Classical mechanics: the theoretical minimum. New York, NY: Penguin Random House, 2014.\n";
-    let expected_warning = "[W] No entry for key asdf was found, skipping...\n";
+    let expected_warning = "No entry for key asdf was found, skipping...\n";
 
     dbg!(&output);
     assert!(&output.status.success());
