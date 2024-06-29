@@ -490,7 +490,7 @@ mod test {
 
     use crate::{
         formaters::{html::HtmlFormatter, plain::PlainTextFormatter},
-        parsing::bibligraphy::Bibliography,
+        ops::bibligraphy::Bibliography,
     };
 
     use super::*;

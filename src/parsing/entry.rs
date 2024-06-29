@@ -281,8 +281,6 @@ pub fn entry(input: &str) -> IResult<&str, EntrySubComponents> {
 #[cfg(test)]
 mod test {
 
-    use crate::dict;
-
     use super::*;
     use anyhow::Result;
 
@@ -297,6 +295,13 @@ mod test {
 
     #[test]
     fn entry_debug_fmt() -> Result<()> {
+        let mut dict: BTreeMap<String, String> = BTreeMap::new();
+        dict.insert(
+            "title".to_string(),
+            "The little mathematician that could.".to_string(),
+        );
+        dict.insert("volume".to_string(), "one".to_string());
+        dict.insert("year".to_string(), "1984".to_string());
         let test_entry = BibEntry {
             kind: EntryType::Article,
             key: "foo".to_string(),
@@ -314,9 +319,7 @@ mod test {
                     title: vec![],
                 },
             ],
-            fields: {
-                dict!("title".to_string() => "The little mathematician that could.".to_string() , "volume".to_string()  => "one".to_string() , "year".to_string()  => "1984".to_string() )
-            },
+            fields: dict,
         };
         assert_eq!(format!("{:?}", test_entry), "foo(Article)\n  - Authors:\n    - First(Ada Maria) Von() Last(Lovelace Augusta) Title()\n    - First(Amalie Emmy) Von() Last(Noether) Title()\n  - title = The little mathematician that could.\n  - volume = one\n  - year = 1984\n".to_string());
         Ok(())
