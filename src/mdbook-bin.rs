@@ -1,5 +1,5 @@
 #![allow(dead_code)]
-use citemebro::ops::preprocessor::CitationPreprocessor;
+use cite_me_bro::ops::preprocessor::CitationPreprocessor;
 use clap::{Arg, ArgMatches, Command};
 use mdbook::errors::Error;
 use mdbook::preprocess::{CmdPreprocessor, Preprocessor};
@@ -8,8 +8,8 @@ use std::io;
 use std::process;
 
 pub fn make_app() -> Command {
-    Command::new("nop-preprocessor")
-        .about("A mdbook preprocessor which does precisely nothing")
+    Command::new("mdbook-citations")
+        .about("A mdbook preprocessor to format citations")
         .subcommand(
             Command::new("supports")
                 .arg(Arg::new("renderer").required(true))
@@ -20,18 +20,17 @@ pub fn make_app() -> Command {
 fn main() {
     let matches = make_app().get_matches();
 
-    // Users will want to construct their own preprocessor here
     let preprocessor = CitationPreprocessor;
 
     if let Some(sub_args) = matches.subcommand_matches("supports") {
         handle_supports(&preprocessor, sub_args);
-    } else if let Err(e) = handle_preprocessing(&preprocessor) {
+    } else if let Err(e) = handle_preprocessing(preprocessor) {
         eprintln!("{}", e);
         process::exit(1);
     }
 }
 
-fn handle_preprocessing(pre: &dyn Preprocessor) -> Result<(), Error> {
+fn handle_preprocessing(pre: CitationPreprocessor) -> Result<(), Error> {
     let (ctx, book) = CmdPreprocessor::parse_input(io::stdin())?;
 
     let book_version = Version::parse(&ctx.mdbook_version)?;

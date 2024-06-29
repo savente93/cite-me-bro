@@ -1,13 +1,9 @@
 #![allow(dead_code)]
 use anyhow::{anyhow, Result};
-use citemebro::{Bibliography, ReferenceStyle, VERSION};
+use cite_me_bro::{ops::bibligraphy::Bibliography, styles::ReferenceStyle, VERSION};
 use clap::Parser;
 use log::warn;
 use std::path::PathBuf;
-
-mod parsing;
-pub mod styles;
-pub mod utils;
 
 #[derive(Parser)]
 #[command(

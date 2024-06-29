@@ -488,7 +488,7 @@ fn fmt_single_editor_apa(name: OwnedFullName) -> String {
 mod test {
     use std::path::PathBuf;
 
-    use crate::parsing::bibligraphy::Bibliography;
+    use crate::ops::bibligraphy::Bibliography;
 
     use super::*;
     use anyhow::Result;

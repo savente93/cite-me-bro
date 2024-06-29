@@ -7,7 +7,12 @@ use std::str;
 
 fn run_cmb() -> Command {
     let mut command = Command::new("cargo");
-    command.arg("run").arg("-q").arg("--");
+    command
+        .arg("run")
+        .arg("-q")
+        .arg("--bin")
+        .arg("cmb")
+        .arg("--");
     command
 }
 #[test]

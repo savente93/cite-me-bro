@@ -480,7 +480,7 @@ fn fmt_title_ieee(title: String) -> String {
 mod test {
     use std::path::PathBuf;
 
-    use crate::parsing::bibligraphy::Bibliography;
+    use crate::ops::bibligraphy::Bibliography;
 
     use super::*;
     use anyhow::Result;

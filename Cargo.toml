@@ -25,11 +25,6 @@ serde = { version = "1.0.202", features = ["derive"] }
 serde_json = "1.0.118"
 unicode-segmentation = "1.11.0"
 
-[lib]
-name = "citemebro"
-path = "src/lib.rs"
-
-
 [[bin]]
 name = "cmb"
 path = "src/cmb-bin.rs"
