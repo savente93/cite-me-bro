@@ -5,7 +5,7 @@ pub mod plain;
 // Some rudimentary benchmarking has shown that mutating inplace is the fastest
 // for benchmarks see https://github.com/savente93/str_manip_bench
 pub trait Formatter {
-    fn italics(input: &mut String);
-    fn bold(input: &mut String);
-    fn hyperlink(input: &mut String);
+    fn italics(&self, input: &mut String);
+    fn bold(&self, input: &mut String);
+    fn hyperlink(&self, input: &mut String);
 }

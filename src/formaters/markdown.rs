@@ -1,19 +1,20 @@
 use super::Formatter;
 
+#[derive(Default)]
 pub struct MarkdownFormatter;
 
 impl Formatter for MarkdownFormatter {
-    fn italics(input: &mut String) {
+    fn italics(&self, input: &mut String) {
         input.insert(0, '*');
         input.push('*');
     }
 
-    fn bold(input: &mut String) {
+    fn bold(&self, input: &mut String) {
         input.insert_str(0, "**");
         input.push_str("**");
     }
 
-    fn hyperlink(input: &mut String) {
+    fn hyperlink(&self, input: &mut String) {
         let dup = input.clone();
         input.insert(0, '[');
         input.push_str("](");
@@ -31,7 +32,7 @@ mod test {
     fn bold() {
         let mut s = String::from("asdf  hey! this is _some_ weird__ input::!");
 
-        MarkdownFormatter::bold(&mut s);
+        MarkdownFormatter.bold(&mut s);
         assert_eq!(
             s,
             String::from("**asdf  hey! this is _some_ weird__ input::!**")
@@ -42,7 +43,7 @@ mod test {
     fn italics() {
         let mut s = String::from("asdf  hey! this is _some_ weird__ input::!");
 
-        MarkdownFormatter::italics(&mut s);
+        MarkdownFormatter.italics(&mut s);
         assert_eq!(
             s,
             String::from("*asdf  hey! this is _some_ weird__ input::!*")
@@ -53,7 +54,7 @@ mod test {
     fn hyperlink() {
         let mut s = String::from("https://example.com");
 
-        MarkdownFormatter::hyperlink(&mut s);
+        MarkdownFormatter.hyperlink(&mut s);
         assert_eq!(
             s,
             String::from("[https://example.com](https://example.com)")
