@@ -468,7 +468,6 @@ mod test {
     use std::path::PathBuf;
 
     use crate::parsing::bibligraphy::Bibliography;
-    use crate::ReferenceStyle;
 
     use super::*;
     use anyhow::Result;

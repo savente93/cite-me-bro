@@ -6,6 +6,7 @@ use log::warn;
 use std::path::PathBuf;
 use styles::ReferenceStyle;
 
+pub mod formaters;
 mod parsing;
 pub mod styles;
 pub mod utils;
