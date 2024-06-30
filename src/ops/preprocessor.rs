@@ -12,15 +12,15 @@ impl Preprocessor for CitationPreprocessor {
     }
 
     fn run(&self, ctx: &PreprocessorContext, book: Book) -> Result<Book, Error> {
-        // In testing we want to tell the preprocessor to blow up by setting a
-        // particular config value
         if let Some(cite_cfg) = ctx.config.get_preprocessor(self.name()) {
-            if cite_cfg.contains_key("blow-up") {
-                anyhow::bail!("Boom!!1!");
+            if let Some(bib_file_val) = cite_cfg.get("bib-file") {
+                Ok(book)
+            } else {
+                Err(Error::msg("config entry did not contain 'bib-file' key"))
             }
+        } else {
+            Err(Error::msg("no config entry found"))
         }
-
-        Ok(book)
     }
 }
 
