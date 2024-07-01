@@ -21,6 +21,15 @@ impl Formatter for MarkdownFormatter {
         input.push_str(&dup);
         input.push(')');
     }
+
+    fn verbatim(&self, input: &mut String) {
+        input.insert(0, '`');
+        input.push('`');
+    }
+
+    fn escape(&self, _input: &mut String) {
+        todo!()
+    }
 }
 
 #[cfg(test)]

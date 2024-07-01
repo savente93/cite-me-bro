@@ -9,6 +9,10 @@ impl Formatter for PlainTextFormatter {
     fn bold(&self, _input: &mut String) {}
 
     fn hyperlink(&self, _input: &mut String) {}
+
+    fn verbatim(&self, _input: &mut String) {}
+
+    fn escape(&self, _input: &mut String) {}
 }
 
 #[cfg(test)]

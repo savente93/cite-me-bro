@@ -8,4 +8,6 @@ pub trait Formatter {
     fn italics(&self, input: &mut String);
     fn bold(&self, input: &mut String);
     fn hyperlink(&self, input: &mut String);
+    fn verbatim(&self, input: &mut String);
+    fn escape(&self, input: &mut String);
 }

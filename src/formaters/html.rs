@@ -21,6 +21,15 @@ impl Formatter for HtmlFormatter {
         input.push_str(&dup);
         input.push_str("</a>");
     }
+
+    fn verbatim(&self, input: &mut String) {
+        input.insert_str(0, "<pre>");
+        input.push_str("</pre>");
+    }
+
+    fn escape(&self, _input: &mut String) {
+        todo!()
+    }
 }
 
 #[cfg(test)]
