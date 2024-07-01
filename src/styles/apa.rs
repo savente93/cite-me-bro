@@ -42,7 +42,8 @@ impl<T: Formatter> Stylizer for ApaStylizer<T> {
         fields: BTreeMap<String, String>,
     ) -> String {
         let mut out = String::new();
-        let title = fields.get("title").unwrap();
+        let mut title = fields.get("title").unwrap().clone();
+        self.fmt.italics(&mut title);
         let year = fields.get("year");
         let month = fields.get("month");
         let number = fields.get("number").unwrap();
@@ -53,7 +54,7 @@ impl<T: Formatter> Stylizer for ApaStylizer<T> {
         out.push('(');
         out.push_str(&Self::fmt_year_month(self, year, month));
         out.push_str("). ");
-        out.push_str(title);
+        out.push_str(&title);
         out.push(' ');
         out.push_str(&format!("(tech. rep. No. {}). ", number));
         out.push_str(&format!("{}. ", institution));
@@ -64,7 +65,8 @@ impl<T: Formatter> Stylizer for ApaStylizer<T> {
 
     fn fmt_proceedings(&self, fields: BTreeMap<String, String>) -> String {
         let mut out = String::new();
-        let title = fields.get("title").unwrap();
+        let mut title = fields.get("title").unwrap().clone();
+        self.fmt.italics(&mut title);
         let year = fields.get("year");
         let month = fields.get("month");
         let editors_str = fields.get("editor").unwrap();
@@ -77,7 +79,7 @@ impl<T: Formatter> Stylizer for ApaStylizer<T> {
         out.push('(');
         out.push_str(&Self::fmt_year_month(self, year, month));
         out.push_str("). ");
-        out.push_str(title);
+        out.push_str(&title);
         out.push_str(&format!(" (Vol. {}). ", volume));
         out.push_str(publisher);
         out.push('.');
@@ -329,7 +331,9 @@ impl<T: Formatter> Stylizer for ApaStylizer<T> {
         let volume = fields.get("volume").unwrap_or(&String::new()).clone();
         let pages = fields.get("pages");
         let number = fields.get("number").unwrap_or(&String::new()).clone();
-        let journal = fields.get("journal").unwrap_or(&String::new()).clone();
+        let mut journal = fields.get("journal").unwrap_or(&String::new()).clone();
+        journal.push_str(&format!(", {}", volume));
+        self.fmt.italics(&mut journal);
         let year = fields.get("year").map(|s| s.to_string());
         let doi = fields.get("doi");
         let mut out = String::new();
@@ -340,8 +344,7 @@ impl<T: Formatter> Stylizer for ApaStylizer<T> {
         out.push_str(&fmt_title(title));
         out.push(' ');
         out.push_str(&fmt_journal(journal));
-        out.push(' ');
-        out.push_str(&fmt_vol_issue(volume, number));
+        out.push_str(&format!(" ({}),", number));
         out.push(' ');
         if let Some(p) = pages {
             out.push_str(&fmt_pages(p));
@@ -351,7 +354,10 @@ impl<T: Formatter> Stylizer for ApaStylizer<T> {
             if pages.is_some() {
                 out.push(' ');
             }
-            out.push_str(d);
+            let mut cl = d.clone();
+            self.fmt.hyperlink(&mut cl);
+
+            out.push_str(&cl);
         }
 
         out
@@ -406,10 +412,7 @@ fn fmt_pages(pages: &String) -> String {
     format!("{}.", pages)
 }
 fn fmt_journal(journal: String) -> String {
-    format!("{},", journal)
-}
-fn fmt_vol_issue(vol: String, number: String) -> String {
-    format!("{} ({}),", vol, number)
+    journal.to_string()
 }
 
 fn fmt_editors(mut authors: Vec<OwnedFullName>) -> String {
