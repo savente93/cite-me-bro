@@ -1,9 +1,5 @@
 use anyhow::Result;
-use std::env;
-use std::fs::{read_to_string, File};
-use std::io::Write;
 use std::process::Command;
-use std::str;
 
 fn run_bin() -> Command {
     let mut command = Command::new("cargo");
