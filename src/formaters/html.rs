@@ -27,8 +27,10 @@ impl Formatter for HtmlFormatter {
         input.push_str("</pre>");
     }
 
-    fn escape(&self, _input: &mut String) {
-        todo!()
+    fn escape(&self, input: &mut String) {
+        let text = input.clone();
+        input.clear();
+        html_escape::encode_text_to_string(text, input);
     }
 }
 
