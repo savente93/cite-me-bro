@@ -7,7 +7,7 @@ use std::{
 
 use nom::{combinator::all_consuming, multi::many1};
 
-use crate::styles::ReferenceStyle;
+use crate::{styles::ReferenceStyle, Format};
 
 use crate::parsing::entry::{all_citations, entry, BibEntry, EntrySubComponents};
 
@@ -21,10 +21,10 @@ impl Bibliography {
         self.entries.iter().find(|&e| e.key == key).cloned()
     }
 
-    pub fn fmt_entries(self, style: ReferenceStyle) -> Vec<String> {
+    pub fn fmt_entries(self, style: ReferenceStyle, format: Format) -> Vec<String> {
         self.entries
             .into_iter()
-            .map(|b| style.fmt_reference(b))
+            .map(|b| style.fmt_reference(b, format))
             .collect()
     }
     pub fn has_key(&self, key: &String) -> bool {
@@ -33,26 +33,37 @@ impl Bibliography {
     pub fn fmt_entries_filtered(
         self,
         style: ReferenceStyle,
+        format: Format,
         keys: Vec<String>,
     ) -> (Vec<String>, Vec<String>) {
         let (known_keys, unknown_keys): (Vec<String>, Vec<String>) =
             keys.into_iter().partition(|e| self.has_key(e));
         let formatted: Vec<String> = known_keys
             .into_iter()
-            .map(|b| style.fmt_reference(self.get_entry(b).unwrap()))
+            .map(|b| style.fmt_reference(self.get_entry(b).unwrap(), format))
             .collect();
         (formatted, unknown_keys)
     }
 
-    pub fn expand_file_citations_inplace(self, path: PathBuf, style: ReferenceStyle) -> Result<()> {
+    pub fn expand_file_citations_inplace(
+        self,
+        path: PathBuf,
+        style: ReferenceStyle,
+        format: Format,
+    ) -> Result<()> {
         let mut contents = read_to_string(&path)?;
-        contents = self.expand_citations_in_string(contents, style);
+        contents = self.expand_citations_in_string(contents, style, format);
         let mut file = File::create(&path)?;
         file.write_all(contents.as_bytes()).unwrap();
         Ok(())
     }
 
-    pub fn expand_citations_in_string(self, contents: String, style: ReferenceStyle) -> String {
+    pub fn expand_citations_in_string(
+        self,
+        contents: String,
+        style: ReferenceStyle,
+        format: Format,
+    ) -> String {
         let (tail, segments) = all_citations(&contents).unwrap();
         let mut acc =
             segments
@@ -60,7 +71,10 @@ impl Bibliography {
                 .fold(String::new(), |mut acc, (unmodified, citation_key)| {
                     acc.push_str(unmodified);
                     acc.push_str(
-                        &style.fmt_reference(self.get_entry(citation_key.to_string()).unwrap()),
+                        &style.fmt_reference(
+                            self.get_entry(citation_key.to_string()).unwrap(),
+                            format,
+                        ),
                     );
                     acc
                 });
