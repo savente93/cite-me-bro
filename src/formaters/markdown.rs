@@ -27,8 +27,17 @@ impl Formatter for MarkdownFormatter {
         input.push('`');
     }
 
-    fn escape(&self, _input: &mut String) {
-        todo!()
+    fn escape(&self, input: &mut String) {
+        let escapeable_characters = ['\\', '`', '{', '}', '[', ']', '(', ')', '#', '|'];
+        let escaped = input.chars().fold(String::new(), |mut acc, c| {
+            if escapeable_characters.contains(&c) {
+                acc.push('\\');
+            };
+            acc.push(c);
+            acc
+        });
+        let _ = input.drain(..);
+        input.push_str(&escaped);
     }
 }
 
@@ -67,6 +76,26 @@ mod test {
         assert_eq!(
             s,
             String::from("[https://example.com](https://example.com)")
+        );
+    }
+    #[test]
+    fn escaped() {
+        let mut s = String::from("asdf  []() hey! this is _some_ weird__ input::! <>=--<--");
+
+        MarkdownFormatter.escape(&mut s);
+        assert_eq!(
+            s,
+            String::from("asdf  \\[\\]\\(\\) hey! this is _some_ weird__ input::! <>=--<--")
+        );
+    }
+    #[test]
+    fn verbatim() {
+        let mut s = String::from("asdf  hey! this is _some_ weird__ input::!");
+
+        MarkdownFormatter.verbatim(&mut s);
+        assert_eq!(
+            s,
+            String::from("`asdf  hey! this is _some_ weird__ input::!`")
         );
     }
 }

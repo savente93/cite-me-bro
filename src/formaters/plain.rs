@@ -52,4 +52,24 @@ mod test {
             String::from("asdf  hey! this is _some_ weird__ input::!")
         );
     }
+    #[test]
+    fn escaped() {
+        let mut s = String::from("asdf  hey! this is _some_ weird__ input::! <>=--<--");
+
+        PlainTextFormatter.escape(&mut s);
+        assert_eq!(
+            s,
+            String::from("asdf  hey! this is _some_ weird__ input::! <>=--<--")
+        );
+    }
+    #[test]
+    fn verbatim() {
+        let mut s = String::from("asdf  hey! this is _some_ weird__ input::!");
+
+        PlainTextFormatter.verbatim(&mut s);
+        assert_eq!(
+            s,
+            String::from("asdf  hey! this is _some_ weird__ input::!")
+        );
+    }
 }

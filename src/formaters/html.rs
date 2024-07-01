@@ -69,4 +69,24 @@ mod test {
             String::from("<a href=\"https://example.com\">https://example.com</a>")
         );
     }
+    #[test]
+    fn escaped() {
+        let mut s = String::from("asdf  hey! this is _some_ weird__ input::! <>=--<--");
+
+        HtmlFormatter.escape(&mut s);
+        assert_eq!(
+            s,
+            String::from("asdf  hey! this is _some_ weird__ input::! &lt;&gt;=--&lt;--")
+        );
+    }
+    #[test]
+    fn verbatim() {
+        let mut s = String::from("asdf  hey! this is _some_ weird__ input::!");
+
+        HtmlFormatter.verbatim(&mut s);
+        assert_eq!(
+            s,
+            String::from("<pre>asdf  hey! this is _some_ weird__ input::!</pre>")
+        );
+    }
 }
