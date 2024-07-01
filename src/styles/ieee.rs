@@ -332,20 +332,24 @@ impl<T: Formatter> Stylizer for IeeeStylizer<T> {
         let title = fields.get("title").unwrap_or(&String::new()).clone();
         let volume = fields.get("volume").unwrap_or(&String::new()).clone();
         let pages = fields.get("pages");
-        let journal = fields.get("journal").unwrap_or(&String::new()).clone();
+        let mut journal = fields.get("journal").unwrap_or(&String::new()).clone();
+        journal.push(',');
+        self.fmt.italics(&mut journal);
         let number = fields.get("number").unwrap_or(&String::new()).clone();
         let year = fields.get("year");
         let month = fields.get("month");
         let doi = fields.get("doi");
         let issn = fields.get("issn");
-        let url = fields.get("url");
+        let url = fields.get("url").cloned().map(|mut s| {
+            self.fmt.hyperlink(&mut s);
+            s
+        });
         let mut out = String::new();
         out.push_str(&self.fmt_authors(authors.clone()));
         out.push_str(", ");
         out.push_str(&fmt_title(title));
         out.push(' ');
-        out.push_str(&format!("{}, vol. {}, no. {}", journal, &volume, &number));
-        out.push(',');
+        out.push_str(&format!("{} vol. {}, no. {},", journal, &volume, &number));
         if let Some(p) = pages {
             out.push_str(" pp. ");
             out.push_str(p);
@@ -366,7 +370,7 @@ impl<T: Formatter> Stylizer for IeeeStylizer<T> {
             out.push('.');
         };
 
-        if let Some(u) = url {
+        if let Some(ref u) = url {
             out.push_str(" [Online]. Available: ");
             out.push_str(u);
             out.push('.');

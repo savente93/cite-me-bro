@@ -11,6 +11,14 @@ mod parsing;
 pub mod styles;
 pub mod utils;
 
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, clap::ValueEnum)]
+pub enum Format {
+    #[default]
+    Plain,
+    Markdown,
+    Html,
+}
+
 #[derive(Parser)]
 #[command(
     name = "file_reader",
@@ -25,6 +33,10 @@ struct Args {
     /// the reference style in which to print the references
     #[arg(short, long, value_enum, default_value_t = ReferenceStyle::IEEE)]
     style: ReferenceStyle,
+
+    /// the format in which to print the references
+    #[arg(short, long, value_enum, default_value_t = Format::Plain)]
+    format: Format,
 
     /// the keys of the references to print. If none are provided all references will be printed
     keys: Vec<String>,
@@ -43,7 +55,6 @@ struct Args {
 fn main() -> Result<()> {
     colog::init();
     let args = Args::parse();
-
     let mut bibliography = Bibliography::new();
 
     for p in args.bib_files.clone() {
@@ -52,17 +63,17 @@ fn main() -> Result<()> {
     }
 
     if let Some(inplace_path) = args.inplace_file {
-        bibliography.expand_file_citations_inplace(inplace_path, args.style)?;
+        bibliography.expand_file_citations_inplace(inplace_path, args.style, args.format)?;
         Ok(())
     } else if args.keys.is_empty() {
         bibliography
-            .fmt_entries(args.style)
+            .fmt_entries(args.style, args.format)
             .into_iter()
             .for_each(|f| println!("{}", f));
         Ok(())
     } else {
         let (formatted, unknown_keys) =
-            bibliography.fmt_entries_filtered(args.style, args.keys.clone());
+            bibliography.fmt_entries_filtered(args.style, args.format, args.keys.clone());
         if formatted.is_empty() && !args.quiet {
             Err(anyhow!(
                 "none of the keys {:?} found in bib file(s) {:?}",

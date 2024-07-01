@@ -4,11 +4,12 @@ use apa::ApaStylizer;
 use ieee::IeeeStylizer;
 
 use crate::{
-    formaters::plain::PlainTextFormatter,
+    formaters::{html::HtmlFormatter, markdown::MarkdownFormatter, plain::PlainTextFormatter},
     parsing::{
         entry::{BibEntry, EntryType},
         names::OwnedFullName,
     },
+    Format,
 };
 
 pub mod apa;
@@ -27,13 +28,25 @@ pub enum ThesisKind {
 }
 
 impl ReferenceStyle {
-    pub fn fmt_reference(&self, entry: BibEntry) -> String {
-        match self {
-            ReferenceStyle::IEEE => {
+    pub fn fmt_reference(&self, entry: BibEntry, format: Format) -> String {
+        match (self, format) {
+            (ReferenceStyle::IEEE, Format::Plain) => {
                 IeeeStylizer::<PlainTextFormatter>::default().fmt_reference(entry)
             }
-            ReferenceStyle::APA => {
+            (ReferenceStyle::IEEE, Format::Html) => {
+                IeeeStylizer::<HtmlFormatter>::default().fmt_reference(entry)
+            }
+            (ReferenceStyle::IEEE, Format::Markdown) => {
+                IeeeStylizer::<MarkdownFormatter>::default().fmt_reference(entry)
+            }
+            (ReferenceStyle::APA, Format::Plain) => {
                 ApaStylizer::<PlainTextFormatter>::default().fmt_reference(entry)
+            }
+            (ReferenceStyle::APA, Format::Html) => {
+                ApaStylizer::<HtmlFormatter>::default().fmt_reference(entry)
+            }
+            (ReferenceStyle::APA, Format::Markdown) => {
+                ApaStylizer::<MarkdownFormatter>::default().fmt_reference(entry)
             }
         }
     }

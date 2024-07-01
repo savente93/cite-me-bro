@@ -86,6 +86,27 @@ fn run_unknown_key_and_book_ieee() {
     assert_eq!(str::from_utf8(&output.stdout), Ok(expected_output));
     assert_eq!(str::from_utf8(&output.stderr), Ok(expected_warning));
 }
+
+#[test]
+fn run_rf_ieee_html() {
+    let output = run_cmb()
+        .args([
+            "-b",
+            "cite.bib",
+            "--style",
+            "ieee",
+            "--format",
+            "html",
+            "10.1093/femsec/fiw174",
+        ])
+        .output()
+        .expect("could not run binary");
+    let expected_output = "J. Liao, X. Cao, L. Zhao, et al., \"The importance of neutral and niche processes for bacterial community assembly differs between habitat generalists and specialists,\" <i>FEMS Microbiology Ecology,</i> vol. 92, no. 11, Aug. 2016, issn: 0168-6496. doi: https://doi.org/10.1093/femsec/fiw174. [Online]. Available: <a href=\"https://doi.org/10.1093/femsec/fiw174\">https://doi.org/10.1093/femsec/fiw174</a>.\n";
+
+    dbg!(&output);
+    assert!(&output.status.success());
+    assert_eq!(str::from_utf8(&output.stdout), Ok(expected_output));
+}
 #[test]
 fn run_book_apa() {
     let output = run_cmb()
