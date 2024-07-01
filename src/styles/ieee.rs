@@ -36,7 +36,8 @@ impl<T: Formatter> Stylizer for IeeeStylizer<T> {
     }
     fn fmt_booklet(&self, authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
         let mut out = String::new();
-        let title = fields.get("title").unwrap_or(&String::new()).clone();
+        let mut title = fields.get("title").unwrap_or(&String::new()).clone();
+        self.fmt.italics(&mut title);
         let howpublished = fields.get("howpublished").unwrap_or(&String::new()).clone();
         let year = fields.get("year");
         let month = fields.get("month");
@@ -56,7 +57,8 @@ impl<T: Formatter> Stylizer for IeeeStylizer<T> {
         fields: BTreeMap<String, String>,
     ) -> String {
         let mut out = String::new();
-        let title = fields.get("title").unwrap_or(&String::new()).clone();
+        let mut title = fields.get("title").unwrap_or(&String::new()).clone();
+        self.fmt.italics(&mut title);
         let book_title = fields.get("booktitle").unwrap_or(&String::new()).clone();
         let publisher = fields.get("publisher").unwrap_or(&String::new()).clone();
         let address = fields.get("address").unwrap_or(&String::new()).clone();
@@ -146,7 +148,8 @@ impl<T: Formatter> Stylizer for IeeeStylizer<T> {
     }
     fn fmt_manual(&self, authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
         let mut out = String::new();
-        let title = fields.get("title").unwrap_or(&String::new()).clone();
+        let mut title = fields.get("title").unwrap_or(&String::new()).clone();
+        self.fmt.italics(&mut title);
         let organization = fields.get("organization").unwrap_or(&String::new()).clone();
         let address = fields.get("address").unwrap_or(&String::new()).clone();
         let year = fields.get("year").unwrap_or(&String::new()).clone();
@@ -481,7 +484,10 @@ fn fmt_title(title: String) -> String {
 mod test {
     use std::path::PathBuf;
 
-    use crate::{formaters::plain::PlainTextFormatter, parsing::bibligraphy::Bibliography};
+    use crate::{
+        formaters::{html::HtmlFormatter, plain::PlainTextFormatter},
+        parsing::bibligraphy::Bibliography,
+    };
 
     use super::*;
     use anyhow::Result;
@@ -581,6 +587,17 @@ mod test {
         let entries = Bibliography::from_file(PathBuf::from("cite.bib"))?;
         let entry = entries.get_entry(key.to_string()).unwrap();
         let stylizer = IeeeStylizer::<PlainTextFormatter>::default();
+        let citation = stylizer.fmt_reference(entry);
+        assert_eq!(citation, formatted_citation);
+        Ok(())
+    }
+    #[test]
+    fn manual_formatted_citation_html() -> Result<()> {
+        let key = "manual";
+        let formatted_citation= "R Core Team, <i>R: A language and environment for statistical computing</i>, R Foundation for Statistical Computing, Vienna, Austria, 2018.";
+        let entries = Bibliography::from_file(PathBuf::from("cite.bib"))?;
+        let entry = entries.get_entry(key.to_string()).unwrap();
+        let stylizer = IeeeStylizer::<HtmlFormatter>::default();
         let citation = stylizer.fmt_reference(entry);
         assert_eq!(citation, formatted_citation);
         Ok(())
