@@ -93,7 +93,8 @@ impl<T: Formatter> Stylizer for ApaStylizer<T> {
         fields: BTreeMap<String, String>,
     ) -> String {
         let mut out = String::new();
-        let title = fields.get("title").unwrap();
+        let mut title = fields.get("title").unwrap().clone();
+        self.fmt.italics(&mut title);
         let year = fields.get("year");
         let month = fields.get("month");
         let school = fields.get("school").unwrap();
@@ -102,7 +103,7 @@ impl<T: Formatter> Stylizer for ApaStylizer<T> {
         out.push('(');
         out.push_str(&Self::fmt_year_month(self, year, month));
         out.push_str("). ");
-        out.push_str(title);
+        out.push_str(&title);
         out.push(' ');
         match kind {
             ThesisKind::Phd => out.push_str(&format!("[Doctoral dissertation, {}].", school)),
@@ -132,7 +133,8 @@ impl<T: Formatter> Stylizer for ApaStylizer<T> {
 
     fn fmt_manual(&self, authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
         let mut out = String::new();
-        let title = fields.get("title").unwrap();
+        let mut title = fields.get("title").unwrap().clone();
+        self.fmt.italics(&mut title);
         let year = fields.get("year");
         let month = fields.get("month");
         let organization = fields.get("organization").unwrap();
@@ -142,7 +144,7 @@ impl<T: Formatter> Stylizer for ApaStylizer<T> {
         out.push('(');
         out.push_str(&Self::fmt_year_month(self, year, month));
         out.push_str("). ");
-        out.push_str(title);
+        out.push_str(&title);
         out.push_str(". ");
         out.push_str(&format!("{}. ", organization));
         out.push_str(&format!("{}.", address));
@@ -159,7 +161,8 @@ impl<T: Formatter> Stylizer for ApaStylizer<T> {
         let title = fields.get("title").unwrap();
         let year = fields.get("year");
         let month = fields.get("month");
-        let booktitle = fields.get("booktitle").unwrap();
+        let mut booktitle = fields.get("booktitle").unwrap().clone();
+        self.fmt.italics(&mut booktitle);
         let pages = fields.get("pages").unwrap();
         out.push_str(&Self::fmt_authors(self, authors));
         out.push(' ');
@@ -168,7 +171,7 @@ impl<T: Formatter> Stylizer for ApaStylizer<T> {
         out.push_str("). ");
         out.push_str(title);
         out.push_str(". ");
-        out.push_str(booktitle);
+        out.push_str(&booktitle);
         out.push_str(", ");
         out.push_str(pages);
         out.push('.');
@@ -185,7 +188,8 @@ impl<T: Formatter> Stylizer for ApaStylizer<T> {
         let title = fields.get("title").unwrap();
         let year = fields.get("year");
         let month = fields.get("month");
-        let booktitle = fields.get("booktitle").unwrap();
+        let mut booktitle = fields.get("booktitle").unwrap().clone();
+        self.fmt.italics(&mut booktitle);
         let pages = fields.get("pages").unwrap();
         let editors_str = fields.get("editor").unwrap();
         let (_tail, edrs) = and_seperated_names(editors_str).unwrap();
@@ -200,7 +204,7 @@ impl<T: Formatter> Stylizer for ApaStylizer<T> {
         out.push_str(". In ");
         out.push_str(&fmt_editors(editor_names));
         out.push_str(" (Eds.), ");
-        out.push_str(booktitle);
+        out.push_str(&booktitle);
         out.push_str(&format!(" (pp. {}). ", pages));
         out.push_str(publisher);
         out.push('.');
@@ -213,7 +217,8 @@ impl<T: Formatter> Stylizer for ApaStylizer<T> {
         let title = fields.get("title").unwrap();
         let year = fields.get("year");
         let month = fields.get("month");
-        let booktitle = fields.get("booktitle").unwrap();
+        let mut booktitle = fields.get("booktitle").unwrap().clone();
+        self.fmt.italics(&mut booktitle);
         let publisher = fields.get("publisher").unwrap();
         let pages = fields.get("pages").unwrap();
         out.push_str(&Self::fmt_authors(self, authors));
@@ -223,7 +228,7 @@ impl<T: Formatter> Stylizer for ApaStylizer<T> {
         out.push_str("). ");
         out.push_str(title);
         out.push_str(". In ");
-        out.push_str(booktitle);
+        out.push_str(&booktitle);
         out.push_str(&format!(" (pp. {}). ", pages));
         out.push_str(publisher);
         out.push('.');
@@ -239,7 +244,8 @@ impl<T: Formatter> Stylizer for ApaStylizer<T> {
         let mut out = String::new();
         let publisher = fields.get("publisher").unwrap();
         let year = fields.get("year").unwrap();
-        let booktitle = fields.get("booktitle").unwrap();
+        let mut booktitle = fields.get("booktitle").unwrap().clone();
+        self.fmt.italics(&mut booktitle);
         let pages = fields.get("pages").unwrap();
         let title = fields.get("title").unwrap();
         let editors_str = fields.get("editor").unwrap();
@@ -251,7 +257,7 @@ impl<T: Formatter> Stylizer for ApaStylizer<T> {
         out.push_str(&format!("{} ", &title));
         out.push_str(&format!("[Review of {}]. ", &title));
         out.push_str(&format!("In {} (Ed.), ", &fmt_editors(editor_names)));
-        out.push_str(&(&booktitle).to_string());
+        out.push_str(&booktitle);
         out.push_str(&format!(" (pp. {}).", &pages));
         out.push_str(&format!(" {}.", &publisher));
 
@@ -260,14 +266,15 @@ impl<T: Formatter> Stylizer for ApaStylizer<T> {
 
     fn fmt_booklet(&self, authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
         let mut out = String::new();
-        let title = fields.get("title").unwrap();
+        let mut title = fields.get("title").unwrap().clone();
+        self.fmt.italics(&mut title);
         let year = fields.get("year");
         let month = fields.get("month");
         let howpublished = fields.get("howpublished").unwrap();
 
         out.push_str(&Self::fmt_authors(self, authors));
         out.push(' ');
-        out.push_str(title);
+        out.push_str(&title);
         out.push_str(". ");
         out.push_str(howpublished);
         out.push_str(". ");
@@ -279,7 +286,8 @@ impl<T: Formatter> Stylizer for ApaStylizer<T> {
 
     fn fmt_book(&self, authors: Vec<OwnedFullName>, fields: BTreeMap<String, String>) -> String {
         let mut out = String::new();
-        let title = fields.get("title").unwrap();
+        let mut title = fields.get("title").unwrap().clone();
+        self.fmt.italics(&mut title);
         let year = fields.get("year");
         let month = fields.get("month");
         let publisher = fields.get("publisher").unwrap();
@@ -288,7 +296,7 @@ impl<T: Formatter> Stylizer for ApaStylizer<T> {
         out.push('(');
         out.push_str(&Self::fmt_year_month(self, year, month));
         out.push_str("). ");
-        out.push_str(title);
+        out.push_str(&title);
         out.push_str(". ");
         out.push_str(publisher);
         out.push('.');
