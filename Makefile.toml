@@ -1,0 +1,22 @@
+[tasks.doc-gen]
+command = "cargo"
+args = ["doc", "--no-deps"]
+
+[tasks.doc-post-proc]
+command = "fd"
+args = [ ".", ".\\target\\doc\\cite_me_bro", "-e", "html", "-x", "cmb", "-b", ".\\cite.bib", "--style" ,"apa", "--format", "html",  "-i"]
+dependencies = [ "fd", "doc-gen" ]
+
+[tasks.doc-open]
+command = "cargo"
+args = ['doc','--open']
+dependencies = ["doc-post-proc"]
+
+[tasks.doc-open-windows]
+command = ".\\target\\doc\\cite_me_bro\\index.html"
+
+[tasks.doc]
+dependencies = ["doc-open"]
+
+[tasks.fd]
+install_crate = "fd-find"
