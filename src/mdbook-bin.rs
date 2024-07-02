@@ -1,5 +1,5 @@
 use cite_me_bro::ops::preprocessor::CitationPreprocessor;
-use clap::{Arg, ArgMatches, Command};
+use clap::{Arg, ArgMatches, Command, Parser, Subcommand};
 use mdbook::errors::Error;
 use mdbook::preprocess::{CmdPreprocessor, Preprocessor};
 use semver::{Version, VersionReq};
@@ -21,6 +21,16 @@ enum Commands {
         #[arg(required = true)]
         renderer: String,
     },
+}
+
+pub fn make_app() -> Command {
+    Command::new("nop-preprocessor")
+        .about("A mdbook preprocessor which does precisely nothing")
+        .subcommand(
+            Command::new("supports")
+                .arg(Arg::new("renderer").required(true))
+                .about("Check whether a renderer is supported by this preprocessor"),
+        )
 }
 
 fn main() {
