@@ -1,22 +1,38 @@
-[tasks.doc-gen]
+[tasks.doc-build]
 command = "cargo"
-args = ["doc", "--no-deps"]
+args = ["doc", "--no-deps", "-q"]
 
 [tasks.doc-post-proc]
 command = "fd"
-args = [ ".", ".\\target\\doc\\cite_me_bro", "-e", "html", "-x", "cmb", "-b", ".\\cite.bib", "--style" ,"apa", "--format", "html",  "-i"]
-dependencies = [ "fd", "doc-gen" ]
+args = [
+  ".",
+  "./${CARGO_MAKE_CRATE_TARGET_DIRECTORY}/doc/${CARGO_MAKE_CRATE_FS_NAME}",
+  "-e",
+  "html",
+  "-x",
+  "cmb",
+  "-b",
+  "cite.bib",
+  "--style",
+  "apa",
+  "--format",
+  "html",
+  "-i",
+  "{}",
+]
+dependencies = ["fd", "doc-build"]
 
-[tasks.doc-open]
-command = "cargo"
-args = ['doc','--open']
-dependencies = ["doc-post-proc"]
+[tasks.doc-http]
+command = "http-server"
+args = ['-i', '--cors', 'target/doc']
 
-[tasks.doc-open-windows]
-command = ".\\target\\doc\\cite_me_bro\\index.html"
-
-[tasks.doc]
-dependencies = ["doc-open"]
+[tasks.doc-serve]
+run_task = [{ name = ['doc-http', "doc-post-proc"], parallel = true }]
 
 [tasks.fd]
-install_crate = "fd-find"
+install_crate = { crate_name = "fd-find", binary = "fd", test_arg = ["--help"] }
+
+[tasks.http]
+install_crate = { crate_name = "http-server", binary = "http-server", test_arg = [
+  "--help",
+] }

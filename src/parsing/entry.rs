@@ -10,7 +10,7 @@ use nom::{
         complete::{char, line_ending, multispace0},
         is_space,
     },
-    multi::{many0, many1, separated_list1},
+    multi::{many0, separated_list1},
     sequence::{delimited, preceded, separated_pair, terminated},
     IResult,
 };
@@ -98,7 +98,7 @@ pub fn next_citation(input: &str) -> IResult<&str, (&str, &str)> {
     Ok((tail, (unmodified, citation_key)))
 }
 pub fn all_citations(input: &str) -> IResult<&str, Vec<(&str, &str)>> {
-    many1(next_citation)(input)
+    many0(next_citation)(input)
 }
 
 #[derive(PartialEq, Eq, Clone)]

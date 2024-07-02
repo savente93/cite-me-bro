@@ -1,7 +1,7 @@
 //! # Cite me Bro!
-//! 
-//! Cite me bro! (CMB)
-//! 
+//!
+//! Cite me bro! (CMB) \cite{book}
+//!
 pub mod formaters;
 pub mod ops;
 pub mod parsing;
