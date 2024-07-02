@@ -1,23 +1,9 @@
-use crate::parsing::bibligraphy::Bibliography;
 use anyhow::{anyhow, Result};
+use cite_me_bro::{parsing::bibligraphy::Bibliography, styles::ReferenceStyle, Format};
 use clap::Parser;
 use colored::Colorize;
 use log::warn;
 use std::path::PathBuf;
-use styles::ReferenceStyle;
-
-pub mod formaters;
-mod parsing;
-pub mod styles;
-pub mod utils;
-
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, clap::ValueEnum)]
-pub enum Format {
-    #[default]
-    Plain,
-    Markdown,
-    Html,
-}
 
 #[derive(Parser)]
 #[command(

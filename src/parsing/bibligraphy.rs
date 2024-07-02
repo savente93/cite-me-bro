@@ -11,6 +11,7 @@ use crate::{styles::ReferenceStyle, Format};
 
 use super::entry::{all_citations, entry, BibEntry, EntrySubComponents};
 
+#[derive(Default)]
 pub struct Bibliography {
     entries: Vec<BibEntry>,
 }

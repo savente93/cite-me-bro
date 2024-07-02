@@ -1,0 +1,54 @@
+# Modify these to suit your needs
+[env]
+BIBFILE = "cite.bib"
+STYLE = "apa"
+
+# actually generate the docs
+[tasks.doc-gen]
+command = "cargo"
+args = ["doc", "--no-deps", "-q"]
+
+[tasks.doc-post-process]
+# we'll use fd to find all the doc files
+command = "fd"
+args = [
+  ".",
+  "${CARGO_MAKE_CRATE_TARGET_DIRECTORY}/doc/${CARGO_MAKE_CRATE_FS_NAME}", # search the generated doc files
+  "-e",
+  "html",                                                                 # only those with extention html
+  "-x",                                                                   # run the cmb command on each file found
+  "cmb",
+  "-b",                                                                   # use bibfile cite.bib
+  "${BIBFILE}",
+  "--style",                                                              # use style defined in env table
+  "${STYLE}",
+  "--format",                                                             # generate in html so it looks good in docs
+  "html",
+  "-i",                                                                   # modify files inplace
+  "{}",                                                                   # fd shorthand for "the file you just found"
+]
+# dependencies to make sure the necessary binaries are installed
+# and the docs are actually generated
+dependencies = ["fd", "cmb", "doc-gen"]
+
+# serve docs over simple http server
+[tasks.doc-serve]
+command = "http-server"
+args = ['-i', '--cors', 'target/doc']       # -i to open index.html in dir
+dependencies = ["http", "doc-post-process"]
+
+# just an alias
+[tasks.doc-build]
+run_task = "doc-post-process"
+
+# needed for finding the files to modify in a cross platform way
+[tasks.fd]
+install_crate = { crate_name = "fd-find", binary = "fd", test_arg = ["--help"] }
+
+# simple http server we can bootstrap from crates.io directly
+[tasks.http]
+install_crate = { crate_name = "http-server", binary = "http-server", test_arg = "--help" }
+
+# that's us of course
+[tasks.cmb]
+install_crate = { crate_name = "cite-me-bro", binary = "cmb", test_arg = "--help" }

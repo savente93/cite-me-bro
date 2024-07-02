@@ -25,4 +25,4 @@ unicode-segmentation = "1.11.0"
 
 [[bin]]
 name = "cmb"
-path = "src/main.rs"
+path = "src/bin/cmb.rs"
