@@ -116,14 +116,24 @@ mod test {
     use anyhow::Result;
     // lint allows are just while developing, will be removed soon
 
-    use crate::{
-        dict,
-        parsing::{entry::EntryType, names::OwnedFullName},
-    };
+    use crate::parsing::{entry::EntryType, names::OwnedFullName};
+
     #[test]
     fn test_bib_file_parse() -> Result<()> {
         let path = PathBuf::from_str("cite.bib")?;
         let entries = Bibliography::from_file(path)?.entries;
+        let mut dict = BTreeMap::new();
+        dict.insert("title".to_string(), "Random forests".to_string());
+        dict.insert("journal".to_string(), "Machine learning".to_string());
+        dict.insert("volume".to_string(), "45".to_string());
+        dict.insert("number".to_string(), "1".to_string());
+        dict.insert("pages".to_string(), "5-32".to_string());
+        dict.insert("year".to_string(), "2001".to_string());
+        dict.insert("publisher".to_string(), "Springer".to_string());
+        dict.insert(
+            "doi".to_string(),
+            "https://doi.org/10.1023/a:1010933404324".to_string(),
+        );
         assert_eq!(
             entries[0],
             BibEntry {
@@ -135,17 +145,27 @@ mod test {
                     von: Vec::new(),
                     title: Vec::new()
                 }],
-                fields: dict!(
-                "title".to_string() => "Random forests".to_string() ,
-                "journal".to_string() => "Machine learning".to_string() ,
-                "volume".to_string() => "45".to_string() ,
-                "number".to_string() => "1".to_string() ,
-                "pages".to_string() => "5-32".to_string() ,
-                "year".to_string() => "2001".to_string() ,
-                "publisher".to_string() => "Springer".to_string(),
-                "doi".to_string() => "https://doi.org/10.1023/a:1010933404324".to_string()
-                              ),
+                fields: dict,
             }
+        );
+        let mut dict = BTreeMap::new();
+        dict.insert("title".to_string() , "The importance of neutral and niche processes for bacterial community assembly differs between habitat generalists and specialists".to_string());
+        dict.insert(
+            "journal".to_string(),
+            "FEMS Microbiology Ecology".to_string(),
+        );
+        dict.insert("volume".to_string(), "92".to_string());
+        dict.insert("number".to_string(), "11".to_string());
+        dict.insert("year".to_string(), "2016".to_string());
+        dict.insert("month".to_string(), "08".to_string());
+        dict.insert("issn".to_string(), "0168-6496".to_string());
+        dict.insert(
+            "doi".to_string(),
+            "https://doi.org/10.1093/femsec/fiw174".to_string(),
+        );
+        dict.insert(
+            "url".to_string(),
+            "https://doi.org/10.1093/femsec/fiw174".to_string(),
         );
         assert_eq!(
             entries[1],
@@ -197,17 +217,7 @@ mod test {
                         title: Vec::new()
                     },
                 ],
-                fields: dict!(
-                "title".to_string() => "The importance of neutral and niche processes for bacterial community assembly differs between habitat generalists and specialists".to_string(),
-                "journal".to_string() => "FEMS Microbiology Ecology".to_string(),
-                "volume".to_string() => "92".to_string(),
-                "number".to_string() => "11".to_string(),
-                "year".to_string() => "2016".to_string(),
-                "month".to_string() => "08".to_string(),
-                "issn".to_string() => "0168-6496".to_string(),
-                "doi".to_string() => "https://doi.org/10.1093/femsec/fiw174".to_string(),
-                "url".to_string() => "https://doi.org/10.1093/femsec/fiw174".to_string()
-                          ),
+                fields: dict,
             }
         );
         Ok(())
