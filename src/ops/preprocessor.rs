@@ -12,15 +12,15 @@ impl Preprocessor for CitationPreprocessor {
     }
 
     fn run(&self, ctx: &PreprocessorContext, book: Book) -> Result<Book, Error> {
-        if let Some(cite_cfg) = ctx.config.get_preprocessor(self.name()) {
-            if let Some(_bib_file_val) = cite_cfg.get("bib-file") {
-                Ok(book)
-            } else {
-                Err(Error::msg("config entry did not contain 'bib-file' key"))
-            }
-        } else {
-            Err(Error::msg("no config entry found"))
-        }
+        Ok(book)
+        // if let Some(cite_cfg) = ctx.config.get_preprocessor(self.name()) {
+        //     if let Some(_bib_file_val) = cite_cfg.get("bib-file") {
+        //     } else {
+        //         Err(Error::msg("config entry did not contain 'bib-file' key"))
+        //     }
+        // } else {
+        //     Err(Error::msg("no config entry found"))
+        // }
     }
 }
 
