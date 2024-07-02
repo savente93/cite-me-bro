@@ -1,13 +1,13 @@
 #![allow(dead_code)]
 use anyhow::{anyhow, Result};
-use cite_me_bro::{ops::bibligraphy::Bibliography, styles::ReferenceStyle, Format, VERSION};
-use clap::Parser;
+use cite_me_bro::{ops::bibligraphy::Bibliography, styles::ReferenceStyle, Format};
+use clap::{crate_version, Parser};
 use std::path::PathBuf;
 
 #[derive(Parser)]
 #[command(
     name = "cite-me-bro",
-    version = VERSION,
+    version = crate_version!(),
     about = "formats bibtex entries to stdout"
 )]
 struct Args {
