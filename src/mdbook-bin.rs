@@ -6,14 +6,21 @@ use semver::{Version, VersionReq};
 use std::io;
 use std::process;
 
-pub fn make_app() -> Command {
-    Command::new("mdbook-citations")
-        .about("A mdbook preprocessor to format citations")
-        .subcommand(
-            Command::new("supports")
-                .arg(Arg::new("renderer").required(true))
-                .about("Check whether a renderer is supported by this preprocessor"),
-        )
+#[derive(Parser)]
+#[command(name = "mdbook-citations")]
+#[command(about = "A mdbook preprocessor to format citations")]
+struct Cli {
+    #[command(subcommand)]
+    command: Commands,
+}
+
+#[derive(Subcommand)]
+enum Commands {
+    #[command(about = "Check whether a renderer is supported by this preprocessor")]
+    Supports {
+        #[arg(required = true)]
+        renderer: String,
+    },
 }
 
 fn main() {
