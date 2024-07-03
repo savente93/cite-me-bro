@@ -46,25 +46,25 @@ impl Bibliography {
     }
 
     pub fn expand_file_citations_inplace(
-        self,
+        &self,
         path: PathBuf,
         style: ReferenceStyle,
         format: Format,
     ) -> Result<()> {
         let mut contents = read_to_string(&path)?;
-        contents = self.expand_citations_in_string(contents, style, format);
+        contents = self.expand_citations_in_string(&mut contents, style, format);
         let mut file = File::create(&path)?;
         file.write_all(contents.as_bytes()).unwrap();
         Ok(())
     }
 
     pub fn expand_citations_in_string(
-        self,
-        contents: String,
+        &self,
+        contents: &mut str,
         style: ReferenceStyle,
         format: Format,
     ) -> String {
-        let (tail, segments) = all_citations(&contents).unwrap();
+        let (tail, segments) = all_citations(contents).unwrap();
         let mut acc =
             segments
                 .into_iter()
@@ -84,6 +84,12 @@ impl Bibliography {
     }
 
     pub fn from_file(path: PathBuf) -> Result<Self> {
+        if ! &path.exists() {
+            return Err(anyhow::Error::msg(format!(
+                "File {} does not exist",
+                path.display()
+            )));
+        }
         let contents = fs::read_to_string(path)?;
 
         let (_tail, entries): (&str, Vec<EntrySubComponents>) =
@@ -94,11 +100,18 @@ impl Bibliography {
 
     pub fn from_files(path: Vec<PathBuf>) -> Result<Self> {
         let mut out = Self::default();
-        path.into_iter().for_each(|p| {
-            let new_bib = Bibliography::from_file(p).unwrap();
-            out.merge(new_bib);
-        });
-        Ok(out)
+        let results = path
+            .into_iter()
+            .map(|p| {
+                let new_bib = Bibliography::from_file(p)?;
+                out.merge(new_bib);
+                Ok(())
+            })
+            .collect::<Result<Vec<()>, anyhow::Error>>();
+        match results {
+            Ok(_) => Ok(out),
+            Err(e) => Err(e),
+        }
     }
 
     /// merge the two bibliographies by consuming the other.

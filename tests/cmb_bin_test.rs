@@ -32,7 +32,7 @@ fn no_known_keys_errors() -> Result<()> {
 #[test]
 fn inplace_file() -> Result<()> {
     let initial_contets =
-        "there once was a citation: \\cite{book}. adsflkjwoiejflkdslslsldlkfki nrgiwf";
+        "there once was a citation: cite{book}. adsflkjwoiejflkdslslsldlkfki nrgiwf";
     let expected_contets = "there once was a citation: L. Susskind and G. Hrabovsky, Classical mechanics: the theoretical minimum. New York, NY: Penguin Random House, 2014.. adsflkjwoiejflkdslslsldlkfki nrgiwf";
     let path = {
         let tmp_dir = env::temp_dir();
@@ -73,7 +73,6 @@ V. Bennett, K. Bowman, and S. Wright, \"Wasatch Solar Project final report,\" Sa
 M. Suresh, \"Evolution: A revised theory,\" unpublished.
 J. Smith and J. Doe, \"The Effects of Climate Change,\" in Proceedings of the Annual Conference on Climate Change, B. Johnson, Ed., Climate Change Association, Los Angeles, CA: Springer, Jun. 2022, pp. 55-62.\n";
 
-    dbg!(&output);
     assert_eq!(str::from_utf8(&output.stdout), Ok(expected));
 }
 
@@ -86,7 +85,6 @@ fn run_unknown_key_and_book_ieee() {
     let expected_output = "L. Susskind and G. Hrabovsky, Classical mechanics: the theoretical minimum. New York, NY: Penguin Random House, 2014.\n";
     let expected_warning = "No entry for key asdf was found, skipping...\n";
 
-    dbg!(&output);
     assert!(&output.status.success());
     assert_eq!(str::from_utf8(&output.stdout), Ok(expected_output));
     assert_eq!(str::from_utf8(&output.stderr), Ok(expected_warning));
@@ -108,7 +106,6 @@ fn run_tb_ieee_html() {
         .expect("could not run binary");
     let expected_output = "J. Liao, X. Cao, L. Zhao, et al., \"The importance of neutral and niche processes for bacterial community assembly differs between habitat generalists and specialists,\" <i>FEMS Microbiology Ecology,</i> vol. 92, no. 11, Aug. 2016, issn: 0168-6496. doi: https://doi.org/10.1093/femsec/fiw174. [Online]. Available: <a href=\"https://doi.org/10.1093/femsec/fiw174\">https://doi.org/10.1093/femsec/fiw174</a>.\n";
 
-    dbg!(&output);
     assert!(&output.status.success());
     assert_eq!(str::from_utf8(&output.stdout), Ok(expected_output));
 }
@@ -129,7 +126,6 @@ fn run_tb_ieee_md() {
         .expect("could not run binary");
     let expected_output = "J. Liao, X. Cao, L. Zhao, et al., \"The importance of neutral and niche processes for bacterial community assembly differs between habitat generalists and specialists,\" *FEMS Microbiology Ecology,* vol. 92, no. 11, Aug. 2016, issn: 0168-6496. doi: https://doi.org/10.1093/femsec/fiw174. [Online]. Available: [https://doi.org/10.1093/femsec/fiw174](https://doi.org/10.1093/femsec/fiw174).\n";
 
-    dbg!(&output);
     assert!(&output.status.success());
     assert_eq!(str::from_utf8(&output.stdout), Ok(expected_output));
 }
@@ -150,7 +146,6 @@ fn run_rf_apa_html() {
         .expect("could not run binary");
     let expected_output = "Liao, J., Cao, X., Zhao, L., Wang, J., Gao, Z., Wang, M. C., & Huang, Y. (2016). The importance of neutral and niche processes for bacterial community assembly differs between habitat generalists and specialists. <i>FEMS Microbiology Ecology, 92</i> (11), <a href=\"https://doi.org/10.1093/femsec/fiw174\">https://doi.org/10.1093/femsec/fiw174</a>\n";
 
-    dbg!(&output);
     assert!(&output.status.success());
     assert_eq!(str::from_utf8(&output.stdout), Ok(expected_output));
 }
@@ -163,7 +158,6 @@ fn run_book_apa() {
     let expected_output = "Susskind, L., & Hrabovsky, G. (2014). Classical mechanics: the theoretical minimum. Penguin Random House.\n";
     let expected_warning = "";
 
-    dbg!(&output);
     assert!(&output.status.success());
     assert_eq!(str::from_utf8(&output.stdout), Ok(expected_output));
     assert_eq!(str::from_utf8(&output.stderr), Ok(expected_warning));

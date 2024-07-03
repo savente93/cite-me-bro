@@ -36,4 +36,4 @@ path = "src/bin/cmb.rs"
 
 [[bin]]
 name = "mdbook-citations"
-path = "src/mdbook-bin.rs"
+path = "src/bin/mdbook-bin.rs"
