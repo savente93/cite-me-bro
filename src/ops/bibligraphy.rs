@@ -92,6 +92,15 @@ impl Bibliography {
         Ok(entry_vec.into())
     }
 
+    pub fn from_files(path: Vec<PathBuf>) -> Result<Self> {
+        let mut out = Self::default();
+        path.into_iter().for_each(|p| {
+            let new_bib = Bibliography::from_file(p).unwrap();
+            out.merge(new_bib);
+        });
+        Ok(out)
+    }
+
     /// merge the two bibliographies by consuming the other.
     /// currently citation conflicts are not handles yet.
     pub fn merge(&mut self, other: Bibliography) -> &mut Self {

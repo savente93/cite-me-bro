@@ -1,6 +1,10 @@
+use std::path::PathBuf;
+
+use super::bibligraphy::Bibliography;
 use mdbook::book::Book;
 use mdbook::errors::Error;
 use mdbook::preprocess::{Preprocessor, PreprocessorContext};
+use toml::Value;
 
 /// A preprocessor to expand citations within the book
 #[derive(Default)]
@@ -13,7 +17,17 @@ impl Preprocessor for CitationPreprocessor {
 
     fn run(&self, ctx: &PreprocessorContext, book: Book) -> Result<Book, Error> {
         if let Some(cite_cfg) = ctx.config.get_preprocessor(self.name()) {
-            if let Some(_bib_file_val) = cite_cfg.get("bibfile") {
+            if let Some(bib_file_val) = cite_cfg.get("bibfile") {
+                let bib_file_paths = match bib_file_val {
+                    Value::String(s) => Ok(vec![PathBuf::from(s)]),
+                    Value::Array(a) => Ok(a
+                        .iter()
+                        .filter_map(|v| v.as_str())
+                        .map(PathBuf::from)
+                        .collect()),
+                    _ => Err(Error::msg("config of bibfile did not have correct type")),
+                }?;
+                let _bibligraphy = Bibliography::from_files(bib_file_paths);
                 Ok(book)
             } else {
                 Err(Error::msg("config entry did not contain 'bibfile' key"))

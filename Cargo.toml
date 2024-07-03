@@ -22,6 +22,7 @@ parse-hyperlinks = "0.27.2"
 semver = { version = "1.0.23" }
 serde = { version = "1.0.202", features = ["derive"] }
 serde_json = { version = "1.0.118" }
+toml = "0.5.11"
 unicode-segmentation = "1.11.0"
 
 [lib]
