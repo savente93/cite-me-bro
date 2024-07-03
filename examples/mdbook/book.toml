@@ -1,0 +1,11 @@
+[book]
+authors = ["Sam Vente"]
+language = "en"
+multilingual = false
+src = "src"
+title = "A short history of citations"
+
+# use cmb as preprocessor
+[preprocessor.citations]
+bibfile = "citations.bib" # the file containing your citations
+style = "apa"             # the style you want to use. possible values are currently: ieee (defautl) and apa

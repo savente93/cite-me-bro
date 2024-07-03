@@ -1,3 +1,4 @@
+use anyhow::anyhow;
 use std::collections::BTreeMap;
 
 use apa::ApaStylizer;
@@ -15,11 +16,23 @@ use crate::{
 pub mod apa;
 pub mod ieee;
 
-#[derive(Debug, Default, Clone, PartialEq, Eq, clap::ValueEnum)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, clap::ValueEnum)]
 pub enum ReferenceStyle {
     #[default]
     IEEE,
     APA,
+}
+
+impl TryFrom<&str> for ReferenceStyle {
+    type Error = anyhow::Error;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        match value.to_lowercase().as_str() {
+            "ieee" => Ok(ReferenceStyle::IEEE),
+            "apa" => Ok(ReferenceStyle::APA),
+            _ => Err(anyhow!("invalid style")),
+        }
+    }
 }
 
 pub enum ThesisKind {
