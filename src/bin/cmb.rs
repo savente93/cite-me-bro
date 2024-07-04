@@ -38,6 +38,7 @@ struct Args {
 
 fn main() -> Result<()> {
     let args = Args::parse();
+    env_logger::init();
 
     let mut bibliography = Bibliography::default();
 

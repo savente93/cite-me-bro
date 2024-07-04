@@ -83,17 +83,18 @@ impl TryFrom<&str> for EntryType {
 }
 
 /// Searches the input for a cite tag
-///
 pub fn citation(input: &str) -> IResult<&str, &str> {
     preceded(
-        tag("cite"),
+        tag("\\cite"),
         delimited(char('{'), take_until("}"), char('}')),
     )(input)
 }
 /// gives back tail, text consumed
 pub fn next_citation(input: &str) -> IResult<&str, (&str, &str)> {
-    let (tail, unmodified) = take_until("cite")(input)?;
+    let (tail, unmodified) = take_until("\\cite")(input)?;
     let (tail, citation_key) = citation(tail)?;
+    dbg!(&unmodified);
+    dbg!(&citation_key);
 
     Ok((tail, (unmodified, citation_key)))
 }
@@ -491,12 +492,22 @@ mod test {
 
     #[test]
     fn text_citation_simple() -> Result<()> {
-        let input = "         asd;lkfjwliefjxcajvnasledifm; sei help I'm stuck in a sub factory! asdoifmwae;va cite{book}.lkfjwliefjxcajvnasledifm";
+        let input = "         asd;lkfjwliefjxcajvnasledifm; sei help I'm stuck in a sub factory! asdoifmwae;va \\cite{book}.lkfjwliefjxcajvnasledifm";
         let (tail, (unmodified, citation_key)) = next_citation(input)?;
 
         assert_eq!(tail, ".lkfjwliefjxcajvnasledifm");
         assert_eq!(unmodified,"         asd;lkfjwliefjxcajvnasledifm; sei help I'm stuck in a sub factory! asdoifmwae;va ");
         assert_eq!(citation_key, "book");
+        Ok(())
+    }
+
+    #[test]
+    fn book_example() -> Result<()> {
+        let input = "#cite \r\n\r\n[^cms]: \\cite{cms}\r\n[^ieee]: \\cite{ieee}\r\n[^doi]: \\cite{doi}\r\n";
+let (tail, (_unmodified, citation_key)) = next_citation(input)?;
+
+        assert_eq!(tail, "\r\n[^ieee]: \\cite{ieee}\r\n[^doi]: \\cite{doi}\r\n");
+        assert_eq!(citation_key, "cms");
         Ok(())
     }
 }

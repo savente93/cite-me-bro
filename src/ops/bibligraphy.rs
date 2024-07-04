@@ -1,4 +1,5 @@
 use anyhow::Result;
+use log::error;
 use std::{
     fs::{self, read_to_string, File},
     io::Write,
@@ -65,20 +66,24 @@ impl Bibliography {
         format: Format,
     ) -> String {
         let (tail, segments) = all_citations(contents).unwrap();
+        error!("segments: {:?}", &segments);
         let mut acc =
             segments
                 .into_iter()
                 .fold(String::new(), |mut acc, (unmodified, citation_key)| {
                     acc.push_str(unmodified);
+                    let formatted = &style.fmt_reference(
+                        self.get_entry(citation_key.to_string()).unwrap(),
+                        format,
+                    );
+                    error!("{:?}",&formatted);
                     acc.push_str(
-                        &style.fmt_reference(
-                            self.get_entry(citation_key.to_string()).unwrap(),
-                            format,
-                        ),
+                        &formatted
                     );
                     acc
                 });
         acc.push_str(tail);
+
 
         acc
     }

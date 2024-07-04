@@ -6,6 +6,8 @@ use semver::{Version, VersionReq};
 use std::io;
 use std::process;
 
+
+
 pub fn make_app() -> Command {
     Command::new("nop-preprocessor")
         .about("A mdbook preprocessor which does precisely nothing")
@@ -31,6 +33,7 @@ fn main() {
 }
 
 fn handle_preprocessing(pre: &dyn Preprocessor) -> Result<(), Error> {
+    env_logger::init();
     let (ctx, book) = CmdPreprocessor::parse_input(io::stdin())?;
 
     let book_version = Version::parse(&ctx.mdbook_version)?;
