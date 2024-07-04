@@ -1,7 +1,7 @@
 use anyhow::Result;
 use std::{
     io::{Read, Write},
-    process::{Command, ExitCode, ExitStatus, Stdio},
+    process::{Command, ExitStatus, Stdio},
 };
 
 fn run_bin() -> Command {
