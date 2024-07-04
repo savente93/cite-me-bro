@@ -51,10 +51,10 @@ impl Bibliography {
         path: PathBuf,
         style: ReferenceStyle,
         format: Format,
-        fail_fast: bool
+        fail_fast: bool,
     ) -> Result<()> {
         let mut contents = read_to_string(&path)?;
-        contents = self.expand_citations_in_string(&mut contents, style, format, fail_fast)?;
+        contents = self.expand_citations_in_string(&contents, style, format, fail_fast)?;
         let mut file = File::create(&path)?;
         file.write_all(contents.as_bytes()).unwrap();
         Ok(())
@@ -68,33 +68,36 @@ impl Bibliography {
         fail_fast: bool,
     ) -> Result<String> {
         let (tail, segments) = all_citations(contents).unwrap();
-        let mut acc =
-            segments
-                .into_iter()
-                .try_fold(String::new(), |mut acc, (unmodified, citation_key)| {
-                    acc.push_str(unmodified);
+        let mut acc = segments.into_iter().try_fold(
+            String::new(),
+            |mut acc, (unmodified, citation_key)| {
+                acc.push_str(unmodified);
 
-                    match self
-                        .get_entry(citation_key.to_string())
-                        .and_then(|entry| Some(style.fmt_reference(entry, format)))
-                    {
-                        Some(formatted) => {
-                            acc.push_str(&formatted);
+                match self
+                    .get_entry(citation_key.to_string())
+                    .map(|entry| style.fmt_reference(entry, format))
+                {
+                    Some(formatted) => {
+                        acc.push_str(&formatted);
+                        Ok(acc)
+                    }
+                    None => {
+                        if fail_fast {
+                            Err(anyhow::Error::msg(format!(
+                                "key {} was not present in any of the bib files",
+                                &citation_key
+                            )))
+                        } else {
+                            warn!("Key {} in text was not found, skipping...", &citation_key);
+                            acc.push_str("\\cite{");
+                            acc.push_str(citation_key);
+                            acc.push('}');
                             Ok(acc)
                         }
-                        None => {
-                            if fail_fast {
-                                Err(anyhow::Error::msg(format!("key {} was not present in any of the bib files", &citation_key)))
-                            } else {
-                                warn!("Key {} in text was not found, skipping...", &citation_key);
-                                acc.push_str("\\cite{");
-                                acc.push_str(citation_key);
-                                acc.push('}');
-                                Ok(acc)
-                            }
-                        },
                     }
-                })?;
+                }
+            },
+        )?;
 
         acc.push_str(tail);
 

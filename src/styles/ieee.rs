@@ -132,7 +132,7 @@ impl<T: Formatter> Stylizer for IeeeStylizer<T> {
         out.push_str(&book_title);
         out.push_str(", ");
         let editors_str = fields.entry("editor".to_string()).or_default();
-        let (_tail, edrs) = and_seperated_names(editors_str).unwrap();
+        let (_tail, edrs) = and_seperated_names(editors_str).unwrap_or(("", vec![]));
         let editor_names: Vec<OwnedFullName> = edrs.into_iter().map(|n| n.into()).collect();
         out.push_str(&self.fmt_authors(editor_names.clone()));
         out.push_str(", Eds., ");

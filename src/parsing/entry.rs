@@ -414,7 +414,7 @@ mod test {
 
     #[test]
     fn test_field_type_parsing() -> Result<()> {
-        for (test, expected) in vec![
+        for (test, expected) in [
             ("address", "address"),
             ("annote", "annote"),
             ("author", "author"),
@@ -503,8 +503,9 @@ mod test {
 
     #[test]
     fn book_example() -> Result<()> {
-        let input = "#cite \r\n\r\n[^cms]: \\cite{cms}\r\n[^ieee]: \\cite{ieee}\r\n[^doi]: \\cite{doi}\r\n";
-let (tail, (_unmodified, citation_key)) = next_citation(input)?;
+        let input =
+            "#cite \r\n\r\n[^cms]: \\cite{cms}\r\n[^ieee]: \\cite{ieee}\r\n[^doi]: \\cite{doi}\r\n";
+        let (tail, (_unmodified, citation_key)) = next_citation(input)?;
 
         assert_eq!(tail, "\r\n[^ieee]: \\cite{ieee}\r\n[^doi]: \\cite{doi}\r\n");
         assert_eq!(citation_key, "cms");

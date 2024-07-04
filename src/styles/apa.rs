@@ -191,7 +191,8 @@ impl<T: Formatter> Stylizer for ApaStylizer<T> {
         let mut booktitle = fields.get("booktitle").unwrap().clone();
         self.fmt.italics(&mut booktitle);
         let pages = fields.get("pages").unwrap();
-        let editors_str = fields.get("editor").unwrap();
+        let s = String::from("sam");
+        let editors_str = fields.get("editor").unwrap_or(&s);
         let (_tail, edrs) = and_seperated_names(editors_str).unwrap();
         let editor_names: Vec<OwnedFullName> = edrs.into_iter().map(|n| n.into()).collect();
         let publisher = fields.get("publisher").unwrap();

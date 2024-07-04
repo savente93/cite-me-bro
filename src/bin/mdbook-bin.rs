@@ -6,8 +6,6 @@ use semver::{Version, VersionReq};
 use std::io;
 use std::process;
 
-
-
 pub fn make_app() -> Command {
     Command::new("nop-preprocessor")
         .about("A mdbook preprocessor which does precisely nothing")

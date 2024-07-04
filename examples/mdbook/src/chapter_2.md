@@ -39,15 +39,14 @@ In the late medieval period, the rise of universities and the proliferation of m
 The invention of the printing press in the mid-15th century by **Johannes Gutenberg**[^gutenberg] marked a turning point. The increased availability of printed books led to a greater emphasis on accurate referencing to distinguish between original ideas and those derived from other works. Printers and authors began to include indices and bibliographies, laying the groundwork for modern citation practices.
 
 
-[^isidore]: cite{isidore}
-[^etymologiae]: cite{etymologiae}
-[^charlemagne]: cite{charlemagne}
-[^carolingian_renaissance]: cite{carolingian_renaissance}
-[^alcuin]: cite{alcuin}
-[^al_kindi]: cite{al_kindi}
-[^al_farabi]: cite{al_farabi}
-[^avicenna]: cite{avicenna}
-[^aquinas]: cite{aquinas}
-[^magnus]: cite{magnus}
-[^summa_theologica]: cite{summa_theologica}
-[^gutenberg]: cite{gutenberg}
+[^isidore]: \cite{isidore}
+[^etymologiae]: \cite{etymologiae}
+[^charlemagne]: \cite{charlemagne}
+[^carolingian_renaissance]: \cite{carolingian_renaissance}
+[^alcuin]: \cite{alcuin}
+[^al_kindi]: \cite{al_kindi}
+[^al_farabi]: \cite{al_farabi}
+[^avicenna]: \cite{avicenna}
+[^aquinas]: \cite{aquinas}
+[^summa_theologica]: \cite{summa_theologica}
+[^gutenberg]: \cite{gutenberg}

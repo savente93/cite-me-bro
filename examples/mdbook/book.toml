@@ -9,3 +9,4 @@ title = "A short history of citations"
 [preprocessor.citations]
 bibfile = "citations.bib" # the file containing your citations
 style = "apa"             # the style you want to use. possible values are currently: ieee (defautl) and apa
+fail_fast = true
