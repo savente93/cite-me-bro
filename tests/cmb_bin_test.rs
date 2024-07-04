@@ -32,7 +32,7 @@ fn no_known_keys_errors() -> Result<()> {
 #[test]
 fn inplace_file() -> Result<()> {
     let initial_contets =
-        "there once was a citation: cite{book}. adsflkjwoiejflkdslslsldlkfki nrgiwf";
+        "there once was a citation: \\cite{book}. adsflkjwoiejflkdslslsldlkfki nrgiwf";
     let expected_contets = "there once was a citation: L. Susskind and G. Hrabovsky, Classical mechanics: the theoretical minimum. New York, NY: Penguin Random House, 2014.. adsflkjwoiejflkdslslsldlkfki nrgiwf";
     let path = {
         let tmp_dir = env::temp_dir();

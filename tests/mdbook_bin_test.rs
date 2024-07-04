@@ -228,8 +228,8 @@ fn respects_style() -> Result<()> {
                     "sections": [
                         {
                             "Chapter": {
-                                "name": "cite{book}",
-                                "content": "cite{article}",
+                                "name": "\\cite{book}",
+                                "content": "\\cite{article}",
                                 "number": [1],
                                 "sub_items": [],
                                 "path": "chapter_1.md",
@@ -256,7 +256,7 @@ fn respects_style() -> Result<()> {
     let mut output = String::new();
     let mut stdout = child.stdout.unwrap();
     stdout.read_to_string(&mut output)?;
-    assert!(ExitStatus::success(&exit_code));
+    assert!(ExitStatus::success(&exit_code), );
     assert_eq!(output, expected_output_json);
     Ok(())
 }
@@ -285,8 +285,8 @@ fn respects_format() -> Result<()> {
                     "sections": [
                         {
                             "Chapter": {
-                                "name": "cite{book}",
-                                "content": "cite{article}",
+                                "name": "\\cite{book}",
+                                "content": "\\cite{article}",
                                 "number": [1],
                                 "sub_items": [],
                                 "path": "chapter_1.md",
@@ -342,8 +342,8 @@ fn citation_in_content_and_title() -> Result<()> {
                     "sections": [
                         {
                             "Chapter": {
-                                "name": "cite{book}",
-                                "content": "cite{article}",
+                                "name": "\\cite{book}",
+                                "content": "\\cite{article}",
                                 "number": [1],
                                 "sub_items": [],
                                 "path": "chapter_1.md",

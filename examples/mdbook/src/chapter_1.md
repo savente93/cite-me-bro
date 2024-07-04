@@ -27,19 +27,19 @@ The emphasis on rhetoric in classical education also contributed to the developm
 
 The libraries of antiquity, such as the Library of Alexandria [^library], played a crucial role in this intellectual ecosystem. Scholars had access to vast collections of texts, enabling them to engage with a wide range of sources. The scholarly community of Alexandria, including figures like Euclid and Archimedes, often built upon the works of their predecessors, reflecting a collaborative and cumulative approach to knowledge.
 
-\\cite{plato}
-
+\cite{plato}
+ 
 ### References
 
-[^plato]: \\cite{plato}
-[^aristotle]: cite{aristotle}
-[^metaphysics]: cite{metaphysics}
-[^cicero]: cite{cicero}
-[^de_natura_deorum]: cite{de_natura_deorum}
-[^virgil]: cite{virgil}
-[^aeneid]: cite{aeneid}
-[^iliad]: cite{iliad}
-[^odyssey]: cite{odyssey}
-[^pliny]: cite{pliny}
-[^naturalis_hisoria]: cite{naturalis_hisoria}
-[^library]: cite{library}
+[^plato]: \cite{plato}
+[^aristotle]: \cite{aristotle}
+[^metaphysics]: \cite{metaphysics}
+[^cicero]: \cite{cicero}
+[^de_natura_deorum]: \cite{de_natura_deorum}
+[^virgil]: \cite{virgil}
+[^aeneid]: \cite{aeneid}
+[^iliad]: \cite{iliad}
+[^odyssey]: \cite{odyssey}
+[^pliny]: \cite{pliny}
+[^naturalis_hisoria]: \cite{naturalis_hisoria}
+[^library]: \cite{library}

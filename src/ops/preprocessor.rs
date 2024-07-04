@@ -9,7 +9,7 @@ use mdbook::errors::Error;
 use mdbook::preprocess::{Preprocessor, PreprocessorContext};
 use mdbook::BookItem;
 use toml::Value;
-
+use log::error; 
 /// A preprocessor to expand citations within the book
 #[derive(Default)]
 pub struct CitationPreprocessor;
@@ -24,6 +24,7 @@ impl Preprocessor for CitationPreprocessor {
     }
 
     fn run(&self, ctx: &PreprocessorContext, mut book: Book) -> Result<Book, Error> {
+        error!("preprocessor started");
         if let Some(cite_cfg) = ctx.config.get_preprocessor(self.name()) {
             if let Some(bib_file_val) = cite_cfg.get("bibfile") {
                 let bib_file_paths = match bib_file_val {
@@ -35,6 +36,7 @@ impl Preprocessor for CitationPreprocessor {
                         .collect()),
                     _ => Err(Error::msg("config of bibfile did not have correct type")),
                 }?;
+                error!("found bibfiles at: {:?}", &bib_file_paths);
                 // mdbook preprocessorrs seem to always opperate on markdown
                 let format = Format::Markdown;
 
@@ -43,6 +45,8 @@ impl Preprocessor for CitationPreprocessor {
                     .and_then(|k| k.as_str())
                     .unwrap_or("ieee");
                 let style = ReferenceStyle::try_from(style_str)?;
+
+                error!("using style {:?}", &style);
 
                 let bibliography = Bibliography::from_files(bib_file_paths)?;
                 book.for_each_mut(|item| expandify_item(&bibliography, style, format, item));
@@ -60,11 +64,14 @@ impl Preprocessor for CitationPreprocessor {
 fn expandify_item(bib: &Bibliography, style: ReferenceStyle, fmt: Format, bi: &mut BookItem) {
     match bi {
         mdbook::BookItem::PartTitle(t) => {
+            error!("expanding part title {}",&t);
             let new = bib.expand_citations_in_string(t, style, fmt);
             t.clear();
             t.push_str(&new);
+            error!("finished expanding part title. result: {:?}", &t);
         }
         mdbook::BookItem::Chapter(c) => {
+            error!("expanding chapter {:?}",&c.name);
             let new = bib.expand_citations_in_string(&mut c.content, style, fmt);
             c.content = new;
             c.sub_items
@@ -72,6 +79,7 @@ fn expandify_item(bib: &Bibliography, style: ReferenceStyle, fmt: Format, bi: &m
                 .for_each(|si| expandify_item(bib, style, fmt, si));
             let new = bib.expand_citations_in_string(&mut c.name, style, fmt);
             c.name = new;
+            error!("Done expanding chapter. result: {:?}",&c);
         }
         mdbook::BookItem::Separator => (),
     }
