@@ -30,6 +30,9 @@ struct Args {
     #[arg(short, long, value_name = "INPLACE_FILE", conflicts_with = "keys")]
     inplace_file: Option<PathBuf>,
 
+    #[arg(long, default_value_t=true)]
+    fail_fast: bool,
+
     /// Do not pring warnings when citation keys are not found
     /// does nothing if no keys are provided
     #[arg(short, long, default_value_t = false)]
@@ -48,7 +51,7 @@ fn main() -> Result<()> {
     }
 
     if let Some(inplace_path) = args.inplace_file {
-        bibliography.expand_file_citations_inplace(inplace_path, args.style, args.format)?;
+        bibliography.expand_file_citations_inplace(inplace_path, args.style, args.format, args.fail_fast)?;
         Ok(())
     } else if args.keys.is_empty() {
         bibliography

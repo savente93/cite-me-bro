@@ -2,7 +2,7 @@ use anyhow::Result;
 use std::env;
 use std::fs::{read_to_string, File};
 use std::io::Write;
-use std::process::Command;
+use std::process::{Command, ExitStatus};
 use std::str;
 
 fn run_cmb() -> Command {
@@ -174,4 +174,11 @@ fn run_no_warning_on_quiet() {
     assert!(&output.status.success(), "{:?}", output);
     assert_eq!(str::from_utf8(&output.stdout), Ok(expected_output));
     assert_eq!(str::from_utf8(&output.stderr), Ok(expected_warning));
+}
+#[test]
+fn exists_on_fail_fast() {
+    let output = run_cmb()
+        .args(["-b", "cite.bib", "asdf", "--fail-fast"])
+        .output().expect("error running binary");
+    assert!(!ExitStatus::success(&output.status), "{:?}", &output);
 }
