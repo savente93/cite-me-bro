@@ -21,7 +21,7 @@ The editorial policies of these journals often required authors to provide detai
 
 The 19th century saw the emergence of new academic disciplines, such as sociology, psychology, and anthropology, each developing its own methodologies and citation conventions. Scholars in these fields adopted and adapted citation practices to suit their specific needs, contributing to the overall standardization of academic referencing.
 
-**Auguste Comte (1798-1857)**[^comte], often considered the father of sociology, emphasized the importance of systematic observation and documentation in the study of society. His work *Cours de Philosophie Positive*[^cours] (The Course of Positive Philosophy) drew on a wide range of sources, from historical texts to contemporary scientific research, demonstrating the interdisciplinary nature of sociological inquiry and the need for comprehensive citations.
+**Auguste Comte (1798-1857)**[^comte], often considered the father of sociology, emphasized the importance of systematic observation and documentation in the study of society. His work *Cours de Philosophie Positive* (The Course of Positive Philosophy) drew on a wide range of sources, from historical texts to contemporary scientific research, demonstrating the interdisciplinary nature of sociological inquiry and the need for comprehensive citations.
 
 In the field of psychology, **William James (1842-1910)**[^james] and **Sigmund Freud (1856-1939)**[^freud] produced influential works that extensively referenced earlier studies and theories. Freud’s psychoanalytic writings, for instance, cited a variety of sources, including medical literature and case studies, reflecting the burgeoning field’s reliance on both empirical evidence and theoretical frameworks.
 
@@ -33,14 +33,13 @@ One of the most significant developments was the publication of style guides, su
 
 The Modern Language Association (MLA) [^mla] and the American Psychological Association (APA)[^apa], both founded in the late 19th and early 20th centuries, also began developing their own citation guidelines. These organizations aimed to address the specific needs of scholars in the humanities and social sciences, respectively, and their citation styles became dominant in their respective fields.
 
-[^humboldt]: cite{humboldt}
-[^darwin]: cite{darwin}
-[^origin]: cite{origin}
-[^comte]: cite{comte}
-[^cours]: cite{cours}
-[^james]: cite{james}
-[^freud]: cite{freud}
-[^AHA]: cite{AHA}
-[^Chicago]: cite{Chicago}
-[^mla]: cite{mla}
-[^apa]: cite{apa}
+[^humboldt]: \cite{humboldt}
+[^darwin]: \cite{darwin}
+[^origin]: \cite{origin}
+[^comte]: \cite{comte}
+[^james]: \cite{james}
+[^freud]: \cite{freud}
+[^AHA]: \cite{AHA}
+[^Chicago]: \cite{Chicago}
+[^mla]: \cite{mla}
+[^apa]: \cite{apa}

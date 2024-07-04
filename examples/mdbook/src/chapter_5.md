@@ -27,7 +27,7 @@ The late 20th century and early 21st century witnessed a digital revolution that
 
 Digital citation tools like **EndNote** (introduced in the 1980s) and **RefWorks** (launched in 2001) revolutionized the management of references. These tools allowed researchers to store, organize, and format citations automatically, significantly reducing the time and effort required to compile bibliographies and reference lists.
 
-The introduction of **Digital Object Identifiers (DOIs)**[^doi] in the late 1990s further enhanced the precision and accessibility of citations. DOIs provide a unique and permanent link to digital content, ensuring that references remain accurate and retrievable even if the web address changes. The use of DOIs has become standard practice in many academic fields, particularly in scientific and technical disciplines.
+The introduction of **Digital Object Identifiers (DOIs)** in the late 1990s further enhanced the precision and accessibility of citations. DOIs provide a unique and permanent link to digital content, ensuring that references remain accurate and retrievable even if the web address changes. The use of DOIs has become standard practice in many academic fields, particularly in scientific and technical disciplines.
 
 #### Present Day: Open Access, Collaborative Platforms, and Evolving Standards
 
@@ -39,6 +39,5 @@ Moreover, citation practices have continued to evolve to accommodate new types o
 
 The increasing importance of data sharing and reproducibility in research has also led to the development of guidelines for citing datasets and software. Organizations such as the **DataCite** consortium provide standardized methods for citing research data, ensuring that all aspects of a research project are properly credited and documented.
 
-[^cms]: cite{cms}
-[^ieee]: cite{ieee}
-[^doi]: cite{doi}
+[^cms]: \cite{cms}
+[^ieee]: \cite{ieee}

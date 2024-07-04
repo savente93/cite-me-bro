@@ -45,18 +45,21 @@ impl Preprocessor for CitationPreprocessor {
                     .unwrap_or("ieee");
                 let style = ReferenceStyle::try_from(style_str)?;
 
-
                 let fail_fast = match cite_cfg
                     .get("fail_fast")
                     .and_then(|k| k.as_str())
-                    .unwrap_or("false") {
-                        "false" => Ok(false),
-                        "true" => Ok(true),
-                        _ => Err(anyhow::Error::msg("could not parse fail_fast option"))
-                    }?;
-                
+                    .unwrap_or("false")
+                {
+                    "false" => Ok(false),
+                    "true" => Ok(true),
+                    _ => Err(anyhow::Error::msg("could not parse fail_fast option")),
+                }?;
+
                 let bibliography = Bibliography::from_files(bib_file_paths)?;
-                book.for_each_mut(|item| expandify_item(&bibliography, style, format, item, fail_fast).expect("failed to expandify"));
+                book.for_each_mut(|item| {
+                    expandify_item(&bibliography, style, format, item, fail_fast)
+                        .expect("failed to expandify")
+                });
                 Ok(book)
             } else {
                 Err(Error::msg("config entry did not contain 'bibfile' key"))
@@ -68,7 +71,13 @@ impl Preprocessor for CitationPreprocessor {
 }
 
 // TODO pick a better name
-fn expandify_item(bib: &Bibliography, style: ReferenceStyle, fmt: Format, bi: &mut BookItem, fail_fast: bool) -> Result<()> {
+fn expandify_item(
+    bib: &Bibliography,
+    style: ReferenceStyle,
+    fmt: Format,
+    bi: &mut BookItem,
+    fail_fast: bool,
+) -> Result<()> {
     match bi {
         mdbook::BookItem::PartTitle(t) => {
             let new = bib.expand_citations_in_string(t, style, fmt, fail_fast)?;
@@ -77,12 +86,14 @@ fn expandify_item(bib: &Bibliography, style: ReferenceStyle, fmt: Format, bi: &m
             Ok(())
         }
         mdbook::BookItem::Chapter(c) => {
-            let new = bib.expand_citations_in_string(&mut c.content, style, fmt, fail_fast)?;
+            let new = bib.expand_citations_in_string(&c.content, style, fmt, fail_fast)?;
             c.content = new;
-            let _ = c.sub_items
+            let _ = c
+                .sub_items
                 .iter_mut()
-                .map(|si| expandify_item(bib, style, fmt, si, fail_fast)).collect::<Result<Vec<()>>>()?;
-            let new = bib.expand_citations_in_string(&mut c.name, style, fmt, fail_fast)?;
+                .map(|si| expandify_item(bib, style, fmt, si, fail_fast))
+                .collect::<Result<Vec<()>>>()?;
+            let new = bib.expand_citations_in_string(&c.name, style, fmt, fail_fast)?;
             c.name = new;
             Ok(())
         }

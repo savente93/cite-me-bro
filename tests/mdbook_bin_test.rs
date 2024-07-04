@@ -47,7 +47,7 @@ fn supports_html() -> Result<()> {
 }
 
 #[test]
-fn errors_on_nonexistant_config() -> Result<()>{
+fn errors_on_nonexistant_config() -> Result<()> {
     let input_json = r##"[
                 {
                     "root": "/path/to/book",
@@ -83,18 +83,18 @@ fn errors_on_nonexistant_config() -> Result<()>{
                     "__non_exhaustive": null
                 }
             ]"##;
-            let mut child = run_bin()
-            .stdin(Stdio::piped())
-            .stderr(Stdio::piped())
-            .stdout(Stdio::piped())
-            .spawn()
-            .expect("failed to run bsinary");
-        let mut stdin = child.stdin.take().unwrap();
-        stdin.write_all(input_json.as_bytes())?;
-        drop(stdin);
-        let exit_code = child.wait().expect("DOH!+");
-        assert!(!ExitStatus::success(&exit_code));
-        Ok(())
+    let mut child = run_bin()
+        .stdin(Stdio::piped())
+        .stderr(Stdio::piped())
+        .stdout(Stdio::piped())
+        .spawn()
+        .expect("failed to run bsinary");
+    let mut stdin = child.stdin.take().unwrap();
+    stdin.write_all(input_json.as_bytes())?;
+    drop(stdin);
+    let exit_code = child.wait().expect("DOH!+");
+    assert!(!ExitStatus::success(&exit_code));
+    Ok(())
 }
 
 #[test]
@@ -146,7 +146,6 @@ fn errors_on_no_config() -> Result<()> {
     assert!(!ExitStatus::success(&exit_code));
     Ok(())
 }
-
 
 #[test]
 fn run_without_citations_is_noop() -> Result<()> {
@@ -256,7 +255,7 @@ fn respects_style() -> Result<()> {
     let mut output = String::new();
     let mut stdout = child.stdout.unwrap();
     stdout.read_to_string(&mut output)?;
-    assert!(ExitStatus::success(&exit_code), );
+    assert!(ExitStatus::success(&exit_code),);
     assert_eq!(output, expected_output_json);
     Ok(())
 }
@@ -374,4 +373,3 @@ fn citation_in_content_and_title() -> Result<()> {
     assert_eq!(output, expected_output_json);
     Ok(())
 }
-

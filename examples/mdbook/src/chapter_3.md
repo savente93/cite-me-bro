@@ -33,17 +33,17 @@ The rise of scientific societies and academic journals during the Enlightenment 
 
 **Isaac Newton (1642-1727)**[^newton], in his landmark work *Principia Mathematica*[^principia_mathematica], demonstrated exemplary citation practices by referencing the works of earlier scientists such as Kepler and Galileo. Newton’s detailed citations not only acknowledged his intellectual debts but also allowed other scholars to verify and build upon his findings.
 
-[^petrarch]: cite{petrarch}
-[^erasmus]: cite{erasmus}
-[^coperinucus]: cite{coperinucus}
-[^revolutionibus]: cite{revolutionibus}
-[^galileo]: cite{galileo}
-[^bacon]: cite{bacon}
-[^descartes]: cite{descartes}
-[^organum]: cite{organum}
-[^method]: cite{method}
-[^locke]: cite{locke}
-[^understanding]: cite{understanding}
-[^transactions]: cite{transactions}
-[^newton]: cite{newton}
-[^principia_mathematica]: cite{principia_mathematica}
+[^petrarch]: \cite{petrarch}
+[^erasmus]: \cite{erasmus}
+[^coperinucus]: \cite{coperinucus}
+[^revolutionibus]: \cite{revolutionibus}
+[^galileo]: \cite{galileo}
+[^bacon]: \cite{bacon}
+[^descartes]: \cite{descartes}
+[^organum]: \cite{organum}
+[^method]: \cite{method}
+[^locke]: \cite{locke}
+[^understanding]: \cite{understanding}
+[^transactions]: \cite{transactions}
+[^newton]: \cite{newton}
+[^principia_mathematica]: \cite{principia_mathematica}

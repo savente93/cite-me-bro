@@ -179,6 +179,7 @@ fn run_no_warning_on_quiet() {
 fn exists_on_fail_fast() {
     let output = run_cmb()
         .args(["-b", "cite.bib", "asdf", "--fail-fast"])
-        .output().expect("error running binary");
+        .output()
+        .expect("error running binary");
     assert!(!ExitStatus::success(&output.status), "{:?}", &output);
 }
