@@ -17,17 +17,15 @@ env_logger = "0.11.3"
 html-escape = "0.2.13"
 lazy_static = "1.4.0"
 log = { version = "0.4.22", features = ["std"] }
-mdbook = { version = "0.4.40", optional = true, default-features = false }
+mdbook = { version = "0.4.40" }
 nom = { version = "7.1.3", features = ["alloc"] }
 parse-hyperlinks = "0.27.2"
-semver = { version = "1.0.23", optional = true, default-features = false }
+semver = { version = "1.0.23" }
 serde = { version = "1.0.202", features = ["derive"] }
 serde_json = { version = "1.0.118" }
 toml = "0.5.11"
 unicode-segmentation = "1.11.0"
 
-[features]
-mdbook = ["dep:mdbook", "dep:semver", "dep:toml"]
 
 [lib]
 name = "cite_me_bro"
@@ -40,4 +38,3 @@ path = "src/bin/cmb.rs"
 [[bin]]
 name = "mdbook-citations"
 path = "src/bin/mdbook-bin.rs"
-required-features = ['mdbook']
