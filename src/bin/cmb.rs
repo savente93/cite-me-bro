@@ -30,7 +30,7 @@ struct Args {
     #[arg(short, long, value_name = "INPLACE_FILE", conflicts_with = "keys")]
     inplace_file: Option<PathBuf>,
 
-    #[arg(long, default_value_t = true)]
+    #[arg(long, default_value_t = false)]
     fail_fast: bool,
 
     /// Do not pring warnings when citation keys are not found
@@ -41,8 +41,11 @@ struct Args {
 
 fn main() -> Result<()> {
     let args = Args::parse();
-    env_logger::init();
-
+    env_logger::builder()
+        .filter_level(log::LevelFilter::Debug)
+        .format_target(false)
+        .format_timestamp(None)
+        .init();
     let mut bibliography = Bibliography::default();
 
     for p in args.bib_files.clone() {
@@ -65,8 +68,12 @@ fn main() -> Result<()> {
             .for_each(|f| println!("{}", f));
         Ok(())
     } else {
-        let (formatted, unknown_keys) =
-            bibliography.fmt_entries_filtered(args.style, args.format, args.keys.clone());
+        let (formatted, unknown_keys) = bibliography.fmt_entries_filtered(
+            args.style,
+            args.format,
+            args.keys.clone(),
+            args.fail_fast,
+        )?;
         if formatted.is_empty() && !args.quiet {
             Err(anyhow!(
                 "none of the keys {:?} found in bib file(s) {:?}",

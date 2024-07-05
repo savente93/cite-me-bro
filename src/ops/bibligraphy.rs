@@ -36,14 +36,28 @@ impl Bibliography {
         style: ReferenceStyle,
         format: Format,
         keys: Vec<String>,
-    ) -> (Vec<String>, Vec<String>) {
+        fail_fast: bool,
+    ) -> Result<(Vec<String>, Vec<String>)> {
         let (known_keys, unknown_keys): (Vec<String>, Vec<String>) =
             keys.into_iter().partition(|e| self.has_key(e));
         let formatted: Vec<String> = known_keys
             .into_iter()
-            .map(|b| style.fmt_reference(self.get_entry(b).unwrap(), format))
-            .collect();
-        (formatted, unknown_keys)
+            .map(|b| {
+                let entry = self.get_entry(b.clone());
+                match entry {
+                    Some(e) => Ok(style.fmt_reference(e, format)),
+                    None => {
+                        if fail_fast {
+                            Err(anyhow::Error::msg(format!("key {} not found", b)))
+                        } else {
+                            warn!("key {} not found", b.clone());
+                            Ok(b)
+                        }
+                    }
+                }
+            })
+            .collect::<Result<Vec<String>>>()?;
+        Ok((formatted, unknown_keys))
     }
 
     pub fn expand_file_citations_inplace(

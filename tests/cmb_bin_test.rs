@@ -178,8 +178,8 @@ fn run_no_warning_on_quiet() {
 #[test]
 fn exists_on_fail_fast() {
     let output = run_cmb()
-        .args(["-b", "cite.bib", "asdf", "--fail-fast"])
+        .args(["-b", "cite.bib", "asdf", "book", "--fail-fast"])
         .output()
         .expect("error running binary");
-    assert!(!ExitStatus::success(&output.status), "{:?}", &output);
+    assert!(&output.status.success(), "{:?}", &output);
 }
