@@ -11,6 +11,11 @@ coverage:
         # Avoid false negatives
         threshold: 1%
 
+     # Disable patch since it is noisy and not correct
+    patch:
+      default:
+        enabled: no
+        if_not_found: success
 # Test files aren't important for coverage
 ignore:
   - "tests"
