@@ -146,6 +146,118 @@ fn errors_on_no_config() -> Result<()> {
     assert!(!ExitStatus::success(&exit_code));
     Ok(())
 }
+#[test]
+fn errors_on_fail_fast() -> Result<()> {
+    let input_json = r##"[
+                {
+                    "root": "/path/to/book",
+                    "config": {
+                        "book": {
+                            "authors": ["AUTHOR"],
+                            "language": "en",
+                            "multilingual": false,
+                            "src": "src",
+                            "title": "TITLE"
+                        },
+                        "preprocessor": {
+                            "citations": {"bibfile":"cite.bib", "fail_fast":"true"}
+                        }
+                    },
+                    "renderer": "html",
+                    "mdbook_version": "0.4.20"
+                },
+                {
+                    "sections": [
+                        {
+                            "Chapter": {
+                                "name": "Chapter 1",
+                                "content": "\cite{asdfasdf}",
+                                "number": [1],
+                                "sub_items": [],
+                                "path": "chapter_1.md",
+                                "source_path": "chapter_1.md",
+                                "parent_names": []
+                            }
+                        }
+                    ],
+                    "__non_exhaustive": null
+                }
+            ]"##;
+
+    let mut child = run_bin()
+        .stdin(Stdio::piped())
+        .spawn()
+        .expect("failed to run bsinary");
+    let mut stdin = child.stdin.take().unwrap();
+    stdin.write_all(input_json.as_bytes())?;
+    drop(stdin);
+    let exit_code = child.wait().expect("DOH!+");
+    assert!(!ExitStatus::success(&exit_code));
+    Ok(())
+}
+#[test]
+fn warns_without_fail_fast() -> Result<()> {
+    let input_json = r##"[
+                {
+                    "root": "/path/to/book",
+                    "config": {
+                        "book": {
+                            "authors": ["AUTHOR"],
+                            "language": "en",
+                            "multilingual": false,
+                            "src": "src",
+                            "title": "TITLE"
+                        },
+                        "preprocessor": {
+                            "citations": {"bibfile":"cite.bib", "fail_fast":"false"}
+                        }
+                    },
+                    "renderer": "html",
+                    "mdbook_version": "0.4.40"
+                },
+                {
+                    "sections": [
+                        {
+                            "Chapter": {
+                                "name": "Chapter 1",
+                                "content": "\\cite{asdfasdf}",
+                                "number": [1],
+                                "sub_items": [],
+                                "path": "chapter_1.md",
+                                "source_path": "chapter_1.md",
+                                "parent_names": []
+                            }
+                        }
+                    ],
+                    "__non_exhaustive": null
+                }
+            ]"##;
+    let expected_output_json = r##"{"sections":[{"Chapter":{"name":"Chapter 1","content":"\\cite{asdfasdf}","number":[1],"sub_items":[],"path":"chapter_1.md","source_path":"chapter_1.md","parent_names":[]}}],"__non_exhaustive":null}"##;
+
+    let expected_warning = "[WARN ] Key asdfasdf in text was not found, skipping...\n";
+    let mut child = run_bin()
+        .stdin(Stdio::piped())
+        .stderr(Stdio::piped())
+        .stdout(Stdio::piped())
+        .spawn()
+        .expect("failed to run bsinary");
+    let mut stdin = child.stdin.take().unwrap();
+    stdin.write_all(input_json.as_bytes())?;
+    drop(stdin);
+    let exit_code = child.wait().expect("DOH!+");
+    let mut output = String::new();
+    let mut warnings = String::new();
+    let mut stderr = child.stderr.unwrap();
+    let mut stdout = child.stdout.unwrap();
+    stdout.read_to_string(&mut output)?;
+    stderr.read_to_string(&mut warnings)?;
+    drop(stderr);
+    drop(stdout);
+    assert_eq!(warnings, expected_warning);
+    assert!(&exit_code.success(), "{}", exit_code);
+    assert_eq!(output, expected_output_json);
+    Ok(())
+}
 
 #[test]
 fn run_without_citations_is_noop() -> Result<()> {

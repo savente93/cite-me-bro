@@ -31,7 +31,11 @@ fn main() {
 }
 
 fn handle_preprocessing(pre: &dyn Preprocessor) -> Result<(), Error> {
-    env_logger::init();
+    env_logger::builder()
+        .filter_level(log::LevelFilter::Debug)
+        .format_target(false)
+        .format_timestamp(None)
+        .init();
     let (ctx, book) = CmdPreprocessor::parse_input(io::stdin())?;
 
     let book_version = Version::parse(&ctx.mdbook_version)?;

@@ -93,8 +93,6 @@ pub fn citation(input: &str) -> IResult<&str, &str> {
 pub fn next_citation(input: &str) -> IResult<&str, (&str, &str)> {
     let (tail, unmodified) = take_until("\\cite")(input)?;
     let (tail, citation_key) = citation(tail)?;
-    dbg!(&unmodified);
-    dbg!(&citation_key);
 
     Ok((tail, (unmodified, citation_key)))
 }
